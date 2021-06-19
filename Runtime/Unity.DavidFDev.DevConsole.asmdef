@@ -14,7 +14,7 @@
         {
             "name": "com.unity.inputsystem",
             "expression": "",
-            "define": "NEW_INPUT_SYSTEM"
+            "define": "INPUT_SYSTEM_INSTALLED"
         }
     ],
     "noEngineReferences": false

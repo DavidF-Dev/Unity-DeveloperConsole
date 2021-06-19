@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using InputKey =
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
     UnityEngine.InputSystem.Key;
 #else
     UnityEngine.KeyCode;

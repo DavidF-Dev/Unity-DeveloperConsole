@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
 #endif
 using InputKey =
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
     UnityEngine.InputSystem.Key;
 #else
     UnityEngine.KeyCode;
@@ -37,7 +37,7 @@ namespace DavidFDev.DevConsole
         private const float MaxHeight = 900;
         private const int CommandHistoryLength = 10;
         private const InputKey DefaultToggleKey =
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
             InputKey.Backquote;
 #else
             InputKey.BackQuote;
@@ -456,7 +456,7 @@ namespace DavidFDev.DevConsole
 
             _init = false;
 
-#if NEW_INPUT_SYSTEM && UNITY_EDITOR
+#if INPUT_SYSTEM_INSTALLED && UNITY_EDITOR
             // Check that the input system is in use (in editor)
             if (Keyboard.current == null)
             {
@@ -694,7 +694,7 @@ namespace DavidFDev.DevConsole
                 "Display the Unity input system being used by the developer console",
                 () =>
                 {
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
                     Log("The new input system package is currently being used.");
 #else
                     Log("The legacy input system is currently being used.");
@@ -1094,7 +1094,7 @@ namespace DavidFDev.DevConsole
 
         private bool GetKeyDown(InputKey key)
         {
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
             if (Keyboard.current == null)
             {
                 return false;
@@ -1108,7 +1108,7 @@ namespace DavidFDev.DevConsole
 
         private Vector2 GetMousePosition()
         {
-#if NEW_INPUT_SYSTEM
+#if INPUT_SYSTEM_INSTALLED
             return Mouse.current.position.ReadValue();
 #else
             return Input.mousePosition;
