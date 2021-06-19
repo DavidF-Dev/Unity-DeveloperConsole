@@ -1,5 +1,11 @@
 ﻿using System;
 using UnityEngine;
+using InputKey =
+#if NEW_INPUT_SYSTEM
+    UnityEngine.InputSystem.Key;
+#else
+    UnityEngine.KeyCode;
+#endif
 
 namespace DavidFDev.DevConsole
 {
@@ -164,7 +170,7 @@ namespace DavidFDev.DevConsole
         ///     Set the key used to toggle the dev console, NULL if no key.
         /// </summary>
         /// <param name="toggleKey"></param>
-        public static void SetToggleKey(KeyCode? toggleKey)
+        public static void SetToggleKey(InputKey? toggleKey)
         {
             _console.consoleToggleKey = toggleKey;
         }

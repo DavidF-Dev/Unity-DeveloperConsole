@@ -1,6 +1,8 @@
 {
     "name": "Unity.DavidFDev.DevConsole",
-    "references": [],
+    "references": [
+        "Unity.InputSystem"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -8,6 +10,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.inputsystem",
+            "expression": "",
+            "define": "NEW_INPUT_SYSTEM"
+        }
+    ],
     "noEngineReferences": false
 }

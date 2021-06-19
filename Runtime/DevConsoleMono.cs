@@ -8,6 +8,15 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+#if NEW_INPUT_SYSTEM
+using UnityEngine.InputSystem;
+#endif
+using InputKey =
+#if NEW_INPUT_SYSTEM
+    UnityEngine.InputSystem.Key;
+#else
+    UnityEngine.KeyCode;
+#endif
 
 namespace DavidFDev.DevConsole
 {
@@ -27,7 +36,14 @@ namespace DavidFDev.DevConsole
         private const float MinHeight = 200;
         private const float MaxHeight = 900;
         private const int CommandHistoryLength = 10;
-        private const KeyCode DefaultToggleKey = KeyCode.BackQuote;
+        private const InputKey DefaultToggleKey =
+#if NEW_INPUT_SYSTEM
+            InputKey.Backquote;
+#else
+            InputKey.BackQuote;
+#endif
+        private const InputKey UpArrowKey = InputKey.UpArrow;
+        private const InputKey DownArrowKey = InputKey.DownArrow;
 
         private static readonly Version Version = new Version(0, 1, 2);
 
@@ -42,7 +58,7 @@ namespace DavidFDev.DevConsole
         [SerializeField] private RectTransform _logContentTransform = null;
         [SerializeField] private RectTransform _dynamicTransform = null;
 
-        internal KeyCode? consoleToggleKey = DefaultToggleKey;
+        internal InputKey? consoleToggleKey = DefaultToggleKey;
         internal bool consoleIsEnabled = false;
         internal bool consoleIsShowing = false;
         private bool _init = false;
@@ -439,6 +455,15 @@ namespace DavidFDev.DevConsole
 #endif
 
             _init = false;
+
+#if NEW_INPUT_SYSTEM && UNITY_EDITOR
+            // Check that the input system is in use (in editor)
+            if (Keyboard.current == null)
+            {
+                Debug.LogWarning("Developer console has been disabled because the new Input System is in the project, but not enabled.");
+                DisableConsole();
+            }
+#endif
         }
 
         private void Update()
@@ -503,11 +528,11 @@ namespace DavidFDev.DevConsole
                     _commandHistoryIndex = -1;
                 }
 
-                if (GetKeyDown(KeyCode.UpArrow))
+                if (GetKeyDown(UpArrowKey))
                 {
                     CycleCommandHistory(1);
                 }
-                else if (GetKeyDown(KeyCode.DownArrow))
+                else if (GetKeyDown(DownArrowKey))
                 {
                     CycleCommandHistory(-1);
                 }
@@ -661,6 +686,20 @@ namespace DavidFDev.DevConsole
                 "",
                 "Display the version of the engine",
                 () => Log("Engine version: " + Application.unityVersion + ".")
+            ));
+
+            AddCommand(Command.Create(
+                "unityinput",
+                "",
+                "Display the Unity input system being used by the developer console",
+                () =>
+                {
+#if NEW_INPUT_SYSTEM
+                    Log("The new input system package is currently being used.");
+#else
+                    Log("The legacy input system is currently being used.");
+#endif
+                }
             ));
 
             #endregion
@@ -1051,15 +1090,32 @@ namespace DavidFDev.DevConsole
             CaretPosition = InputText.Length;
         }
 
-        private bool GetKeyDown(KeyCode keyCode)
+        #region Input methods
+
+        private bool GetKeyDown(InputKey key)
         {
-            return Input.GetKeyDown(keyCode);
+#if NEW_INPUT_SYSTEM
+            if (Keyboard.current == null)
+            {
+                return false;
+            }
+
+            return Keyboard.current[key].wasPressedThisFrame;
+#else
+            return Input.GetKeyDown(key);
+#endif
         }
 
         private Vector2 GetMousePosition()
         {
+#if NEW_INPUT_SYSTEM
+            return Mouse.current.position.ReadValue();
+#else
             return Input.mousePosition;
+#endif
         }
+
+        #endregion
 
         #endregion
     }
