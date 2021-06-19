@@ -458,16 +458,17 @@ namespace DavidFDev.DevConsole
             // Move the developer console using the mouse position
             if (_repositioning)
             {
+                Vector2 mousePosition = GetMousePosition();
                 _dynamicTransform.position = new Vector3(
-                    Input.mousePosition.x - _repositionOffset.x,
-                    Input.mousePosition.y - _repositionOffset.y,
+                    mousePosition.x - _repositionOffset.x,
+                    mousePosition.y - _repositionOffset.y,
                     _dynamicTransform.position.z);
             }
 
             // Resize the developer console using the mouse position
             if (_resizing)
             {
-                RectTransformUtility.ScreenPointToLocalPointInRectangle(_dynamicTransform, Input.mousePosition, null, out Vector2 localPoint);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(_dynamicTransform, GetMousePosition(), null, out Vector2 localPoint);
                 localPoint.x = Mathf.Clamp(Mathf.Abs(localPoint.x), MinWidth, MaxWidth);
                 localPoint.y = Mathf.Clamp(Mathf.Abs(localPoint.y), MinHeight, MaxHeight);
                 _dynamicTransform.sizeDelta = localPoint;
@@ -488,7 +489,7 @@ namespace DavidFDev.DevConsole
             }
 
             // Check if the developer console toggle key was pressed
-            if (consoleToggleKey.HasValue && Input.GetKeyDown(consoleToggleKey.Value))
+            if (consoleToggleKey.HasValue && GetKeyDown(consoleToggleKey.Value))
             {
                 ToggleConsole();
                 return;
@@ -502,11 +503,11 @@ namespace DavidFDev.DevConsole
                     _commandHistoryIndex = -1;
                 }
 
-                if (Input.GetKeyDown(KeyCode.UpArrow))
+                if (GetKeyDown(KeyCode.UpArrow))
                 {
                     CycleCommandHistory(1);
                 }
-                else if (Input.GetKeyDown(KeyCode.DownArrow))
+                else if (GetKeyDown(KeyCode.DownArrow))
                 {
                     CycleCommandHistory(-1);
                 }
@@ -1048,6 +1049,16 @@ namespace DavidFDev.DevConsole
             _commandHistoryIndex += direction;
             InputText = _commandHistory[_commandHistoryIndex];
             CaretPosition = InputText.Length;
+        }
+
+        private bool GetKeyDown(KeyCode keyCode)
+        {
+            return Input.GetKeyDown(keyCode);
+        }
+
+        private Vector2 GetMousePosition()
+        {
+            return Input.mousePosition;
         }
 
         #endregion
