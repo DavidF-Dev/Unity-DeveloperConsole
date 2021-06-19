@@ -1,13 +1,13 @@
 {
 	"name": "com.davidfdev.devconsole",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"displayName": "David's In-game Developer Console",
 	"description": "",
 	"unity": "2020.1",
 	"hideInEditor": false,
-	"documentationUrl": "",
-	"changelogUrl": "",
-	"licensesUrl": "",
+	"documentationUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole",
+	"changelogUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases",
+	"licensesUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/LICENSE.md",
 	"author":
 	{
 		"name": "DavidFDev",
