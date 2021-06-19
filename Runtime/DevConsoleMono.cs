@@ -1,5 +1,9 @@
 ﻿#define HIDE_FROM_USER
 
+#if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
+#define USE_NEW_INPUT_SYSTEM
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,8 +15,9 @@ using UnityEngine.UI;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
 #endif
+
 using InputKey =
-#if INPUT_SYSTEM_INSTALLED
+#if USE_NEW_INPUT_SYSTEM
     UnityEngine.InputSystem.Key;
 #else
     UnityEngine.KeyCode;
@@ -37,7 +42,7 @@ namespace DavidFDev.DevConsole
         private const float MaxHeight = 900;
         private const int CommandHistoryLength = 10;
         private const InputKey DefaultToggleKey =
-#if INPUT_SYSTEM_INSTALLED
+#if USE_NEW_INPUT_SYSTEM
             InputKey.Backquote;
 #else
             InputKey.BackQuote;
@@ -45,7 +50,7 @@ namespace DavidFDev.DevConsole
         private const InputKey UpArrowKey = InputKey.UpArrow;
         private const InputKey DownArrowKey = InputKey.DownArrow;
 
-        private static readonly Version Version = new Version(0, 1, 2);
+        private static readonly Version _version = new Version(0, 1, 2);
 
         #endregion
 
@@ -423,7 +428,7 @@ namespace DavidFDev.DevConsole
             hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 #endif
 
-            _versionText.text = "v" + Version.ToString();
+            _versionText.text = "v" + _version.ToString();
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
 
@@ -455,15 +460,6 @@ namespace DavidFDev.DevConsole
 #endif
 
             _init = false;
-
-#if INPUT_SYSTEM_INSTALLED && UNITY_EDITOR
-            // Check that the input system is in use (in editor)
-            if (Keyboard.current == null)
-            {
-                Debug.LogWarning("Developer console has been disabled because the new Input System is in the project, but not enabled.");
-                DisableConsole();
-            }
-#endif
         }
 
         private void Update()
@@ -551,7 +547,7 @@ namespace DavidFDev.DevConsole
                 "Display instructions on how to use the developer console",
                 () =>
                 {
-                    LogSeperator("Developer console (v" + Version.ToString() + ")");
+                    LogSeperator("Developer console (v" + _version.ToString() + ")");
                     Log("Use <b>commands</b> to display a list of available commands.");
                     Log("Use " + GetCommand("help").ToFormattedString() + " to display information about a specific command.");
                     Log("Use UP / DOWN to cycle through command history.");
@@ -651,7 +647,7 @@ namespace DavidFDev.DevConsole
                 "consoleversion",
                 "",
                 "Display the version of the developer console",
-                () => Log("Developer console version: " + Version.ToString() + ".")
+                () => Log("Developer console version: " + _version.ToString() + ".")
             ));
 
             #endregion
@@ -694,9 +690,9 @@ namespace DavidFDev.DevConsole
                 "Display the Unity input system being used by the developer console",
                 () =>
                 {
-#if INPUT_SYSTEM_INSTALLED
+#if USE_NEW_INPUT_SYSTEM
                     Log("The new input system package is currently being used.");
-#else
+#elif USE_LEGACY_INPUT_SYSTEM
                     Log("The legacy input system is currently being used.");
 #endif
                 }
@@ -1094,12 +1090,7 @@ namespace DavidFDev.DevConsole
 
         private bool GetKeyDown(InputKey key)
         {
-#if INPUT_SYSTEM_INSTALLED
-            if (Keyboard.current == null)
-            {
-                return false;
-            }
-
+#if USE_NEW_INPUT_SYSTEM
             return Keyboard.current[key].wasPressedThisFrame;
 #else
             return Input.GetKeyDown(key);
@@ -1108,7 +1099,7 @@ namespace DavidFDev.DevConsole
 
         private Vector2 GetMousePosition()
         {
-#if INPUT_SYSTEM_INSTALLED
+#if USE_NEW_INPUT_SYSTEM
             return Mouse.current.position.ReadValue();
 #else
             return Input.mousePosition;

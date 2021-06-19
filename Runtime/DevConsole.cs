@@ -1,7 +1,12 @@
-﻿using System;
+﻿#if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
+#define USE_NEW_INPUT_SYSTEM
+#endif
+
+using System;
 using UnityEngine;
+
 using InputKey =
-#if INPUT_SYSTEM_INSTALLED
+#if USE_NEW_INPUT_SYSTEM
     UnityEngine.InputSystem.Key;
 #else
     UnityEngine.KeyCode;
