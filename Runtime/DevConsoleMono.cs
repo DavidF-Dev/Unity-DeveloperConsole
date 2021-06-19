@@ -385,7 +385,9 @@ namespace DavidFDev.DevConsole
 
         internal void OnAuthorButtonPressed()
         {
+#if !UNITY_ANDROID && !UNITY_IOS
             Application.OpenURL(@"https://www.davidfdev.com");
+#endif
         }
 
         #endregion
