@@ -1,0 +1,17 @@
+{
+	"name": "com.davidfdev.devconsole",
+	"version": "0.1.1",
+	"displayName": "David's In-game Developer Console",
+	"description": "",
+	"unity": "2020.1",
+	"hideInEditor": false,
+	"documentationUrl": "",
+	"changelogUrl": "",
+	"licensesUrl": "",
+	"author":
+	{
+		"name": "DavidFDev",
+		"email": "contact@davidfdev.com",
+		"url": "https://www.davidfdev.com"
+	}
+}
