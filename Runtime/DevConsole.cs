@@ -103,6 +103,23 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Add a parameter type to the dev console database.
+        ///     This will allow the provided type to be used as a parameter in commands.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="parseFunc"></param>
+        /// <returns></returns>
+        public static bool AddParameterType<T>(Func<string, T> parseFunc)
+        {
+            if (parseFunc == null)
+            {
+                throw new ArgumentNullException(nameof(parseFunc));
+            }
+
+            return _console.AddParameterType(typeof(T), s => parseFunc(s));
+        }
+
+        /// <summary>
         ///     Log a message to the dev console.
         /// </summary>
         /// <param name="message"></param>

@@ -62,7 +62,7 @@ namespace DavidFDev.DevConsole
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        internal Parameter SetType<T>() where T : IConvertible
+        internal Parameter SetType<T>()
         {
             Type = typeof(T);
             return this;

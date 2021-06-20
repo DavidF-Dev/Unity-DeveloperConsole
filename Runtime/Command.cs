@@ -28,7 +28,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        public static Command Create<T1>(string name, string aliases, string helpText, Parameter p1, Action<T1> callback, Action defaultCallback = null) where T1 : IConvertible
+        public static Command Create<T1>(string name, string aliases, string helpText, Parameter p1, Action<T1> callback, Action defaultCallback = null)
         {
             return new Command()
             {
@@ -41,7 +41,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        public static Command Create<T1, T2>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Action<T1, T2> callback, Action defaultCallback = null) where T1 : IConvertible where T2 : IConvertible
+        public static Command Create<T1, T2>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Action<T1, T2> callback, Action defaultCallback = null)
         {
             return new Command()
             {
@@ -54,7 +54,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        public static Command Create<T1, T2, T3>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Action<T1, T2, T3> callback, Action defaultCallback = null) where T1 : IConvertible where T2 : IConvertible where T3 : IConvertible
+        public static Command Create<T1, T2, T3>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Action<T1, T2, T3> callback, Action defaultCallback = null)
         {
             return new Command()
             {
@@ -67,7 +67,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        public static Command Create<T1, T2, T3, T4>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Action<T1, T2, T3, T4> callback, Action defaultCallback = null) where T1 : IConvertible where T2 : IConvertible where T3 : IConvertible where T4 : IConvertible
+        public static Command Create<T1, T2, T3, T4>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Action<T1, T2, T3, T4> callback, Action defaultCallback = null)
         {
             return new Command()
             {
@@ -80,7 +80,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        public static Command Create<T1, T2, T3, T4, T5>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Action<T1, T2, T3, T4, T5> callback, Action defaultCallback = null) where T1 : IConvertible where T2 : IConvertible where T3 : IConvertible where T4 : IConvertible where T5 : IConvertible
+        public static Command Create<T1, T2, T3, T4, T5>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Action<T1, T2, T3, T4, T5> callback, Action defaultCallback = null)
         {
             return new Command()
             {

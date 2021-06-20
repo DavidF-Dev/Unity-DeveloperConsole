@@ -95,6 +95,7 @@ namespace DavidFDev.DevConsole
         private string _lastCommand = string.Empty;
         private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
         private int _commandHistoryIndex = -1;
+        private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
         #endregion
@@ -135,6 +136,8 @@ namespace DavidFDev.DevConsole
 
         #region Methods
 
+        #region Console methods
+
         internal void EnableConsole()
         {
             if (!_init && consoleIsEnabled)
@@ -143,7 +146,7 @@ namespace DavidFDev.DevConsole
             }
 
             Application.logMessageReceived += OnLogMessageReceived;
-            Application.logMessageReceivedThreaded += OnLogMessageReceived;
+            //Application.logMessageReceivedThreaded += OnLogMessageReceived;
             consoleIsEnabled = true;
             enabled = true;
         }
@@ -164,7 +167,7 @@ namespace DavidFDev.DevConsole
             _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
             _commandHistory.Clear();
             Application.logMessageReceived -= OnLogMessageReceived;
-            Application.logMessageReceivedThreaded -= OnLogMessageReceived;
+            //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             consoleIsEnabled = false;
             enabled = false;
         }
@@ -294,7 +297,7 @@ namespace DavidFDev.DevConsole
                     }
 
                     // Try to convert the parameter input into the appropriate type
-                    parameters[i] = Convert.ChangeType(parameter, command.Parameters[i].Type);
+                    parameters[i] = ParseParameter(parameter, command.Parameters[i].Type);
                 }
                 catch (Exception)
                 {
@@ -329,6 +332,19 @@ namespace DavidFDev.DevConsole
             }
             return false;
         }
+
+        internal bool AddParameterType(Type type, Func<string, object> parseFunc)
+        {
+            // Try to add the parameter type, if one doesn't already exist for this type
+            if (!_parameterParseFuncs.ContainsKey(type))
+            {
+                _parameterParseFuncs.Add(type, parseFunc);
+                return true;
+            }
+            return false;
+        }
+
+        #endregion
 
         #region Log methods
 
@@ -1075,6 +1091,28 @@ namespace DavidFDev.DevConsole
             }
             newInput[newInput.Length - 1] = aggregatedFinalParameter;
             return newInput;
+        }
+
+        private object ParseParameter(string input, Type type)
+        {
+            // Check if a parse function exists for the type
+            if (_parameterParseFuncs.TryGetValue(type, out Func<string, object> parseFunc))
+            {
+                return parseFunc(input);
+            }
+
+            // Special case if the type is an enum
+            if (type.IsEnum)
+            {
+                object enumParameter;
+                if ((enumParameter = Enum.Parse(type, input, true)) != null || (int.TryParse(input, out int enumValue) && (enumParameter = Enum.ToObject(type, enumValue)) != null))
+                {
+                    return enumParameter;
+                }
+            }
+
+            // Try to convert as an IConvertible
+            return Convert.ChangeType(input, type);
         }
 
         private void AddToCommandHistory(string name, string input)
