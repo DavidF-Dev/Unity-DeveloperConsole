@@ -90,9 +90,9 @@ namespace DavidFDev.DevConsole
         private int _commandHistoryIndex = -1;
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
-#endregion
+        #endregion
 
-#region Properties
+        #region Properties
 
         private string InputText
         {
@@ -116,17 +116,17 @@ namespace DavidFDev.DevConsole
             set => _inputField.caretPosition = value;
         }
 
-#endregion
+        #endregion
 
-#region Events
+        #region Events
 
         internal event Action OnDevConsoleOpened;
 
         internal event Action OnDevConsoleClosed;
 
-#endregion
+        #endregion
 
-#region Methods
+        #region Methods
 
         internal void EnableConsole()
         {
@@ -319,7 +319,7 @@ namespace DavidFDev.DevConsole
             return false;
         }
 
-#region Log methods
+        #region Log methods
 
         internal void Log(object message)
         {
@@ -377,9 +377,9 @@ namespace DavidFDev.DevConsole
             }
         }
 
-#endregion
+        #endregion
 
-#region Unity events
+        #region Unity events
 
         internal void OnInputValueChanged()
         {
@@ -418,9 +418,9 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
-#endregion
+        #endregion
 
-#region Unity methods
+        #region Unity methods
 
         private void Awake()
         {
@@ -542,11 +542,11 @@ namespace DavidFDev.DevConsole
             }
         }
 
-#endregion
+        #endregion
 
         private void InitBuiltInCommands()
         {
-#region Console commands
+            #region Console commands
 
             AddCommand(Command.Create(
                 "devconsole",
@@ -657,9 +657,9 @@ namespace DavidFDev.DevConsole
                 () => Log("Developer console version: " + _version.ToString() + ".")
             ));
 
-#endregion
+            #endregion
 
-#region Player commands
+            #region Player commands
 
             AddCommand(Command.Create(
                 "quit",
@@ -705,9 +705,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-#endregion
+            #endregion
 
-#region Screen commands
+            #region Screen commands
 
             AddCommand(Command.Create<bool>(
                 "fullscreen",
@@ -725,9 +725,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-#endregion
+            #endregion
 
-#region Scene commands
+            #region Scene commands
 
             AddCommand(Command.Create<int>(
                 "scene_load",
@@ -789,9 +789,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-#endregion
+            #endregion
 
-#region Log commands
+            #region Log commands
 
             AddCommand(Command.Create<bool>(
                 "log_logs",
@@ -857,7 +857,7 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-#endregion
+            #endregion
         }
 
         private void InitAttributeCommands()
@@ -916,9 +916,9 @@ namespace DavidFDev.DevConsole
                     {
                         foreach (MethodInfo method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
                         {
-                            foreach (object attribute in method.GetCustomAttributes(typeof(DebugConsoleCommandAttribute), false))
+                            foreach (object attribute in method.GetCustomAttributes(typeof(DevConsoleCommandAttribute), false))
                             {
-                                DebugConsoleCommandAttribute commandAttribute = (DebugConsoleCommandAttribute)attribute;
+                                DevConsoleCommandAttribute commandAttribute = (DevConsoleCommandAttribute)attribute;
                                 if (commandAttribute != null)
                                 {
                                     AddCommand(Command.Create(commandAttribute, method));
@@ -1093,7 +1093,7 @@ namespace DavidFDev.DevConsole
             CaretPosition = InputText.Length;
         }
 
-#region Input methods
+        #region Input methods
 
         private bool GetKeyDown(InputKey key)
         {
@@ -1113,8 +1113,8 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
     }
 }

@@ -7,11 +7,11 @@ namespace DavidFDev.DevConsole
     ///     Method must be static, but can either be public or private.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method, Inherited = false, AllowMultiple = true)]
-    public sealed class DebugConsoleCommandAttribute : Attribute
+    public sealed class DevConsoleCommandAttribute : Attribute
     {
         #region Constructors
 
-        public DebugConsoleCommandAttribute(string name, string aliases, string helpText, params string[] parameterHelpText)
+        public DevConsoleCommandAttribute(string name, string aliases, string helpText, params string[] parameterHelpText)
         {
             Name = name;
             Aliases = aliases.Split(',');

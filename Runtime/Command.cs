@@ -85,7 +85,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
-        internal static Command Create(DebugConsoleCommandAttribute commandAttribute, MethodInfo method)
+        internal static Command Create(DevConsoleCommandAttribute commandAttribute, MethodInfo method)
         {
             ParameterInfo[] parameterInfos = method.GetParameters();
             Parameter[] parameters = new Parameter[parameterInfos.Length];
