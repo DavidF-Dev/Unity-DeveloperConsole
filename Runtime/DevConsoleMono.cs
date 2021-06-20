@@ -62,7 +62,7 @@ namespace DavidFDev.DevConsole
             "FAB_DevConsole.OldEventSystem";
 #endif
 
-        private static readonly Version _version = new Version(0, 1, 2);
+        private static readonly Version _version = new Version(0, 1, 3);
 
         #endregion
 
