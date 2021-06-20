@@ -1,4 +1,9 @@
-﻿#define HIDE_FROM_USER
+﻿// File: DevConsoleMono.cs
+// Purpose: Implementation of the developer console as an internal component
+// Created by: DavidFDev
+
+// Hide the dev console objects in the hierarchy and inspector
+#define HIDE_FROM_EDITOR
 
 #if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
 #define USE_NEW_INPUT_SYSTEM
@@ -26,7 +31,7 @@ using InputKey =
 
 namespace DavidFDev.DevConsole
 {
-#if HIDE_FROM_USER
+#if HIDE_FROM_EDITOR
     [AddComponentMenu("")]
 #endif
     internal sealed class DevConsoleMono : MonoBehaviour
@@ -290,7 +295,7 @@ namespace DavidFDev.DevConsole
                 }
                 catch (Exception)
                 {
-                    LogError("Invalid parameter type: \"" + parameter + "\". Expected " + command.GetFormattedParameter(command.Parameters[i]) + ".");
+                    LogError("Invalid parameter type: \"" + parameter + "\". Expected " + command.GetFormattedParameter(i) + ".");
                     return false;
                 }
             }
@@ -309,6 +314,9 @@ namespace DavidFDev.DevConsole
 
             // Try to fix the command name, removing any whitespace and converting it to lowercase
             command.FixName();
+
+            // Try to fix the aliases in the same manner
+            command.FixAliases();
 
             // Try to add the command, making sure it doesn't conflict with any other commands
             if (!string.IsNullOrEmpty(command.Name) && !_commands.ContainsKey(command.Name) && !_commands.Values.Select(c => c.Aliases).Any(a => command.HasAlias(a)))
@@ -430,7 +438,7 @@ namespace DavidFDev.DevConsole
             gameObject.name = "DevConsoleInstance";
             DontDestroyOnLoad(gameObject);
 
-#if HIDE_FROM_USER
+#if HIDE_FROM_EDITOR
             gameObject.hideFlags = HideFlags.HideInHierarchy;
             hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 #endif
@@ -453,7 +461,7 @@ namespace DavidFDev.DevConsole
             }
 
             ClearConsole();
-#if !HIDE_FROM_USER
+#if !HIDE_FROM_EDITOR
             if (enabled)
             {
                 OpenConsole();

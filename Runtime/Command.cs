@@ -1,9 +1,17 @@
-﻿using System;
+﻿// File: Command.cs
+// Purpose: Statically allows the creation of a command instance and internally holds the data
+// Created by: DavidFDev
+
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace DavidFDev.DevConsole
 {
+    /// <summary>
+    ///     Command information used by the developer console.
+    /// </summary>
     public sealed class Command
     {
         #region Static methods
@@ -85,6 +93,12 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <summary>
+        ///     Create a new command instance using a command attribute.
+        /// </summary>
+        /// <param name="commandAttribute"></param>
+        /// <param name="method"></param>
+        /// <returns></returns>
         internal static Command Create(DevConsoleCommandAttribute commandAttribute, MethodInfo method)
         {
             ParameterInfo[] parameterInfos = method.GetParameters();
@@ -115,42 +129,103 @@ namespace DavidFDev.DevConsole
 
         #region Properties
 
+        /// <summary>
+        ///     Name of the command.
+        /// </summary>
         internal string Name { get; private set; }
 
+        /// <summary>
+        ///     Optional command names.
+        /// </summary>
         internal string[] Aliases { get; private set; }
 
+        /// <summary>
+        ///     Description of the command.
+        /// </summary>
         internal string HelpText { get; private set; }
 
+        /// <summary>
+        ///     Array of parameters required to execute the command.
+        /// </summary>
         internal Parameter[] Parameters { get; private set; }
 
+        /// <summary>
+        ///     Callback to invoke when the command is executed.
+        /// </summary>
         internal Action<object[]> Callback { get; private set; }
 
+        /// <summary>
+        ///     Default callback to invoke when the command is executed with no parameters.
+        ///     This is only used for commands that require parameters.
+        /// </summary>
         internal Action DefaultCallback { get; private set; }
 
         #endregion
 
         #region Methods
 
+        /// <summary>
+        ///     Ensure the command name is valid.
+        /// </summary>
         internal void FixName()
         {
             Name = string.Concat(Name.Where(c => !char.IsWhiteSpace(c))).ToLower();
         }
 
+        /// <summary>
+        ///     Ensure the optional command names are valid.
+        /// </summary>
+        internal void FixAliases()
+        {
+            List<string> aliases = new List<string>();
+            Array.ForEach(Aliases, a =>
+            {
+                string alias = string.Concat(a.Where(c => !char.IsWhiteSpace(c))).ToLower();
+                if (!string.IsNullOrEmpty(alias))
+                {
+                    aliases.Add(alias);
+                }
+            });
+            if (aliases.Count == 0)
+            {
+                aliases.Add("");
+            }
+            Aliases = aliases.ToArray();
+        }
+
+        /// <summary>
+        ///     Check if the command conflicts any of the given aliases.
+        /// </summary>
+        /// <param name="aliases"></param>
+        /// <returns></returns>
         internal bool HasAlias(params string[] aliases)
         {
             return aliases.Length > 0 && aliases.Any(a => !string.IsNullOrEmpty(a) && Aliases.Contains(a.ToLower()));
         }
 
+        /// <summary>
+        ///     Get the command name as a formatted string.
+        /// </summary>
+        /// <returns></returns>
         internal string GetFormattedName()
         {
             return "<b>" + Name + "</b>";
         }
 
-        internal string GetFormattedParameter(Parameter parameter)
+        /// <summary>
+        ///     Get a parameter as a formatted string.
+        /// </summary>
+        /// <param name="parameterIndex"></param>
+        /// <returns></returns>
+        internal string GetFormattedParameter(int parameterIndex)
         {
-            return "<i>(" + parameter.Type.Name + ")</i><b>" + parameter.Name + "</b>";
+            return "<i>(" + Parameters[parameterIndex].Type.Name + ")</i><b>" + Parameters[parameterIndex].Name + "</b>";
         }
 
+        /// <summary>
+        ///     Get the command syntax as a formatted string.
+        /// </summary>
+        /// <returns></returns>
         internal string ToFormattedString()
         {
             string result = GetFormattedName();
@@ -161,7 +236,7 @@ namespace DavidFDev.DevConsole
                     result += " ";
                 }
 
-                result += GetFormattedParameter(Parameters[i]);
+                result += GetFormattedParameter(i);
             }
             return result;
         }

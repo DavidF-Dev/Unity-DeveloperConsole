@@ -1,4 +1,8 @@
-﻿#if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
+﻿// File: DevConsole.cs
+// Purpose: Provides a public interface for accessing the developer console
+// Created by: DavidFDev
+
+#if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
 #define USE_NEW_INPUT_SYSTEM
 #endif
 
@@ -70,8 +74,8 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Add a command to the dev console database.
         /// </summary>
-        /// <param name="command"></param>
-        /// <param name="onlyInDevBuild"></param>
+        /// <param name="command">Use Command.Create() to define a command.</param>
+        /// <param name="onlyInDevBuild">Whether to only add the command if the project is a development build.</param>
         /// <returns></returns>
         public static bool AddCommand(Command command, bool onlyInDevBuild = false)
         {
@@ -86,7 +90,7 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Run a command using the provided input.
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="input">Input as if it were typed directly into the dev console.</param>
         /// <returns></returns>
         public static bool RunCommand(string input)
         {
@@ -165,7 +169,7 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Log command syntax to the dev console.
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">Command name.</param>
         public static void LogCommand(string name)
         {
             _console.LogCommand(name);

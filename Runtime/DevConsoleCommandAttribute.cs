@@ -1,4 +1,8 @@
-﻿using System;
+﻿// File: DevConsoleCommandAttribute.cs
+// Purpose: Defines an attribute that can be used to add commands via method declarations
+// Created by: DavidFDev
+
+using System;
 
 namespace DavidFDev.DevConsole
 {
@@ -23,12 +27,24 @@ namespace DavidFDev.DevConsole
 
         #region Properties
 
+        /// <summary>
+        ///     Name of the command.
+        /// </summary>
         internal string Name { get; }
 
+        /// <summary>
+        ///     Optional command names.
+        /// </summary>
         internal string[] Aliases { get; }
 
+        /// <summary>
+        ///     Description of the command.
+        /// </summary>
         internal string HelpText { get; }
 
+        /// <summary>
+        ///     Descriptions for the parameters.
+        /// </summary>
         internal string[] ParameterHelpText { get; }
 
         #endregion
