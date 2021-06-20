@@ -692,7 +692,7 @@ namespace DavidFDev.DevConsole
                 {
 #if USE_NEW_INPUT_SYSTEM
                     Log("The new input system package is currently being used.");
-#elif USE_LEGACY_INPUT_SYSTEM
+#else
                     Log("The legacy input system is currently being used.");
 #endif
                 }
