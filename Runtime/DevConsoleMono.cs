@@ -72,6 +72,7 @@ namespace DavidFDev.DevConsole
         [SerializeField] private Text _versionText = null;
         [SerializeField] private InputField _inputField = null;
         [SerializeField] private InputField _logField = null;
+        [SerializeField] private RectTransform _logFieldTransform = null;
         [SerializeField] private RectTransform _logContentTransform = null;
         [SerializeField] private RectTransform _dynamicTransform = null;
 
@@ -86,6 +87,7 @@ namespace DavidFDev.DevConsole
         private bool _resizing = false;
         private Vector2 _initPosition = default;
         private Vector2 _initSize = default;
+        private float _initLogFieldWidth = 0f;
         private bool _displayUnityLogs = true;
         private bool _displayUnityErrors = true;
         private bool _displayUnityExceptions = true;
@@ -159,6 +161,7 @@ namespace DavidFDev.DevConsole
             }
             _dynamicTransform.anchoredPosition = _initPosition;
             _dynamicTransform.sizeDelta = _initSize;
+            _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
             _commandHistory.Clear();
             Application.logMessageReceived -= OnLogMessageReceived;
             Application.logMessageReceivedThreaded -= OnLogMessageReceived;
@@ -446,6 +449,7 @@ namespace DavidFDev.DevConsole
             _versionText.text = "v" + _version.ToString();
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
+            _initLogFieldWidth = _logFieldTransform.sizeDelta.x;
 
             InitBuiltInCommands();
             InitAttributeCommands();
@@ -508,6 +512,9 @@ namespace DavidFDev.DevConsole
                 localPoint.x = Mathf.Clamp(Mathf.Abs(localPoint.x), MinWidth, MaxWidth);
                 localPoint.y = Mathf.Clamp(Mathf.Abs(localPoint.y), MinHeight, MaxHeight);
                 _dynamicTransform.sizeDelta = localPoint;
+
+                // Resize the log field too, because Unity refuses to do it automatically
+                _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth * (_dynamicTransform.sizeDelta.x / _initSize.x), _logFieldTransform.sizeDelta.y);
             }
         }
 
@@ -595,6 +602,7 @@ namespace DavidFDev.DevConsole
                 {
                     _dynamicTransform.anchoredPosition = _initPosition;
                     _dynamicTransform.sizeDelta = _initSize;
+                    _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
                     _rebuildLayout = true;
                 }
             ));
