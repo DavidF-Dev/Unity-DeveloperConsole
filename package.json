@@ -2,7 +2,7 @@
 	"name": "com.davidfdev.devconsole",
 	"version": "0.1.2",
 	"displayName": "David's In-game Developer Console",
-	"description": "",
+	"description": "(MIT License)",
 	"unity": "2020.1",
 	"hideInEditor": false,
 	"documentationUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole",
