@@ -14,6 +14,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 #endif
 
 using InputKey =
@@ -49,6 +50,12 @@ namespace DavidFDev.DevConsole
 #endif
         private const InputKey UpArrowKey = InputKey.UpArrow;
         private const InputKey DownArrowKey = InputKey.DownArrow;
+        private const string InputSystemResource =
+#if USE_NEW_INPUT_SYSTEM
+            "FAB_DevConsole.NewEventSystem";
+#else
+            "FAB_DevConsole.OldEventSystem";
+#endif
 
         private static readonly Version _version = new Version(0, 1, 2);
 
@@ -83,9 +90,9 @@ namespace DavidFDev.DevConsole
         private int _commandHistoryIndex = -1;
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
-        #endregion
+#endregion
 
-        #region Properties
+#region Properties
 
         private string InputText
         {
@@ -109,17 +116,17 @@ namespace DavidFDev.DevConsole
             set => _inputField.caretPosition = value;
         }
 
-        #endregion
+#endregion
 
-        #region Events
+#region Events
 
         internal event Action OnDevConsoleOpened;
 
         internal event Action OnDevConsoleClosed;
 
-        #endregion
+#endregion
 
-        #region Methods
+#region Methods
 
         internal void EnableConsole()
         {
@@ -164,9 +171,9 @@ namespace DavidFDev.DevConsole
             // Create a new event system if none exists
             if (EventSystem.current == null)
             {
-                GameObject obj = new GameObject("EventSystem");
-                EventSystem.current = obj.AddComponent<EventSystem>();
-                obj.AddComponent<StandaloneInputModule>();
+                GameObject obj = Instantiate(Resources.Load<GameObject>(InputSystemResource));
+                EventSystem.current = obj.GetComponent<EventSystem>();
+                obj.name = "EventSystem";
             }
 
             _canvasGroup.alpha = 1f;
@@ -312,7 +319,7 @@ namespace DavidFDev.DevConsole
             return false;
         }
 
-        #region Log methods
+#region Log methods
 
         internal void Log(object message)
         {
@@ -370,9 +377,9 @@ namespace DavidFDev.DevConsole
             }
         }
 
-        #endregion
+#endregion
 
-        #region Unity events
+#region Unity events
 
         internal void OnInputValueChanged()
         {
@@ -411,9 +418,9 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
-        #endregion
+#endregion
 
-        #region Unity methods
+#region Unity methods
 
         private void Awake()
         {
@@ -535,11 +542,11 @@ namespace DavidFDev.DevConsole
             }
         }
 
-        #endregion
+#endregion
 
         private void InitBuiltInCommands()
         {
-            #region Console commands
+#region Console commands
 
             AddCommand(Command.Create(
                 "devconsole",
@@ -650,9 +657,9 @@ namespace DavidFDev.DevConsole
                 () => Log("Developer console version: " + _version.ToString() + ".")
             ));
 
-            #endregion
+#endregion
 
-            #region Player commands
+#region Player commands
 
             AddCommand(Command.Create(
                 "quit",
@@ -698,9 +705,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            #endregion
+#endregion
 
-            #region Screen commands
+#region Screen commands
 
             AddCommand(Command.Create<bool>(
                 "fullscreen",
@@ -718,9 +725,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            #endregion
+#endregion
 
-            #region Scene commands
+#region Scene commands
 
             AddCommand(Command.Create<int>(
                 "scene_load",
@@ -782,9 +789,9 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            #endregion
+#endregion
 
-            #region Log commands
+#region Log commands
 
             AddCommand(Command.Create<bool>(
                 "log_logs",
@@ -850,7 +857,7 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            #endregion
+#endregion
         }
 
         private void InitAttributeCommands()
@@ -1086,7 +1093,7 @@ namespace DavidFDev.DevConsole
             CaretPosition = InputText.Length;
         }
 
-        #region Input methods
+#region Input methods
 
         private bool GetKeyDown(InputKey key)
         {
@@ -1106,8 +1113,8 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
     }
 }

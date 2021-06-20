@@ -360,7 +360,7 @@ GameObject:
   - component: {fileID: 7937033559813429691}
   - component: {fileID: 3982050654428888601}
   m_Layer: 0
-  m_Name: FAB_DevConsoleInstance
+  m_Name: FAB_DevConsole
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -995,8 +995,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 425.09882, y: -19.282837}
-  m_SizeDelta: {x: 830.19763, y: 18.565674}
+  m_AnchoredPosition: {x: 425.09882, y: -10}
+  m_SizeDelta: {x: 830.19763, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7401132262407597909
 CanvasRenderer:
