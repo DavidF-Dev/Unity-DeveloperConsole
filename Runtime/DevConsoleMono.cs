@@ -75,6 +75,8 @@ namespace DavidFDev.DevConsole
         [SerializeField] private RectTransform _logFieldTransform = null;
         [SerializeField] private RectTransform _logContentTransform = null;
         [SerializeField] private RectTransform _dynamicTransform = null;
+        [SerializeField] private Image _resizeButtonImage = null;
+        [SerializeField] private Color _resizeButtonHoverColour = default;
 
         internal InputKey? consoleToggleKey = DefaultToggleKey;
         internal bool consoleIsEnabled = false;
@@ -85,6 +87,7 @@ namespace DavidFDev.DevConsole
         private bool _repositioning = false;
         private Vector2 _repositionOffset = default;
         private bool _resizing = false;
+        private Color _resizeButtonColour = default;
         private Vector2 _initPosition = default;
         private Vector2 _initSize = default;
         private float _initLogFieldWidth = 0f;
@@ -453,6 +456,20 @@ namespace DavidFDev.DevConsole
         internal void OnResizeButtonPointerUp(BaseEventData _)
         {
             _resizing = false;
+            _resizeButtonImage.color = _resizeButtonColour;
+        }
+
+        internal void OnResizeButtonPointerEnter(BaseEventData _)
+        {
+            _resizeButtonImage.color = _resizeButtonColour * _resizeButtonHoverColour;
+        }
+
+        internal void OnResizeButtonPointerExit(BaseEventData _)
+        {
+            if (!_resizing)
+            {
+                _resizeButtonImage.color = _resizeButtonColour;
+            }
         }
 
         internal void OnAuthorButtonPressed()
@@ -483,6 +500,7 @@ namespace DavidFDev.DevConsole
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
             _initLogFieldWidth = _logFieldTransform.sizeDelta.x;
+            _resizeButtonColour = _resizeButtonImage.color;
 
             InitBuiltInCommands();
             InitAttributeCommands();
