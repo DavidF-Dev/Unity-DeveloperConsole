@@ -297,7 +297,7 @@ namespace DavidFDev.DevConsole
         private static void Init()
 #pragma warning restore IDE0051
         {
-            GameObject obj = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("FAB_DevConsole.Instance"));
+            GameObject obj = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Prefabs/FAB_DevConsole.Instance"));
             _console = obj.GetComponent<DevConsoleMono>();
         }
 

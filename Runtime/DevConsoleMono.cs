@@ -55,7 +55,7 @@ namespace DavidFDev.DevConsole
 #endif
         private const InputKey UpArrowKey = InputKey.UpArrow;
         private const InputKey DownArrowKey = InputKey.DownArrow;
-        private const string InputSystemResource =
+        private const string InputSystemResource = "Prefabs/" +
 #if USE_NEW_INPUT_SYSTEM
             "FAB_DevConsole.NewEventSystem";
 #else
