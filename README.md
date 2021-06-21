@@ -45,7 +45,7 @@ Custom commands can be added to the dev console by developers. They can be creat
 - Add the ``[DevConsoleCommand]`` attribute above a static method declaration, using the method body as the callback and arguments as command parameters.
 
 #### Parameters
-Default supported parameter types implement the ``IConvertible`` interface (e.g. int, float, string, bool, etc.)</br>
+Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. int, float, string, bool, etc.)</br>
 Enums are also supported.</br>
 To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).
 
@@ -97,7 +97,7 @@ A. Yes, the dev console can be used in release builds, but will need to be enabl
 A. For developers that would like the asset linked to their Unity account, or just want to show me a little support. Paid owners of the asset will also receive prioritised support.
 
 <b>Q. How do I add a custom parameter type?</b></br>
-A. Use ``DevConsole.AddParameterType<T>()`` to enable the use of the specified type in commands. A parser function must be provided, which converts a string into the parameter type.
+A. Use ``DevConsole.AddParameterType<T>()`` to enable the use of the specified type as parameters. A parser function must be provided, which converts a string into the parameter type.
 ```cs
 DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input));
 ```
