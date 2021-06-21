@@ -1,6 +1,8 @@
 # In-game Developer Console for Unity
 This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
+The dev console has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface.
+
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
 - Import via the Unity package manager.
@@ -103,7 +105,14 @@ DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input)
 <b>Q. Can I remove a built-in command?</b></br>
 A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are 4 permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help`` and ``print``).
 
+<b>Q. This isn't quite what I'm after</b></br>
+A. There are alternatives available by other developers - each slightly different. If this one doesn't meet your needs, then maybe one of theirs will:
+- [yasirkula's Unity In-game Debug Console](https://github.com/yasirkula/UnityIngameDebugConsole).
+- [popcron's Unity Console](https://github.com/popcron/console)
+- [piveclabs' In-game Console](https://docs.piveclabs.com/assets-for-unity/developer-tools-for-unity/in-game-console)
+
+Otherwise, feel free to send me a message if there's a feature you'd like to see added to this asset.
+
 ## Acknowledgements
-- [yasirkula's Unity In-game Debug Console](https://github.com/yasirkula/UnityIngameDebugConsole) for providing inspiration for parts of my asset.
 - [@exdli](https://twitter.com/exdli) for help with supporting both input systems.
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
