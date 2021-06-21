@@ -1,7 +1,7 @@
 # In-game Developer Console for Unity
 This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
-The dev console has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface.
+The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion & autocomplete that enables quick access to commands.
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
@@ -11,8 +11,8 @@ Simply import the package into your project and you're good to go. No additional
 
 ## Usage
 When the game is running, press tilde ``~`` to toggle the dev console window. The window has an input field along the bottom where commands can be entered. Pressing ENTER will execute the typed command.
-- Use the UP / DOWN arrows to cycle through the command history.
-- Use TAB to cycle through the command names.
+- Use the UP / DOWN arrows to cycle through the command history or suggested commands.
+- Use TAB to autocomplete a suggested command.
 
 ### Commands
 Commands are in the form: <b>commandName parameter1 parameter2 ... parameterN</b>. Some commands have no parameters!
@@ -115,4 +115,5 @@ Otherwise, feel free to send me a message if there's a feature you'd like to see
 
 ## Acknowledgements
 - [@exdli](https://twitter.com/exdli) for help with supporting both input systems.
+- [SpeedCrunch](https://speedcrunch.org/) calculator which inspired the command suggestion / autocomplete design (also it's an incredible app!)
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
