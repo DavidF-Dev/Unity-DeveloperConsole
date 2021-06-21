@@ -333,6 +333,23 @@ namespace DavidFDev.DevConsole
             return false;
         }
 
+        internal bool RemoveCommand(string name)
+        {
+            Command command = GetCommand(name);
+
+            if (command == null)
+            {
+                return true;
+            }
+
+            if (command.Name == "devconsole" || command.Name == "commands" || command.Name == "help" || command.Name == "print")
+            {
+                return false;
+            }
+
+            return _commands.Remove(command.Name);
+        }
+
         internal bool AddParameterType(Type type, Func<string, object> parseFunc)
         {
             // Try to add the parameter type, if one doesn't already exist for this type
@@ -548,7 +565,7 @@ namespace DavidFDev.DevConsole
             }
 
             // Check if the developer console toggle key was pressed
-            if (consoleToggleKey.HasValue && GetKeyDown(consoleToggleKey.Value))
+            if (consoleToggleKey.HasValue && (!consoleIsShowing || !_inputField.isFocused) && GetKeyDown(consoleToggleKey.Value))
             {
                 ToggleConsole();
                 return;

@@ -88,6 +88,21 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Remove a command from the dev console database.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool RemoveCommand(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return _console.RemoveCommand(name);
+        }
+
+        /// <summary>
         ///     Run a command using the provided input.
         /// </summary>
         /// <param name="input">Input as if it were typed directly into the dev console.</param>
