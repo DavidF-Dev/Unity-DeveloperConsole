@@ -115,5 +115,8 @@ Otherwise, feel free to send me a message if there's a feature you'd like to see
 
 ## Acknowledgements
 - [@exdli](https://twitter.com/exdli) for help with supporting both input systems.
-- [SpeedCrunch](https://speedcrunch.org/) calculator which inspired the command suggestion / autocomplete design (also it's an incredible app!)
+- [SpeedCrunch](https://speedcrunch.org/) calculator which inspired the command suggestion / autocomplete design.
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
+
+## Contact
+If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).
