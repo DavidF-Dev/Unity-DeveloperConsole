@@ -262,7 +262,7 @@ namespace DavidFDev.DevConsole
 
             if (command == null)
             {
-                LogError("Could not find the specified command: \"" + input[0] + "\".");
+                LogError($"Could not find the specified command: \"{input[0]}\".");
                 return false;
             }
 
@@ -278,7 +278,7 @@ namespace DavidFDev.DevConsole
 
             if (command.Parameters.Length != input.Length - 1)
             {
-                LogError("Invalid number of parameters: " + command.ToFormattedString() + ".");
+                LogError($"Invalid number of parameters: {command.ToFormattedString()}.");
                 return false;
             }
 
@@ -308,7 +308,7 @@ namespace DavidFDev.DevConsole
                 }
                 catch (Exception)
                 {
-                    LogError("Invalid parameter type: \"" + parameter + "\". Expected " + command.GetFormattedParameter(i) + ".");
+                    LogError($"Invalid parameter type: \"{parameter}\". Expected {command.GetFormattedParameter(i)}.");
                     return false;
                 }
             }
@@ -374,17 +374,17 @@ namespace DavidFDev.DevConsole
 
         internal void Log(object message)
         {
-            LogText += '\n' + message.ToString();
+            LogText += $"\n{message}";
         }
 
         internal void Log(object message, string htmlColour)
         {
-            Log("<color=" + htmlColour + ">" + message.ToString() + "</color>");
+            Log($"<color={htmlColour}>{message}</color>");
         }
 
         internal void LogVariable(string variableName, object value)
         {
-            Log(variableName + ": " + value + ".");
+            Log($"{variableName}: {value}.");
         }
 
         internal void LogError(object message)
@@ -410,7 +410,7 @@ namespace DavidFDev.DevConsole
             }
             else
             {
-                Log("--- <b>" + message.ToString() + "</b> ---");
+                Log($"--- <b>{message}</b> ---");
             }
         }
 
@@ -424,7 +424,7 @@ namespace DavidFDev.DevConsole
             Command command = GetCommand(name);
             if (command != null)
             {
-                Log(">> " + command.ToFormattedString() + ".");
+                Log($">> {command.ToFormattedString()}.");
             }
         }
 
@@ -526,18 +526,7 @@ namespace DavidFDev.DevConsole
             }
 
             ClearConsole();
-#if !HIDE_FROM_EDITOR
-            if (enabled)
-            {
-                OpenConsole();
-            }
-            else
-            {
-                CloseConsole();
-            }
-#else
             CloseConsole();
-#endif
 
             _init = false;
         }
@@ -630,12 +619,12 @@ namespace DavidFDev.DevConsole
                 "Display instructions on how to use the developer console",
                 () =>
                 {
-                    LogSeperator("Developer console (v" + _version.ToString() + ")");
+                    LogSeperator($"Developer console (v{_version})");
                     Log("Use <b>commands</b> to display a list of available commands.");
-                    Log("Use " + GetCommand("help").ToFormattedString() + " to display information about a specific command.");
+                    Log($"Use {GetCommand("help").ToFormattedString()} to display information about a specific command.");
                     Log("Use UP / DOWN to cycle through command history.");
                     Log("");
-                    Log("Created by @DavidFDev.");
+                    Log("Created by @DavidF_Dev.");
                     LogSeperator();
                 }
             ));
@@ -681,7 +670,7 @@ namespace DavidFDev.DevConsole
 
                     if (command == null)
                     {
-                        LogError("Unknown command name specified: \"" + s + "\". Use <b>list</b> for a list of all commands.");
+                        LogError($"Unknown command name specified: \"{s}\". Use <b>list</b> for a list of all commands.");
                         return;
                     }
 
@@ -694,20 +683,20 @@ namespace DavidFDev.DevConsole
 
                     if (command.Aliases?.Length > 0 && command.Aliases.Any(a => !string.IsNullOrEmpty(a)))
                     {
-                        string[] formattedAliases = command.Aliases.Select(alias => "<i>" + alias + "</i>").ToArray();
-                        Log("Aliases: " + string.Join(", ", formattedAliases) + ".");
+                        string[] formattedAliases = command.Aliases.Select(alias => $"<i>{alias}</i>").ToArray();
+                        Log($"Aliases: {string.Join(", ", formattedAliases)}.");
                     }
 
                     if (command.Parameters.Length > 0)
                     {
-                        Log("Syntax: " + command.ToFormattedString());
+                        Log($"Syntax: {command.ToFormattedString()}.");
                     }
 
                     foreach (Parameter parameter in command.Parameters)
                     {
                         if (!string.IsNullOrEmpty(parameter.HelpText))
                         {
-                            Log(" <b>" + parameter.Name + "</b>: " + parameter.HelpText + ".");
+                            Log($" <b>{parameter.Name}</b>: {parameter.HelpText}.");
                         }
                     }
 
@@ -731,7 +720,7 @@ namespace DavidFDev.DevConsole
                 "consoleversion",
                 "",
                 "Display the version of the developer console",
-                () => Log("Developer console version: " + _version.ToString() + ".")
+                () => Log($"Developer console version: {_version}.")
             ));
 
             #endregion
@@ -758,14 +747,14 @@ namespace DavidFDev.DevConsole
                 "appversion",
                 "",
                 "Display the version of the application",
-                () => Log("App version: " + Application.version + ".")
+                () => Log($"App version: {Application.version}.")
             ));
 
             AddCommand(Command.Create(
                 "unityversion",
                 "",
                 "Display the version of the engine",
-                () => Log("Engine version: " + Application.unityVersion + ".")
+                () => Log($"Engine version: {Application.unityVersion}.")
             ));
 
             AddCommand(Command.Create(
@@ -794,7 +783,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     Screen.fullScreen = b;
-                    Log((b ? "Enabled" : "Disabled") + " fullscreen mode.");
+                    Log($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
                 },
                 () =>
                 {
@@ -818,12 +807,12 @@ namespace DavidFDev.DevConsole
                 {
                     if (i >= SceneManager.sceneCountInBuildSettings)
                     {
-                        LogError("Invalid build index specified: \"" + i + "\". Check the Unity build settings.");
+                        LogError($"Invalid build index specified: \"{i}\". Check the Unity build settings.");
                         return;
                     }
 
                     SceneManager.LoadScene(i);
-                    LogSuccess("Loaded scene at build index " + i + ".");
+                    LogSuccess($"Loaded scene at build index {i}.");
                 }
             ), true);
 
@@ -836,15 +825,15 @@ namespace DavidFDev.DevConsole
                 {
                     if (i >= SceneManager.sceneCount)
                     {
-                        LogError("Could not find active scene at index: " + i + ".");
+                        LogError($"Could not find active scene at index: {i}.");
                         return;
                     }
 
                     Scene scene = SceneManager.GetSceneAt(i);
                     LogSeperator(scene.name);
-                    Log("Scene index: " + i + ".");
-                    Log("Build index: " + scene.buildIndex + ".");
-                    Log("Path: " + scene.path + ".");
+                    Log($"Scene index: {i}.");
+                    Log($"Build index: {scene.buildIndex}.");
+                    Log($"Path: {scene.path}.");
                     LogSeperator();
                 },
                 () =>
@@ -859,9 +848,118 @@ namespace DavidFDev.DevConsole
                     for (int i = 0; i < SceneManager.sceneCount; i++)
                     {
                         Scene scene = SceneManager.GetSceneAt(i);
-                        Log(i + ") " + scene.name + ", build index: " + scene.buildIndex + ".");
+                        Log($" {i}) {scene.name}, build index: {scene.buildIndex}.");
                     }
                     LogCommand();
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create<string>(
+                "obj_info",
+                "",
+                "Display information about a game object in the scene",
+                Parameter.Create("name", "Name of the game object"),
+                s =>
+                {
+                    GameObject obj = GameObject.Find(s);
+
+                    if (obj == null)
+                    {
+                        LogError($"Could not find game object: \"{s}\".");
+                        return;
+                    }
+
+                    LogSeperator(obj.name + (obj.activeInHierarchy ? " (enabled)" : " (disabled)"));
+                    if (obj.TryGetComponent<RectTransform>(out RectTransform rect))
+                    {
+                        Log("RectTransform:");
+                        Log($" Anchord position: {rect.anchoredPosition}.");
+                        Log($" Size: {rect.sizeDelta}.");
+                        Log($" Pivot: {rect.pivot}.");
+                    }
+                    else
+                    {
+                        Log("Transform:");
+                        Log($" Position: {obj.transform.position}.");
+                        Log($" Rotation: {obj.transform.rotation}.");
+                        Log($" Scale: {obj.transform.localScale}.");
+                    }
+                    Log($"Tag: {obj.tag}.");
+                    Log($"Physics layer: {LayerMask.LayerToName(obj.layer)}.");
+
+                    Component[] components = obj.GetComponents(typeof(Component));
+                    if (components.Length > 1)
+                    {
+                        Log("Components:");
+                        for (int i = 1; i < components.Length; i++)
+                        {
+                            if (components[i] is MonoBehaviour mono)
+                            {
+                                Log($" {i}: {components[i].GetType().Name} ({(mono.enabled ? "enabled" : "disabled")}).");
+                            }
+                            else
+                            {
+                                Log($" {i}: {components[i].GetType().Name}.");
+                            }
+                        }
+                    }
+
+                    if (obj.transform.childCount > 0)
+                    {
+                        Log("Children:");
+                        Transform child;
+                        for (int i = 0; i < obj.transform.childCount; i++)
+                        {
+                            child = obj.transform.GetChild(i);
+                            Log($" {i}: {child.gameObject.name} ({(child.gameObject.activeInHierarchy ? "enabled" : "disabled")}).");
+                        }
+                    }
+
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "obj_list",
+                "",
+                "Display a hierarchical list of all game objects in the scene",
+                () =>
+                {
+                    GameObject[] root = SceneManager.GetActiveScene().GetRootGameObjects();
+                    Transform t;
+                    string logResult = string.Empty;
+                    const int space = 2;
+
+                    string getTabbed(int tabAmount)
+                    {
+                        string tabbed = string.Empty;
+                        for (int i = 0; i < tabAmount; i++)
+                        {
+                            tabbed += (i % space == 0) ? '|' : ' ';
+                        }
+                        return tabbed;
+                    }
+
+                    void logChildren(GameObject obj, int tabAmount)
+                    {
+                        string tabbed = getTabbed(tabAmount);
+                        for (int i = 0; i < obj.transform.childCount; i++)
+                        {
+                            t = obj.transform.GetChild(i);
+                            logResult += $"{tabbed}{t.gameObject.name}.\n";
+                            logChildren(t.gameObject, tabAmount + 2);
+                        }
+                    }
+
+                    foreach (GameObject rootObj in root)
+                    {
+                        logResult += $"{rootObj.gameObject.name}.\n";
+                        logChildren(rootObj, space);
+                    }
+
+                    LogSeperator($"Hierarchy ({SceneManager.GetActiveScene().name})");
+                    Log(logResult.TrimEnd('\n'));
                     LogSeperator();
                 }
             ));
@@ -878,7 +976,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     _displayUnityLogs = b;
-                    LogSuccess((b ? "Enabled" : "Disabled") + " displaying Unity logs in the developer console.");
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity logs in the developer console.");
                 },
                 () =>
                 {
@@ -894,7 +992,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     _displayUnityErrors = b;
-                    LogSuccess((b ? "Enabled" : "Disabled") + " displaying Unity errors in the developer console.");
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity errors in the developer console.");
                 },
                 () =>
                 {
@@ -910,7 +1008,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     _displayUnityExceptions = b;
-                    LogSuccess((b ? "Enabled" : "Disabled") + " displaying Unity exceptions in the developer console.");
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity exceptions in the developer console.");
                 },
                 () =>
                 {
@@ -926,7 +1024,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     _displayUnityWarnings = b;
-                    LogSuccess((b ? "Enabled" : "Disabled") + " displaying Unity warnings in the developer console.");
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity warnings in the developer console.");
                 },
                 () =>
                 {
@@ -1023,28 +1121,28 @@ namespace DavidFDev.DevConsole
                     {
                         return;
                     }
-                    Log("(" + time + ") <b>Log:</b> " + logString);
+                    Log($"({time}) <b>Log:</b> {logString}");
                     break;
                 case LogType.Error:
                     if (!_displayUnityErrors)
                     {
                         return;
                     }
-                    Log("(" + time + ") <color=" + ErrorColour + "><b>Error:</b> </color>" + logString);
+                    Log($"({time}) <color={ErrorColour}><b>Error:</b> </color>{logString}");
                     break;
                 case LogType.Exception:
                     if (!_displayUnityExceptions)
                     {
                         return;
                     }
-                    Log("(" + time + ") <color=" + ErrorColour + "><b>Exception:</b> </color>" + logString);
+                    Log($"({time}) <color={ErrorColour}><b>Exception:</b> </color>{logString}");
                     break;
                 case LogType.Warning:
                     if (!_displayUnityWarnings)
                     {
                         return;
                     }
-                    Log("(" + time + ") <color=" + WarningColour + "><b>Warning:</b> </color>" + logString);
+                    Log($"({time}) <color={WarningColour}><b>Warning:</b> </color>{logString}");
                     break;
                 default:
                     break;

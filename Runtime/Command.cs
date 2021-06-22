@@ -209,7 +209,7 @@ namespace DavidFDev.DevConsole
         /// <returns></returns>
         internal string GetFormattedName()
         {
-            return "<b>" + Name + "</b>";
+            return $"<b>{Name}</b>";
         }
 
         /// <summary>
@@ -219,7 +219,7 @@ namespace DavidFDev.DevConsole
         /// <returns></returns>
         internal string GetFormattedParameter(int parameterIndex)
         {
-            return "<i>(" + Parameters[parameterIndex].Type.Name + ")</i><b>" + Parameters[parameterIndex].Name + "</b>";
+            return $"<i>({Parameters[parameterIndex].Type.Name})</i><b>{Parameters[parameterIndex].Name}</b>";
         }
 
         /// <summary>
