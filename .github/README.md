@@ -5,8 +5,8 @@ The dev console window has a user-friendly look, inspired by Valve's Source engi
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
+- Import via the Unity asset store.
 - Import via the Unity package manager.
-- Import via the Unity asset store (small cost).
 - Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets > Import Package</i>).
 
 ## Usage
@@ -92,9 +92,6 @@ A. Yes, the dev console supports both the legacy and new input system. The corre
 
 <b>Q. Does the dev console work in release builds?</b></br>
 A. Yes, the dev console can be used in release builds, but will need to be enabled via script: ``DevConsole.EnableConsole()``. It can be included in commercial projects as long as the [licensing conditions](https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/LICENSE.md) are fulfilled. Furthermore, specific commands can be set up to only work in development builds.
-
-<b>Q. Why does the Unity asset store version cost money?</b></br>
-A. For developers that would like the asset linked to their Unity account, or just want to show me a little support. Paid owners of the asset will also receive prioritised support.
 
 <b>Q. How do I add a custom parameter type?</b></br>
 A. Use ``DevConsole.AddParameterType<T>()`` to enable the use of the specified type as parameters. A parser function must be provided, which converts a string into the parameter type.
