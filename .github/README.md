@@ -1,18 +1,19 @@
 # In-game Developer Console for Unity
 This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
-The dev console has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface.
+The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion & autocomplete that enables quick access to commands.
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
+- Import via the Unity asset store [here](). <b>TODO</b>
 - Import via the Unity package manager.
-- Import via the Unity asset store (small cost).
-- Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets > Import Package</i>).
+  - Add the following line to <i>Packages/manifest.json</i>:</br>``"com.davidfdev.devconsole": "https://github.com/DavidF-Dev/Unity-DeveloperConsole.git"``
+- Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
 
 ## Usage
 When the game is running, press tilde ``~`` to toggle the dev console window. The window has an input field along the bottom where commands can be entered. Pressing ENTER will execute the typed command.
-- Use the UP / DOWN arrows to cycle through the command history.
-- Use TAB to cycle through the command names.
+- Use the UP / DOWN arrows to cycle through the command history or suggested commands.
+- Use TAB to autocomplete a suggested command.
 
 ### Commands
 Commands are in the form: <b>commandName parameter1 parameter2 ... parameterN</b>. Some commands have no parameters!
@@ -93,9 +94,6 @@ A. Yes, the dev console supports both the legacy and new input system. The corre
 <b>Q. Does the dev console work in release builds?</b></br>
 A. Yes, the dev console can be used in release builds, but will need to be enabled via script: ``DevConsole.EnableConsole()``. It can be included in commercial projects as long as the [licensing conditions](https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/LICENSE.md) are fulfilled. Furthermore, specific commands can be set up to only work in development builds.
 
-<b>Q. Why does the Unity asset store version cost money?</b></br>
-A. For developers that would like the asset linked to their Unity account, or just want to show me a little support. Paid owners of the asset will also receive prioritised support.
-
 <b>Q. How do I add a custom parameter type?</b></br>
 A. Use ``DevConsole.AddParameterType<T>()`` to enable the use of the specified type as parameters. A parser function must be provided, which converts a string into the parameter type.
 ```cs
@@ -103,7 +101,7 @@ DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input)
 ```
 
 <b>Q. Can I remove a built-in command?</b></br>
-A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are 4 permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help`` and ``print``).
+A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are six permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help``, ``print``, ``clear`` & ``reset``).
 
 <b>Q. This isn't quite what I'm after</b></br>
 A. There are alternatives available by other developers - each slightly different. If this one doesn't meet your needs, then maybe one of theirs will:
@@ -115,4 +113,8 @@ Otherwise, feel free to send me a message if there's a feature you'd like to see
 
 ## Acknowledgements
 - [@exdli](https://twitter.com/exdli) for help with supporting both input systems.
+- [SpeedCrunch](https://speedcrunch.org/) calculator which inspired the command suggestion / autocomplete design.
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
+
+## Contact
+If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).
