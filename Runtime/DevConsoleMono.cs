@@ -63,6 +63,10 @@ namespace DavidFDev.DevConsole
 #endif
 
         private static readonly Version _version = new Version(0, 1, 3);
+        private static readonly string[] _permanentCommands =
+        {
+            "devconsole", "commands", "help", "print", "clear", "reset"
+        };
 
         #endregion
 
@@ -345,7 +349,7 @@ namespace DavidFDev.DevConsole
                 return true;
             }
 
-            if (command.Name == "devconsole" || command.Name == "commands" || command.Name == "help" || command.Name == "print")
+            if (_permanentCommands.Contains(name))
             {
                 return false;
             }
