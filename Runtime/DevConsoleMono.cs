@@ -439,6 +439,12 @@ namespace DavidFDev.DevConsole
             {
                 SubmitInput();
             }
+
+            // Try autocomplete if tab is entered (TAB)
+            else if (InputText.EndsWith("\t"))
+            {
+
+            }
         }
 
         internal void OnRepositionButtonPointerDown(BaseEventData eventData)
