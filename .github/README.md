@@ -5,9 +5,10 @@ The dev console window has a user-friendly look, inspired by Valve's Source engi
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
-- Import via the Unity asset store.
+- Import via the Unity asset store [here](). <b>TODO</b>
 - Import via the Unity package manager.
-- Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets > Import Package</i>).
+  - Add the following line to <i>Packages/manifest.json</i>:</br>``"com.davidfdev.devconsole": "https://github.com/DavidF-Dev/Unity-DeveloperConsole.git"``
+- Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
 
 ## Usage
 When the game is running, press tilde ``~`` to toggle the dev console window. The window has an input field along the bottom where commands can be entered. Pressing ENTER will execute the typed command.
