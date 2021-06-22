@@ -103,7 +103,7 @@ DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input)
 ```
 
 <b>Q. Can I remove a built-in command?</b></br>
-A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are 4 permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help``, ``print``, ``clear`` & ``reset``).
+A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are six permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help``, ``print``, ``clear`` & ``reset``).
 
 <b>Q. This isn't quite what I'm after</b></br>
 A. There are alternatives available by other developers - each slightly different. If this one doesn't meet your needs, then maybe one of theirs will:
