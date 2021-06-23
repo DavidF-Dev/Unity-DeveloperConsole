@@ -3,7 +3,8 @@
 // Created by: DavidFDev
 
 // Hide the dev console objects in the hierarchy and inspector
-#define HIDE_FROM_EDITOR
+//#define HIDE_FROM_EDITOR
+#define USE_INTERNAL_COMMANDS
 
 #if INPUT_SYSTEM_INSTALLED && ENABLE_INPUT_SYSTEM
 #define USE_NEW_INPUT_SYSTEM
@@ -75,12 +76,13 @@ namespace DavidFDev.DevConsole
         [SerializeField] private CanvasGroup _canvasGroup = null;
         [SerializeField] private Text _versionText = null;
         [SerializeField] private InputField _inputField = null;
-        [SerializeField] private InputField _logField = null;
         [SerializeField] private RectTransform _logFieldTransform = null;
         [SerializeField] private RectTransform _logContentTransform = null;
         [SerializeField] private RectTransform _dynamicTransform = null;
         [SerializeField] private Image _resizeButtonImage = null;
         [SerializeField] private Color _resizeButtonHoverColour = default;
+        [SerializeField] private InputField _logInstancePrefab = null;
+        [SerializeField] private RectTransform _logInstanceDefaultTransform = null;
 
         internal InputKey? consoleToggleKey = DefaultToggleKey;
         internal bool consoleIsEnabled = false;
@@ -103,6 +105,8 @@ namespace DavidFDev.DevConsole
         private string _lastCommand = string.Empty;
         private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
         private int _commandHistoryIndex = -1;
+        private readonly Queue<InputField> _availableLogInstances = new Queue<InputField>();
+        private readonly Queue<InputField> _currentLogInstances = new Queue<InputField>();
         private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
@@ -174,6 +178,16 @@ namespace DavidFDev.DevConsole
             _dynamicTransform.sizeDelta = _initSize;
             _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
             _commandHistory.Clear();
+            _logTextStore = string.Empty;
+            _rebuildLayout = false;
+            while (_availableLogInstances.Count > 0)
+            {
+                Destroy(_availableLogInstances.Dequeue().gameObject);
+            }
+            while (_currentLogInstances.Count > 0)
+            {
+                Destroy(_currentLogInstances.Dequeue().gameObject);
+            }
             Application.logMessageReceived -= OnLogMessageReceived;
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             consoleIsEnabled = false;
@@ -235,6 +249,15 @@ namespace DavidFDev.DevConsole
 
         internal void ClearConsole()
         {
+            // Clear log instances
+            while (_currentLogInstances.Count > 0)
+            {
+                InputField logInstance = _currentLogInstances.Dequeue();
+                logInstance.gameObject.SetActive(false);
+                logInstance.transform.SetParent(_logInstanceDefaultTransform);
+                _availableLogInstances.Enqueue(logInstance);
+            }
+
             LogText = ClearLogText;
         }
 
@@ -468,6 +491,7 @@ namespace DavidFDev.DevConsole
         {
             _resizing = false;
             _resizeButtonImage.color = _resizeButtonColour;
+            RefreshLogInstances();
         }
 
         internal void OnResizeButtonPointerEnter(BaseEventData _)
@@ -579,8 +603,7 @@ namespace DavidFDev.DevConsole
             // Force the canvas to rebuild layouts, which will display the log correctly
             if (_rebuildLayout)
             {
-                _logField.text = _logTextStore;
-                LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+                ProcessLogsThisFrame();
             }
 
             // Check if the developer console toggle key was pressed
@@ -655,6 +678,7 @@ namespace DavidFDev.DevConsole
                     _dynamicTransform.anchoredPosition = _initPosition;
                     _dynamicTransform.sizeDelta = _initSize;
                     _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
+                    RefreshLogInstances();
                     _rebuildLayout = true;
                 }
             ));
@@ -1035,6 +1059,28 @@ namespace DavidFDev.DevConsole
             ));
 
             #endregion
+
+            #region Internal commands
+            #if USE_INTERNAL_COMMANDS
+
+            AddCommand(Command.Create(
+                "log_mem",
+                "",
+                "Display how much memory the log instances are using",
+                () =>
+                {
+                    int bytes = 0;
+                    foreach (InputField logInstance in _currentLogInstances)
+                    {
+                        bytes += System.Text.Encoding.ASCII.GetByteCount(logInstance.text);
+                    }
+                    float mb = (bytes / 1048576f);
+                    Log($"{_currentLogInstances.Count} log instances are using {mb:0.00} mb.");
+                }
+                ));
+
+            #endif
+            #endregion
         }
 
         private void InitAttributeCommands()
@@ -1290,6 +1336,43 @@ namespace DavidFDev.DevConsole
             _commandHistoryIndex += direction;
             InputText = _commandHistory[_commandHistoryIndex];
             CaretPosition = InputText.Length;
+        }
+
+        private void ProcessLogsThisFrame()
+        {
+            // Get a log instance to use
+            InputField logInstance = _availableLogInstances.Count > 0
+                ? _availableLogInstances.Dequeue()
+                : Instantiate(_logInstancePrefab.gameObject, _logContentTransform).GetComponent<InputField>();
+
+            // Set the log instance text
+            logInstance.text = _logTextStore.TrimStart('\n');
+            _logTextStore = string.Empty;
+
+            // Enable the log instance
+            logInstance.transform.SetParent(_logContentTransform);
+            logInstance.transform.SetSiblingIndex(_logContentTransform.childCount - 1);
+            logInstance.gameObject.SetActive(true);
+            _currentLogInstances.Enqueue(logInstance);
+
+            // Rebuild the layout
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+            _rebuildLayout = false;
+
+            // TODO: snap scroll view to the bottom
+        }
+
+        private void RefreshLogInstances()
+        {
+            foreach (InputField logInstance in _currentLogInstances)
+            {
+                logInstance.GetComponent<RectTransform>().sizeDelta = _logFieldTransform.sizeDelta;
+            }
+
+            foreach (InputField logInstance in _availableLogInstances)
+            {
+                logInstance.GetComponent<RectTransform>().sizeDelta = _logFieldTransform.sizeDelta;
+            }
         }
 
         #region Input methods
