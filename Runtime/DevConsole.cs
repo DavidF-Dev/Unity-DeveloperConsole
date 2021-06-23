@@ -217,7 +217,7 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     Set the key used to toggle the dev console, NULL if no key.
+        ///     Set the key used to toggle the dev console window, NULL if no key.
         /// </summary>
         /// <param name="toggleKey"></param>
         public static void SetToggleKey(InputKey? toggleKey)
