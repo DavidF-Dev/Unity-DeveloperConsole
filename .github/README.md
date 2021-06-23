@@ -3,11 +3,15 @@ This asset provides an <b>in-game developer console</b> (debug console) for Unit
 
 The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion & autocomplete that enables quick access to commands.
 
+<img src="/.github/preview1.png" alt="Developer console preview" width="75%"></img>
+
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
-- Import via the Unity asset store [here](). <b>TODO</b>
-- Import via the Unity package manager.
-  - Add the following line to <i>Packages/manifest.json</i>:</br>``"com.davidfdev.devconsole": "https://github.com/DavidF-Dev/Unity-DeveloperConsole.git"``
+- Import via the Unity package manager (<i>Window>Package Manager</i>).
+  - Git URL: ``https://github.com/DavidF-Dev/Unity-DeveloperConsole.git``</br>
+    <img src="/.github/install1.png" alt="Package manager install" width="25%"></src>
+  - <i>Or</i> add the following line to <i>Packages/manifest.json</i>:</br>``"com.davidfdev.devconsole": "https://github.com/DavidF-Dev/Unity-DeveloperConsole.git"``
+- Import via the Unity asset store [here]().
 - Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
 
 ## Usage
@@ -84,6 +88,8 @@ The asset provides various built-in commands.
 - ``fullscreen (Boolean)enabled``: query or set whether the window is fullscreen.
 - ``scene_load (Int32)buildIndex``: load a scene.
 - ``scene_info (Int32)sceneIndex``: display information about an active scene.
+- ``obj_list``: display a hierarchical list of all game objects in the scene.
+- ``obj_info (String)name``: display information about a game object.
 
 And more...
 
