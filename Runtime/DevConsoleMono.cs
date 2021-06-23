@@ -1113,7 +1113,7 @@ namespace DavidFDev.DevConsole
 
         private void OnLogMessageReceived(string logString, string stackTrace, LogType type)
         {
-            string time = DateTime.Now.ToString("HH:mm:ss tt");
+            string time = DateTime.Now.ToString("HH:mm:ss");
             switch (type)
             {
                 case LogType.Log:
