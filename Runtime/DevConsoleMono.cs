@@ -85,6 +85,7 @@ namespace DavidFDev.DevConsole
         internal InputKey? consoleToggleKey = DefaultToggleKey;
         internal bool consoleIsEnabled = false;
         internal bool consoleIsShowing = false;
+        private string _logTextStore = "";
         private bool _init = false;
         private bool _rebuildLayout = false;
         private bool _focusInputField = false;
@@ -117,10 +118,10 @@ namespace DavidFDev.DevConsole
 
         private string LogText
         {
-            get => _logField.text;
+            get => _logTextStore;
             set
             {
-                _logField.text = value;
+                _logTextStore = value;
                 _rebuildLayout = true;
             }
         }
@@ -578,6 +579,7 @@ namespace DavidFDev.DevConsole
             // Force the canvas to rebuild layouts, which will display the log correctly
             if (_rebuildLayout)
             {
+                _logField.text = _logTextStore;
                 LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
             }
 
