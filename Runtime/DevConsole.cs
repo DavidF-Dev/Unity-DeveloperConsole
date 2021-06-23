@@ -191,6 +191,15 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Log a message with a seperator bar.
+        /// </summary>
+        /// <param name="message"></param>
+        public static void LogSeperator(object message)
+        {
+            _console.LogSeperator(message);
+        }
+
+        /// <summary>
         ///     Log the most recently executed command syntax to the dev console.
         /// </summary>
         public static void LogCommand()

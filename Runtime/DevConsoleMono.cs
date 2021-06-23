@@ -406,11 +406,11 @@ namespace DavidFDev.DevConsole
         {
             if (message == null)
             {
-                Log("---");
+                Log("-");
             }
             else
             {
-                Log($"--- <b>{message}</b> ---");
+                Log($"- <b>{message}</b> -");
             }
         }
 
