@@ -155,6 +155,7 @@ namespace DavidFDev.DevConsole
 
             Application.logMessageReceived += OnLogMessageReceived;
             //Application.logMessageReceivedThreaded += OnLogMessageReceived;
+            ClearConsole();
             consoleIsEnabled = true;
             enabled = true;
         }
@@ -174,6 +175,9 @@ namespace DavidFDev.DevConsole
             _dynamicTransform.sizeDelta = _initSize;
             _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
             _commandHistory.Clear();
+            _logTextStore = string.Empty;
+            _logField.text = string.Empty;
+            _rebuildLayout = false;
             Application.logMessageReceived -= OnLogMessageReceived;
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             consoleIsEnabled = false;
@@ -235,6 +239,7 @@ namespace DavidFDev.DevConsole
 
         internal void ClearConsole()
         {
+            _logField.text = string.Empty;
             LogText = ClearLogText;
         }
 
@@ -579,7 +584,8 @@ namespace DavidFDev.DevConsole
             // Force the canvas to rebuild layouts, which will display the log correctly
             if (_rebuildLayout)
             {
-                _logField.text = _logTextStore;
+                _logField.text += _logTextStore;
+                _logTextStore = string.Empty;
                 LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
             }
 
