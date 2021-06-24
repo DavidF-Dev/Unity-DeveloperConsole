@@ -118,7 +118,7 @@ A. There are alternatives available by other developers - each slightly differen
 Otherwise, feel free to send me a message if there's a feature you'd like to see added to this asset.
 
 ## Acknowledgements
-- [@exdli](https://twitter.com/exdli) for help with supporting both input systems.
+- [@exdli](https://twitter.com/exdli/status/14063908189448642653) for help with supporting both input systems.
 - [SpeedCrunch](https://speedcrunch.org/) calculator which inspired the command suggestion / autocomplete design.
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
 
