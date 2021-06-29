@@ -873,7 +873,7 @@ namespace DavidFDev.DevConsole
                     if (obj.TryGetComponent<RectTransform>(out RectTransform rect))
                     {
                         Log("RectTransform:");
-                        Log($" Anchord position: {rect.anchoredPosition}.");
+                        Log($" Anchored position: {rect.anchoredPosition}.");
                         Log($" Size: {rect.sizeDelta}.");
                         Log($" Pivot: {rect.pivot}.");
                     }
