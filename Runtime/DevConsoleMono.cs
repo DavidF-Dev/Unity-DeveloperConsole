@@ -42,6 +42,7 @@ namespace DavidFDev.DevConsole
         private const string WarningColour = "#B3E283";
         private const string SuccessColour = "#B3E283";
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
+        private const int MaxVertexCount = 65536;
         private const float MinWidth = 650;
         private const float MaxWidth = 1200;
         private const float MinHeight = 200;
@@ -86,8 +87,9 @@ namespace DavidFDev.DevConsole
         internal bool consoleIsEnabled = false;
         internal bool consoleIsShowing = false;
         private string _logTextStore = "";
+        private readonly TextGenerator _textGenerator = new TextGenerator();
+        private int _vertexCount = 0;
         private bool _init = false;
-        private bool _rebuildLayout = false;
         private bool _focusInputField = false;
         private bool _repositioning = false;
         private Vector2 _repositionOffset = default;
@@ -114,16 +116,6 @@ namespace DavidFDev.DevConsole
         {
             get => _inputField.text;
             set => _inputField.text = value;
-        }
-
-        private string LogText
-        {
-            get => _logTextStore;
-            set
-            {
-                _logTextStore = value;
-                _rebuildLayout = true;
-            }
         }
 
         private int CaretPosition
@@ -177,7 +169,7 @@ namespace DavidFDev.DevConsole
             _commandHistory.Clear();
             _logTextStore = string.Empty;
             _logField.text = string.Empty;
-            _rebuildLayout = false;
+            _vertexCount = 0;
             Application.logMessageReceived -= OnLogMessageReceived;
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             consoleIsEnabled = false;
@@ -239,8 +231,10 @@ namespace DavidFDev.DevConsole
 
         internal void ClearConsole()
         {
+            ClearLogFields();
             _logField.text = string.Empty;
-            LogText = ClearLogText;
+            _vertexCount = 0;
+            _logTextStore = ClearLogText;
         }
 
         internal void SubmitInput()
@@ -380,7 +374,7 @@ namespace DavidFDev.DevConsole
 
         internal void Log(object message)
         {
-            LogText += $"\n{message}";
+            _logTextStore += $"\n{message}";
         }
 
         internal void Log(object message, string htmlColour)
@@ -582,11 +576,9 @@ namespace DavidFDev.DevConsole
             }
 
             // Force the canvas to rebuild layouts, which will display the log correctly
-            if (_rebuildLayout)
+            if (_logTextStore != string.Empty)
             {
-                _logField.text += _logTextStore;
-                _logTextStore = string.Empty;
-                LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+                ProcessStoredLogs();
             }
 
             // Check if the developer console toggle key was pressed
@@ -661,7 +653,6 @@ namespace DavidFDev.DevConsole
                     _dynamicTransform.anchoredPosition = _initPosition;
                     _dynamicTransform.sizeDelta = _initSize;
                     _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
-                    _rebuildLayout = true;
                 }
             ));
 
@@ -1296,6 +1287,65 @@ namespace DavidFDev.DevConsole
             _commandHistoryIndex += direction;
             InputText = _commandHistory[_commandHistoryIndex];
             CaretPosition = InputText.Length;
+        }
+
+        private void ProcessStoredLogs()
+        {
+            // Determine number of vertices needed to render the stored logs
+            int vertexCountStored = GetVertexCount(_logTextStore);
+
+            // Check if the stored logs exceeds the maximum vertex count
+            if (vertexCountStored > MaxVertexCount)
+            {
+                // TODO: Split into multiple
+                Debug.Log("Split into multiple.");
+            }
+
+            // Check if the stored logs appended to the current logs exceeds the maximum vertex count
+            else if (_vertexCount + vertexCountStored > MaxVertexCount)
+            {
+                // TODO: Split once
+                Debug.Log("Split once.");
+
+                AddLogField();
+                //_logFields.Last().text = _logTextStore;
+                _vertexCount = vertexCountStored;
+            }
+
+            // Otherwise, simply append the stored logs to the current logs
+            else
+            {
+                _logField.text += _logTextStore;
+                _vertexCount += vertexCountStored;
+            }
+
+            _logTextStore = string.Empty;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+        }
+
+        private int GetVertexCount(string text)
+        {
+            Text logText = _logField.textComponent;
+            _textGenerator.Populate(text, logText.GetGenerationSettings(logText.rectTransform.rect.size));
+            return _textGenerator.vertexCount;
+        }
+
+        private void AddLogField()
+        {
+            //_logFields.Add(Instantiate(_logFieldPrefab, _logContentTransform).GetComponent<InputField>());
+        }
+
+        private void ClearLogFields()
+        {
+            // Clear log fields
+            /*
+            foreach (InputField logField in _logFields)
+            {
+                Destroy(logField.gameObject);
+            }
+            _logFields.Clear();
+            */
+            AddLogField();
         }
 
         #region Input methods
