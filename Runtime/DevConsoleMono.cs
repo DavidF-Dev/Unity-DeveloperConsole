@@ -1379,14 +1379,14 @@ namespace DavidFDev.DevConsole
             if (vertexCountStored > MaximumTextVertices)
             {
                 // TODO: Split into multiple
-                Debug.Log("Split into multiple.");
+                _logTextStore = $"<color={ErrorColour}>Message to log exceeded {MaximumTextVertices} vertices and was ignored.</color>";
+                return;
             }
 
             // Check if the stored logs appended to the current logs exceeds the maximum vertex count
             else if (_vertexCount + vertexCountStored > MaximumTextVertices)
             {
                 // Split once
-                Debug.Log($"Split once, number of log fields: {_logFields.Count+1}.");
                 AddLogField();
                 _logFields.Last().text = _logTextStore.TrimStart('\n');
                 _vertexCount = vertexCountStored;
