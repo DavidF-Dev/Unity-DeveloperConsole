@@ -854,7 +854,7 @@ namespace DavidFDev.DevConsole
                 b =>
                 {
                     Screen.fullScreen = b;
-                    Log($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
                 },
                 () =>
                 {
