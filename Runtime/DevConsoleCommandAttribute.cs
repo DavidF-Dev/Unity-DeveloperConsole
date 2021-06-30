@@ -15,6 +15,13 @@ namespace DavidFDev.DevConsole
     {
         #region Constructors
 
+        /// <summary>
+        ///     Create a new command using the method arguments as parameters.
+        /// </summary>
+        /// <param name="name">Name used to call the command (e.g. "print").</param>
+        /// <param name="aliases">Optional names that can be used to call the command, seperated by commas (e.g. "display,say").</param>
+        /// <param name="helpText">Description of the command (e.g. "Display a message in the developer console").</param>
+        /// <param name="parameterHelpText">Descriptions of the parameters (e.g. "Message to display in the developer console").</param>
         public DevConsoleCommandAttribute(string name, string aliases, string helpText, params string[] parameterHelpText)
         {
             Name = name;
