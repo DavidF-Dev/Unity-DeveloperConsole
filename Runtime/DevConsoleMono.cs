@@ -183,6 +183,7 @@ namespace DavidFDev.DevConsole
             Application.logMessageReceived += OnLogMessageReceived;
             //Application.logMessageReceivedThreaded += OnLogMessageReceived;
             ClearConsole();
+            InputText = string.Empty;
             ConsoleIsEnabled = true;
             enabled = true;
         }
