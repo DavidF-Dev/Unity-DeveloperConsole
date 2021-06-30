@@ -16,6 +16,14 @@ namespace DavidFDev.DevConsole
     {
         #region Static methods
 
+        /// <summary>
+        ///     Create a new command with no parameters.
+        /// </summary>
+        /// <param name="name">Name used to call the command (e.g. "quit").</param>
+        /// <param name="aliases">Optional names that can be used to call the command, seperated by commas (e.g. "exit,shutdown").</param>
+        /// <param name="helpText">Description of the command (e.g. "Quit the game").</param>
+        /// <param name="callback">Callback to invoke when the command is called.</param>
+        /// <returns></returns>
         public static Command Create(string name, string aliases, string helpText, Action callback)
         {
             return new Command()
@@ -28,6 +36,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <inheritdoc cref="Create{T1, T2, T3, T4, T5}(string, string, string, Parameter, Parameter, Parameter, Parameter, Parameter, Action{T1, T2, T3, T4, T5}, Action)" />
         public static Command Create<T1>(string name, string aliases, string helpText, Parameter p1, Action<T1> callback, Action defaultCallback = null)
         {
             return new Command()
@@ -41,6 +50,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <inheritdoc cref="Create{T1, T2, T3, T4, T5}(string, string, string, Parameter, Parameter, Parameter, Parameter, Parameter, Action{T1, T2, T3, T4, T5}, Action)" />
         public static Command Create<T1, T2>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Action<T1, T2> callback, Action defaultCallback = null)
         {
             return new Command()
@@ -54,6 +64,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <inheritdoc cref="Create{T1, T2, T3, T4, T5}(string, string, string, Parameter, Parameter, Parameter, Parameter, Parameter, Action{T1, T2, T3, T4, T5}, Action)" />
         public static Command Create<T1, T2, T3>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Action<T1, T2, T3> callback, Action defaultCallback = null)
         {
             return new Command()
@@ -67,6 +78,7 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <inheritdoc cref="Create{T1, T2, T3, T4, T5}(string, string, string, Parameter, Parameter, Parameter, Parameter, Parameter, Action{T1, T2, T3, T4, T5}, Action)" />
         public static Command Create<T1, T2, T3, T4>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Action<T1, T2, T3, T4> callback, Action defaultCallback = null)
         {
             return new Command()
@@ -80,6 +92,20 @@ namespace DavidFDev.DevConsole
             };
         }
 
+        /// <summary>
+        ///     Create a new command with parameters.
+        /// </summary>
+        /// <param name="name">Name used to call the command (e.g. "print").</param>
+        /// <param name="aliases">Optional names that can be used to call the command, seperated by commas (e.g. "display,say").</param>
+        /// <param name="helpText">Description of the command (e.g. "Display a message in the developer console").</param>
+        /// <param name="p1">Parameter information (e.g. Parameter.Create("message", "Message to display in the developer console").</param>
+        /// <param name="p2">Parameter information (e.g. Parameter.Create("message", "Message to display in the developer console").</param>
+        /// <param name="p3">Parameter information (e.g. Parameter.Create("message", "Message to display in the developer console").</param>
+        /// <param name="p4">Parameter information (e.g. Parameter.Create("message", "Message to display in the developer console").</param>
+        /// <param name="p5">Parameter information (e.g. Parameter.Create("message", "Message to display in the developer console").</param>
+        /// <param name="callback">Callback to invoke when the command is called with all parameters.</param>
+        /// <param name="defaultCallback">Callback to invoke if the command is called with no parameters specified.</param>
+        /// <returns></returns>
         public static Command Create<T1, T2, T3, T4, T5>(string name, string aliases, string helpText, Parameter p1, Parameter p2, Parameter p3, Parameter p4, Parameter p5, Action<T1, T2, T3, T4, T5> callback, Action defaultCallback = null)
         {
             return new Command()

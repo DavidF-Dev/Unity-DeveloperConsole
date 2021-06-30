@@ -16,8 +16,8 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Create a new parameter.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="helpText"></param>
+        /// <param name="name">Name of the parameter (e.g. "message").</param>
+        /// <param name="helpText">Description of the parameter (e.g. "Message to display in the developer console").</param>
         /// <returns></returns>
         public static Parameter Create(string name, string helpText)
         {
