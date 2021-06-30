@@ -17,6 +17,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using System.Runtime.CompilerServices;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -1221,6 +1222,8 @@ namespace DavidFDev.DevConsole
 
         #endregion
 
+        #region Command methods
+
         private Command GetCommand(string name)
         {
             return _commands.TryGetValue(name.ToLower(), out Command command) ? command : _commands.Values.FirstOrDefault(c => c.HasAlias(name));
@@ -1362,6 +1365,10 @@ namespace DavidFDev.DevConsole
             InputCaretPosition = InputText.Length;
         }
 
+        #endregion
+
+        #region Log content methods
+
         private void ProcessStoredLogs()
         {
             // Determine number of vertices needed to render the stored logs
@@ -1436,12 +1443,16 @@ namespace DavidFDev.DevConsole
             RebuildLayout();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RebuildLayout()
         {
+            // Forcefully rebuild the layout, otherwise transforms are positioned incorrectly
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
         }
 
-        #region Input methods
+        #endregion
+
+        #region Physical input methods
 
         private bool GetKeyDown(InputKey key)
         {
