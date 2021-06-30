@@ -42,11 +42,11 @@ namespace DavidFDev.DevConsole
         private const string WarningColour = "#B3E283";
         private const string SuccessColour = "#B3E283";
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
-        private const int MaxVertexCount = 65536;
-        private const float MinWidth = 650;
-        private const float MaxWidth = 1200;
-        private const float MinHeight = 200;
-        private const float MaxHeight = 900;
+        private const int MaximumTextVertices = 65536;
+        private const float MinConsoleWidth = 650;
+        private const float MaxConsoleWidth = 1200;
+        private const float MinConsoleHeight = 200;
+        private const float MaxConsoleHeight = 900;
         private const int CommandHistoryLength = 10;
         private const InputKey DefaultToggleKey =
 #if USE_NEW_INPUT_SYSTEM
@@ -56,14 +56,14 @@ namespace DavidFDev.DevConsole
 #endif
         private const InputKey UpArrowKey = InputKey.UpArrow;
         private const InputKey DownArrowKey = InputKey.DownArrow;
-        private const string InputSystemResource = "Prefabs/" +
+        private const string InputSystemPrefabPath = "Prefabs/" +
 #if USE_NEW_INPUT_SYSTEM
             "FAB_DevConsole.NewEventSystem";
 #else
             "FAB_DevConsole.OldEventSystem";
 #endif
 
-        private static readonly Version _version = new Version(0, 1, 3);
+        private static readonly Version _version = new Version(0, 1, 4);
         private static readonly string[] _permanentCommands =
         {
             "devconsole", "commands", "help", "print", "clear", "reset"
@@ -75,17 +75,20 @@ namespace DavidFDev.DevConsole
 
         [SerializeField] private CanvasGroup _canvasGroup = null;
         [SerializeField] private Text _versionText = null;
+
+        [Header("Input")]
         [SerializeField] private InputField _inputField = null;
-        [SerializeField] private InputField _logField = null;
-        [SerializeField] private RectTransform _logFieldTransform = null;
+
+        [Header("Logs")]
+        [SerializeField] private GameObject _logFieldPrefab = null;
         [SerializeField] private RectTransform _logContentTransform = null;
+
+        [Header("Window")]
         [SerializeField] private RectTransform _dynamicTransform = null;
         [SerializeField] private Image _resizeButtonImage = null;
         [SerializeField] private Color _resizeButtonHoverColour = default;
 
-        internal InputKey? consoleToggleKey = DefaultToggleKey;
-        internal bool consoleIsEnabled = false;
-        internal bool consoleIsShowing = false;
+        private readonly List<InputField> _logFields = new List<InputField>();
         private string _logTextStore = "";
         private readonly TextGenerator _textGenerator = new TextGenerator();
         private int _vertexCount = 0;
@@ -98,6 +101,7 @@ namespace DavidFDev.DevConsole
         private Vector2 _initPosition = default;
         private Vector2 _initSize = default;
         private float _initLogFieldWidth = 0f;
+        private float _currentLogFieldWidth = 0f;
         private bool _displayUnityLogs = true;
         private bool _displayUnityErrors = true;
         private bool _displayUnityExceptions = true;
@@ -111,6 +115,12 @@ namespace DavidFDev.DevConsole
         #endregion
 
         #region Properties
+
+        internal InputKey? ConsoleToggleKey { get; private set; } = DefaultToggleKey;
+
+        internal bool ConsoleIsEnabled { get; private set; }
+
+        internal bool ConsoleIsShowing { get; private set; }
 
         private string InputText
         {
@@ -140,7 +150,7 @@ namespace DavidFDev.DevConsole
 
         internal void EnableConsole()
         {
-            if (!_init && consoleIsEnabled)
+            if (!_init && ConsoleIsEnabled)
             {
                 return;
             }
@@ -148,37 +158,34 @@ namespace DavidFDev.DevConsole
             Application.logMessageReceived += OnLogMessageReceived;
             //Application.logMessageReceivedThreaded += OnLogMessageReceived;
             ClearConsole();
-            consoleIsEnabled = true;
+            ConsoleIsEnabled = true;
             enabled = true;
         }
 
         internal void DisableConsole()
         {
-            if (!_init && !consoleIsEnabled)
+            if (!_init && !ConsoleIsEnabled)
             {
                 return;
             }
 
-            if (consoleIsShowing)
+            if (ConsoleIsShowing)
             {
                 CloseConsole();
             }
             _dynamicTransform.anchoredPosition = _initPosition;
             _dynamicTransform.sizeDelta = _initSize;
-            _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
             _commandHistory.Clear();
-            _logTextStore = string.Empty;
-            _logField.text = string.Empty;
-            _vertexCount = 0;
+            ClearConsole();
             Application.logMessageReceived -= OnLogMessageReceived;
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
-            consoleIsEnabled = false;
+            ConsoleIsEnabled = false;
             enabled = false;
         }
 
         internal void OpenConsole()
         {
-            if (!_init && (!consoleIsEnabled || consoleIsShowing))
+            if (!_init && (!ConsoleIsEnabled || ConsoleIsShowing))
             {
                 return;
             }
@@ -186,7 +193,7 @@ namespace DavidFDev.DevConsole
             // Create a new event system if none exists
             if (EventSystem.current == null)
             {
-                GameObject obj = Instantiate(Resources.Load<GameObject>(InputSystemResource));
+                GameObject obj = Instantiate(Resources.Load<GameObject>(InputSystemPrefabPath));
                 EventSystem.current = obj.GetComponent<EventSystem>();
                 obj.name = "EventSystem";
             }
@@ -194,7 +201,7 @@ namespace DavidFDev.DevConsole
             _canvasGroup.alpha = 1f;
             _canvasGroup.interactable = true;
             _canvasGroup.blocksRaycasts = true;
-            consoleIsShowing = true;
+            ConsoleIsShowing = true;
             _focusInputField = true;
             InputText = InputText.TrimEnd('`');
 
@@ -203,7 +210,7 @@ namespace DavidFDev.DevConsole
 
         internal void CloseConsole()
         {
-            if (!_init && (!consoleIsEnabled || !consoleIsShowing))
+            if (!_init && (!ConsoleIsEnabled || !ConsoleIsShowing))
             {
                 return;
             }
@@ -211,7 +218,7 @@ namespace DavidFDev.DevConsole
             _canvasGroup.alpha = 0f;
             _canvasGroup.interactable = false;
             _canvasGroup.blocksRaycasts = false;
-            consoleIsShowing = false;
+            ConsoleIsShowing = false;
             _repositioning = false;
             _resizing = false;
 
@@ -220,7 +227,7 @@ namespace DavidFDev.DevConsole
 
         internal void ToggleConsole()
         {
-            if (consoleIsShowing)
+            if (ConsoleIsShowing)
             {
                 CloseConsole();
                 return;
@@ -229,10 +236,14 @@ namespace DavidFDev.DevConsole
             OpenConsole();
         }
 
+        internal void SetToggleKey(InputKey? toggleKey)
+        {
+            ConsoleToggleKey = toggleKey;
+        }
+
         internal void ClearConsole()
         {
             ClearLogFields();
-            _logField.text = string.Empty;
             _vertexCount = 0;
             _logTextStore = ClearLogText;
         }
@@ -467,6 +478,7 @@ namespace DavidFDev.DevConsole
         {
             _resizing = false;
             _resizeButtonImage.color = _resizeButtonColour;
+            RefreshLogFieldsSize();
         }
 
         internal void OnResizeButtonPointerEnter(BaseEventData _)
@@ -509,8 +521,10 @@ namespace DavidFDev.DevConsole
             _versionText.text = "v" + _version.ToString();
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
-            _initLogFieldWidth = _logFieldTransform.sizeDelta.x;
+            _initLogFieldWidth = _logFieldPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            _currentLogFieldWidth = _initLogFieldWidth;
             _resizeButtonColour = _resizeButtonImage.color;
+            _logFieldPrefab.SetActive(false);
 
             InitBuiltInCommands();
             InitAttributeCommands();
@@ -533,7 +547,7 @@ namespace DavidFDev.DevConsole
 
         private void Update()
         {
-            if (!consoleIsEnabled || !consoleIsShowing)
+            if (!ConsoleIsEnabled || !ConsoleIsShowing)
             {
                 return;
             }
@@ -559,18 +573,18 @@ namespace DavidFDev.DevConsole
             if (_resizing)
             {
                 RectTransformUtility.ScreenPointToLocalPointInRectangle(_dynamicTransform, GetMousePosition(), null, out Vector2 localPoint);
-                localPoint.x = Mathf.Clamp(Mathf.Abs(localPoint.x), MinWidth, MaxWidth);
-                localPoint.y = Mathf.Clamp(Mathf.Abs(localPoint.y), MinHeight, MaxHeight);
+                localPoint.x = Mathf.Clamp(Mathf.Abs(localPoint.x), MinConsoleWidth, MaxConsoleWidth);
+                localPoint.y = Mathf.Clamp(Mathf.Abs(localPoint.y), MinConsoleHeight, MaxConsoleHeight);
                 _dynamicTransform.sizeDelta = localPoint;
 
                 // Resize the log field too, because Unity refuses to do it automatically
-                _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth * (_dynamicTransform.sizeDelta.x / _initSize.x), _logFieldTransform.sizeDelta.y);
+                _currentLogFieldWidth = _initLogFieldWidth * (_dynamicTransform.sizeDelta.x / _initSize.x);
             }
         }
 
         private void LateUpdate()
         {
-            if (!consoleIsEnabled)
+            if (!ConsoleIsEnabled)
             {
                 return;
             }
@@ -582,7 +596,7 @@ namespace DavidFDev.DevConsole
             }
 
             // Check if the developer console toggle key was pressed
-            if (consoleToggleKey.HasValue && (!consoleIsShowing || !_inputField.isFocused) && GetKeyDown(consoleToggleKey.Value))
+            if (ConsoleToggleKey.HasValue && (!ConsoleIsShowing || !_inputField.isFocused) && GetKeyDown(ConsoleToggleKey.Value))
             {
                 ToggleConsole();
                 return;
@@ -652,7 +666,8 @@ namespace DavidFDev.DevConsole
                 {
                     _dynamicTransform.anchoredPosition = _initPosition;
                     _dynamicTransform.sizeDelta = _initSize;
-                    _logFieldTransform.sizeDelta = new Vector2(_initLogFieldWidth, _logFieldTransform.sizeDelta.y);
+                    _currentLogFieldWidth = _initLogFieldWidth;
+                    RefreshLogFieldsSize();
                 }
             ));
 
@@ -1295,57 +1310,77 @@ namespace DavidFDev.DevConsole
             int vertexCountStored = GetVertexCount(_logTextStore);
 
             // Check if the stored logs exceeds the maximum vertex count
-            if (vertexCountStored > MaxVertexCount)
+            if (vertexCountStored > MaximumTextVertices)
             {
                 // TODO: Split into multiple
                 Debug.Log("Split into multiple.");
             }
 
             // Check if the stored logs appended to the current logs exceeds the maximum vertex count
-            else if (_vertexCount + vertexCountStored > MaxVertexCount)
+            else if (_vertexCount + vertexCountStored > MaximumTextVertices)
             {
-                // TODO: Split once
-                Debug.Log("Split once.");
-
+                // Split once
                 AddLogField();
-                //_logFields.Last().text = _logTextStore;
+                _logFields.Last().text = _logTextStore;
                 _vertexCount = vertexCountStored;
             }
 
             // Otherwise, simply append the stored logs to the current logs
             else
             {
-                _logField.text += _logTextStore;
+                _logFields.Last().text += _logTextStore;
                 _vertexCount += vertexCountStored;
             }
 
             _logTextStore = string.Empty;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+            RebuildLayout();
         }
 
         private int GetVertexCount(string text)
         {
-            Text logText = _logField.textComponent;
+            Text logText = _logFields.Last().textComponent;
             _textGenerator.Populate(text, logText.GetGenerationSettings(logText.rectTransform.rect.size));
             return _textGenerator.vertexCount;
         }
 
         private void AddLogField()
         {
-            //_logFields.Add(Instantiate(_logFieldPrefab, _logContentTransform).GetComponent<InputField>());
+            // Instantiate a new log field and set it up with default values
+            GameObject obj = Instantiate(_logFieldPrefab, _logContentTransform);
+            InputField logField = obj.GetComponent<InputField>();
+            logField.text = string.Empty;
+            RectTransform rect = obj.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(_currentLogFieldWidth, rect.sizeDelta.y);
+            _logFields.Add(logField);
+            obj.SetActive(true);
         }
 
         private void ClearLogFields()
         {
             // Clear log fields
-            /*
             foreach (InputField logField in _logFields)
             {
                 Destroy(logField.gameObject);
             }
             _logFields.Clear();
-            */
             AddLogField();
+        }
+
+        private void RefreshLogFieldsSize()
+        {
+            // Refresh the width of the log fields to the current width (determined by dev console window width)
+            RectTransform rect;
+            foreach (InputField logField in _logFields)
+            {
+                rect = logField.GetComponent<RectTransform>();
+                rect.sizeDelta = new Vector2(_currentLogFieldWidth, rect.sizeDelta.y);
+            }
+            RebuildLayout();
+        }
+
+        private void RebuildLayout()
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
         }
 
         #region Input methods

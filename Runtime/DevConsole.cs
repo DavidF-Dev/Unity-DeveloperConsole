@@ -36,7 +36,7 @@ namespace DavidFDev.DevConsole
         /// </summary>
         public static bool IsEnabled
         {
-            get => _console.consoleIsEnabled;
+            get => _console.ConsoleIsEnabled;
             set
             {
                 if (value)
@@ -54,7 +54,7 @@ namespace DavidFDev.DevConsole
         /// </summary>
         public static bool IsOpen
         {
-            get => _console.consoleIsShowing;
+            get => _console.ConsoleIsShowing;
             set
             {
                 if (value)
@@ -65,6 +65,15 @@ namespace DavidFDev.DevConsole
 
                 _console.CloseConsole();
             }
+        }
+
+        /// <summary>
+        ///     The key used to toggle the dev console window, NULL if no key.
+        /// </summary>
+        public static InputKey? ToggleKey
+        {
+            get => _console.ConsoleToggleKey;
+            set => _console.SetToggleKey(value);
         }
 
         #endregion
@@ -222,7 +231,7 @@ namespace DavidFDev.DevConsole
         /// <param name="toggleKey"></param>
         public static void SetToggleKey(InputKey? toggleKey)
         {
-            _console.consoleToggleKey = toggleKey;
+            _console.SetToggleKey(toggleKey);
         }
 
         /// <summary>

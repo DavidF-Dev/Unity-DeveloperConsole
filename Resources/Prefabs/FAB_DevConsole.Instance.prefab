@@ -529,8 +529,7 @@ MonoBehaviour:
   _canvasGroup: {fileID: 6676915285017253634}
   _versionText: {fileID: 520647876880931289}
   _inputField: {fileID: 845665600302246255}
-  _logField: {fileID: 1882899034204288228}
-  _logFieldTransform: {fileID: 978769377605534881}
+  _logFieldPrefab: {fileID: 5715229556425181486}
   _logContentTransform: {fileID: 8873818845564592851}
   _dynamicTransform: {fileID: 3759786000585080057}
   _resizeButtonImage: {fileID: 2549797857176525141}
@@ -1490,7 +1489,7 @@ GameObject:
   - component: {fileID: 1882899034204288228}
   - component: {fileID: 3000324256899922908}
   m_Layer: 0
-  m_Name: LogField
+  m_Name: LogField.Instance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1503,7 +1502,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5715229556425181486}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
@@ -1920,7 +1919,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6785064031796051863}
   m_HandleRect: {fileID: 4886748047789855361}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
