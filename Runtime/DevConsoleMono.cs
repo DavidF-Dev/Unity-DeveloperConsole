@@ -43,7 +43,7 @@ namespace DavidFDev.DevConsole
         private const string WarningColour = "#B3E283";
         private const string SuccessColour = "#B3E283";
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
-        private const int MaximumTextVertices = 65536;
+        private const int MaximumTextVertices = 64000; //65536;
         private const float MinConsoleWidth = 650;
         private const float MaxConsoleWidth = 1200;
         private const float MinConsoleHeight = 200;
@@ -1386,8 +1386,9 @@ namespace DavidFDev.DevConsole
             else if (_vertexCount + vertexCountStored > MaximumTextVertices)
             {
                 // Split once
+                Debug.Log($"Split once, number of log fields: {_logFields.Count+1}.");
                 AddLogField();
-                _logFields.Last().text = _logTextStore;
+                _logFields.Last().text = _logTextStore.TrimStart('\n');
                 _vertexCount = vertexCountStored;
             }
 
