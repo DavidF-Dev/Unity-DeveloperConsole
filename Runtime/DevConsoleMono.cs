@@ -73,6 +73,8 @@ namespace DavidFDev.DevConsole
 
         #region Fields
 
+        #region Serialised fields
+
         [SerializeField] private CanvasGroup _canvasGroup = null;
         [SerializeField] private Text _versionText = null;
 
@@ -88,29 +90,51 @@ namespace DavidFDev.DevConsole
         [SerializeField] private Image _resizeButtonImage = null;
         [SerializeField] private Color _resizeButtonHoverColour = default;
 
+        #endregion
+
+        private bool _init = false;
+
+        #region Input fields
+
+        private bool _focusInputField = false;
+
+        #endregion
+
+        #region Log fields
+
         private readonly List<InputField> _logFields = new List<InputField>();
         private string _logTextStore = "";
         private readonly TextGenerator _textGenerator = new TextGenerator();
         private int _vertexCount = 0;
-        private bool _init = false;
-        private bool _focusInputField = false;
+
+        #endregion
+
+        #region Window fields
+
         private bool _repositioning = false;
+        private Vector2 _initPosition = default;
         private Vector2 _repositionOffset = default;
         private bool _resizing = false;
-        private Color _resizeButtonColour = default;
-        private Vector2 _initPosition = default;
         private Vector2 _initSize = default;
+        private Color _resizeButtonColour = default;
         private float _initLogFieldWidth = 0f;
         private float _currentLogFieldWidth = 0f;
+
+        #endregion
+
+        #region Command fields
+
+        private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
+        private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
+        private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
+        private string _lastCommand = string.Empty;
+        private int _commandHistoryIndex = -1;
         private bool _displayUnityLogs = true;
         private bool _displayUnityErrors = true;
         private bool _displayUnityExceptions = true;
         private bool _displayUnityWarnings = true;
-        private string _lastCommand = string.Empty;
-        private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
-        private int _commandHistoryIndex = -1;
-        private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
-        private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
+
+        #endregion
 
         #endregion
 
@@ -128,7 +152,7 @@ namespace DavidFDev.DevConsole
             set => _inputField.text = value;
         }
 
-        private int CaretPosition
+        private int InputCaretPosition
         {
             get => _inputField.caretPosition;
             set => _inputField.caretPosition = value;
@@ -526,6 +550,7 @@ namespace DavidFDev.DevConsole
             _resizeButtonColour = _resizeButtonImage.color;
             _logFieldPrefab.SetActive(false);
 
+            InitPreferences();
             InitBuiltInCommands();
             InitAttributeCommands();
 
@@ -621,7 +646,38 @@ namespace DavidFDev.DevConsole
             }
         }
 
+        private void OnDestroy()
+        {
+#if USE_NEW_INPUT_SYSTEM
+            // TODO: Save console toggle key in new input system
+#else
+            PlayerPrefs.SetInt("DevConsole.legacyConsoleToggleKey", !ConsoleToggleKey.HasValue ? -1 : (int)ConsoleToggleKey.Value);
+#endif
+            PlayerPrefs.SetInt("DevConsole.displayUnityLogs", _displayUnityLogs ? 1 : 0);
+            PlayerPrefs.SetInt("DevConsole.displayUnityErrors", _displayUnityErrors ? 1 : 0);
+            PlayerPrefs.SetInt("DevConsole.displayUnityExceptions", _displayUnityExceptions ? 1 : 0);
+            PlayerPrefs.SetInt("DevConsole.displayUnityWarnings", _displayUnityWarnings ? 1 : 0);
+
+            PlayerPrefs.Save();
+        }
+
         #endregion
+
+        #region Init methods
+
+        private void InitPreferences()
+        {
+#if USE_NEW_INPUT_SYSTEM
+            // TODO: Load console toggle key in new input system
+#else
+            int n = PlayerPrefs.GetInt("DevConsole.legacyConsoleToggleKey", (int)DefaultToggleKey);
+            ConsoleToggleKey = n < 0 ? (InputKey?)null : (InputKey)n;
+#endif
+            _displayUnityLogs = PlayerPrefs.GetInt("DevConsole.displayUnityLogs", 1) == 1;
+            _displayUnityErrors = PlayerPrefs.GetInt("DevConsole.displayUnityErrors", 1) == 1;
+            _displayUnityExceptions = PlayerPrefs.GetInt("DevConsole.displayUnityExceptions", 1) == 1;
+            _displayUnityWarnings = PlayerPrefs.GetInt("DevConsole.displayUnityWarnings", 1) == 1;
+        }
 
         private void InitBuiltInCommands()
         {
@@ -1163,6 +1219,8 @@ namespace DavidFDev.DevConsole
             }
         }
 
+        #endregion
+
         private Command GetCommand(string name)
         {
             return _commands.TryGetValue(name.ToLower(), out Command command) ? command : _commands.Values.FirstOrDefault(c => c.HasAlias(name));
@@ -1301,7 +1359,7 @@ namespace DavidFDev.DevConsole
 
             _commandHistoryIndex += direction;
             InputText = _commandHistory[_commandHistoryIndex];
-            CaretPosition = InputText.Length;
+            InputCaretPosition = InputText.Length;
         }
 
         private void ProcessStoredLogs()
