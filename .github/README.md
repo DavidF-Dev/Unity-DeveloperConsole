@@ -3,7 +3,7 @@ This asset provides an <b>in-game developer console</b> (debug console) for Unit
 
 The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion & autocomplete that enables quick access to commands.
 
-<img src="/.github/preview2.gif" alt="Developer console preview" width="70%"></img>
+<img src="/.github/preview2.gif" alt="Developer console preview" width="72%"></img>
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
