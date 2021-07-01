@@ -68,6 +68,11 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Whether the dev console is open and the input field is focused.
+        /// </summary>
+        public static bool IsOpenAndFocused => _console.ConsoleIsShowingAndFocused;
+
+        /// <summary>
         ///     The key used to toggle the dev console window, NULL if no key.
         /// </summary>
         public static InputKey? ToggleKey

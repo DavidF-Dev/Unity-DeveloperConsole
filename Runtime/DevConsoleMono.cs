@@ -151,6 +151,8 @@ namespace DavidFDev.DevConsole
 
         internal bool ConsoleIsShowing { get; private set; }
 
+        internal bool ConsoleIsShowingAndFocused => ConsoleIsShowing && _inputField.isFocused;
+
         private string InputText
         {
             get => _inputField.text;
