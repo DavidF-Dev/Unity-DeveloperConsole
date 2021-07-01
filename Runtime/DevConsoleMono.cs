@@ -43,7 +43,7 @@ namespace DavidFDev.DevConsole
         private const string WarningColour = "#B3E283";
         private const string SuccessColour = "#B3E283";
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
-        private const int MaximumTextVertices = 64000; //65536;
+        private const int MaximumTextVertices = 64000;
         private const float MinConsoleWidth = 650;
         private const float MaxConsoleWidth = 1200;
         private const float MinConsoleHeight = 200;
@@ -64,7 +64,7 @@ namespace DavidFDev.DevConsole
             "FAB_DevConsole.OldEventSystem";
 #endif
 
-        private static readonly Version _version = new Version(0, 1, 4);
+        private static readonly Version _version = new Version(0, 1, 5);
         private static readonly string[] _permanentCommands =
         {
             "devconsole", "commands", "help", "print", "clear", "reset"
