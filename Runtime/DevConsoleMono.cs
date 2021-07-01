@@ -648,7 +648,7 @@ namespace DavidFDev.DevConsole
             if (_inputField.isFocused)
             {
                 // Allow cycling through command suggestions using the UP and DOWN arrows
-                if (_commandSuggestions != null && _commandSuggestions.Length > 1)
+                if (_commandSuggestions != null && _commandSuggestions.Length > 0)
                 {
                     if (GetKeyDown(UpArrowKey))
                     {
@@ -1405,7 +1405,7 @@ namespace DavidFDev.DevConsole
         private void RefreshCommandSuggestions()
         {
             // Do not show if there is no command or the parameters are being specified
-            if (InputText.Length == 0 || InputText.StartsWith(" ") || InputText.Split(' ').Length > 1)
+            if (InputText.Length == 0 || InputText.StartsWith(" ") || InputText.Split(' ').Length > 1 || _commandHistoryIndex != -1)
             {
                 _suggestionText.text = string.Empty;
                 _commandSuggestions = null;
@@ -1413,7 +1413,7 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            _commandSuggestions = GetCommandSuggestions(InputText.ToLower());
+            _commandSuggestions = GetCommandSuggestions(InputText);
             _commandSuggestionIndex = 0;
             _suggestionText.text = _commandSuggestions.FirstOrDefault() ?? string.Empty;
         }
@@ -1422,14 +1422,16 @@ namespace DavidFDev.DevConsole
         {
             // Get a list of command names that could fill in the missing text
             List<string> suggestions = new List<string>();
+            string textToLower = text.ToLower();
             foreach (string commandName in _commands.Keys)
             {
-                if (!commandName.StartsWith(text))
+                if (!commandName.StartsWith(textToLower))
                 {
                     continue;
                 }
 
-                suggestions.Add(commandName);
+                // Combine current input with suggestion so capitalisation remains
+                suggestions.Add(text + commandName.Substring(text.Length));
             }
             return suggestions.ToArray();
         }
