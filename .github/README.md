@@ -29,7 +29,7 @@ Typing "<b>print "Hello world!"</b>" will display the message "Hello world!" in 
 Text that is encased by quotation marks ``"`` will be interpreted as a single parameter.
 
 ### Scripting
-The dev console can be accessed via the ``DevConsole`` static class in the ``DavidFDev`` namespace.
+The dev console can be accessed via the ``DevConsole`` static class in the ``DavidFDev.DevConsole`` namespace.
 - ``Enable/DisableConsole()``: enable or disable the dev console entirely (disabled by default in release builds).
 - ``Open/CloseConsole()``: open or close the dev console window.
 - ``Log()``: log a message to the dev console.
@@ -38,7 +38,7 @@ The dev console can be accessed via the ``DevConsole`` static class in the ``Dav
 
 #### Example
 ```cs
-using DavidFDev;
+using DavidFDev.DevConsole;
 DevConsole.EnableConsole();
 DevConsole.SetToggleKey(null);
 DevConsole.Log("Hello world!");
