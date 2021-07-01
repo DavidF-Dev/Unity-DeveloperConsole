@@ -137,6 +137,7 @@ namespace DavidFDev.DevConsole
         private bool _displayUnityWarnings = true;
         private string[] _commandSuggestions = null;
         private int _commandSuggestionIndex = 0;
+        private bool _ignoreInputChange = false;
 
         #endregion
 
@@ -281,7 +282,7 @@ namespace DavidFDev.DevConsole
         {
             if (!string.IsNullOrWhiteSpace(InputText))
             {
-                RunCommand(InputText.TrimEnd('\n'));
+                RunCommand(InputText);
             }
 
             InputText = string.Empty;
@@ -474,20 +475,29 @@ namespace DavidFDev.DevConsole
 
         internal void OnInputValueChanged()
         {
-            // Submit the input if a new line is entered (ENTER)
-            if (InputText.EndsWith("\n"))
+            if (_ignoreInputChange)
             {
+                return;
+            }
+
+            _ignoreInputChange = true;
+
+            // Submit the input if a new line is entered (ENTER)
+            if (InputText.Contains("\n"))
+            {
+                InputText = InputText.Replace("\n", string.Empty);
                 SubmitInput();
             }
 
             // Try autocomplete if tab is entered (TAB)
-            else if (InputText.EndsWith("\t"))
+            else if (InputText.Contains("\t"))
             {
-                InputText.TrimEnd('\t');
+                InputText = InputText.Replace("\t", string.Empty);
                 AutoComplete();
             }
 
             RefreshCommandSuggestions();
+            _ignoreInputChange = false;
         }
 
         internal void OnRepositionButtonPointerDown(BaseEventData eventData)
@@ -635,11 +645,10 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-
             if (_inputField.isFocused)
             {
                 // Allow cycling through command suggestions using the UP and DOWN arrows
-                if (_commandSuggestions?.Length == 0)
+                if (_commandSuggestions != null && _commandSuggestions.Length > 0)
                 {
                     if (GetKeyDown(UpArrowKey))
                     {
@@ -654,7 +663,7 @@ namespace DavidFDev.DevConsole
                 // Allow cycling through command history using the UP and DOWN arrows
                 else
                 {
-                    if (_commandHistoryIndex != -1 && InputText.Length == 0)
+                    if (_commandHistoryIndex != -1 && InputText == string.Empty)
                     {
                         _commandHistoryIndex = -1;
                     }
@@ -1396,7 +1405,7 @@ namespace DavidFDev.DevConsole
         private void RefreshCommandSuggestions()
         {
             // Do not show if there is no command or the parameters are being specified
-            if (InputText.Length == 0 || InputText.Split(' ').Length > 1)
+            if (InputText.Length == 0 || InputText.StartsWith(" ") || InputText.Split(' ').Length > 1)
             {
                 _suggestionText.text = string.Empty;
                 _commandSuggestions = null;
@@ -1427,7 +1436,7 @@ namespace DavidFDev.DevConsole
 
         private void AutoComplete()
         {
-            if (_commandSuggestions?.Length == 0)
+            if (_commandSuggestions == null || _commandSuggestions.Length == 0)
             {
                 return;
             }
@@ -1439,14 +1448,23 @@ namespace DavidFDev.DevConsole
 
         private void CycleCommandSuggestions(int direction)
         {
-            if (_commandSuggestions?.Length == 0)
+            if (_commandSuggestions == null || _commandSuggestions.Length == 0)
             {
                 return;
             }
 
             // Cycle the command suggestion in the given direction
-            _commandSuggestionIndex = (_commandHistoryIndex + direction) % _commandSuggestions.Length;
+            _commandSuggestionIndex += direction;
+            if (_commandSuggestionIndex < 0)
+            {
+                _commandSuggestionIndex = _commandSuggestions.Length - 1;
+            }
+            else if (_commandSuggestionIndex == _commandSuggestions.Length)
+            {
+                _commandSuggestionIndex = 0;
+            }
             _suggestionText.text = _commandSuggestions[_commandSuggestionIndex];
+            InputCaretPosition = InputText.Length;
         }
 
         #endregion
