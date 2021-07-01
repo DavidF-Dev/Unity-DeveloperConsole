@@ -648,7 +648,7 @@ namespace DavidFDev.DevConsole
             if (_inputField.isFocused)
             {
                 // Allow cycling through command suggestions using the UP and DOWN arrows
-                if (_commandSuggestions != null && _commandSuggestions.Length > 0)
+                if (_commandSuggestions != null && _commandSuggestions.Length > 1)
                 {
                     if (GetKeyDown(UpArrowKey))
                     {
