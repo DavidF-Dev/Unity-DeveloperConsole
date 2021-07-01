@@ -81,6 +81,7 @@ namespace DavidFDev.DevConsole
 
         [Header("Input")]
         [SerializeField] private InputField _inputField = null;
+        [SerializeField] private Text _suggestionText = null;
 
         [Header("Logs")]
         [SerializeField] private GameObject _logFieldPrefab = null;
@@ -134,6 +135,8 @@ namespace DavidFDev.DevConsole
         private bool _displayUnityErrors = true;
         private bool _displayUnityExceptions = true;
         private bool _displayUnityWarnings = true;
+        private string[] _commandSuggestions = null;
+        private int _commandSuggestionIndex = 0;
 
         #endregion
 
@@ -480,8 +483,11 @@ namespace DavidFDev.DevConsole
             // Try autocomplete if tab is entered (TAB)
             else if (InputText.EndsWith("\t"))
             {
-
+                InputText.TrimEnd('\t');
+                AutoComplete();
             }
+
+            RefreshCommandSuggestions();
         }
 
         internal void OnRepositionButtonPointerDown(BaseEventData eventData)
@@ -629,21 +635,38 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            // Allow cycling through command history using the UP and DOWN arrows
+
             if (_inputField.isFocused)
             {
-                if (_commandHistoryIndex != -1 && InputText.Length == 0)
+                // Allow cycling through command suggestions using the UP and DOWN arrows
+                if (_commandSuggestions?.Length == 0)
                 {
-                    _commandHistoryIndex = -1;
+                    if (GetKeyDown(UpArrowKey))
+                    {
+                        CycleCommandSuggestions(1);
+                    }
+                    else if (GetKeyDown(DownArrowKey))
+                    {
+                        CycleCommandSuggestions(-1);
+                    }
                 }
 
-                if (GetKeyDown(UpArrowKey))
+                // Allow cycling through command history using the UP and DOWN arrows
+                else
                 {
-                    CycleCommandHistory(1);
-                }
-                else if (GetKeyDown(DownArrowKey))
-                {
-                    CycleCommandHistory(-1);
+                    if (_commandHistoryIndex != -1 && InputText.Length == 0)
+                    {
+                        _commandHistoryIndex = -1;
+                    }
+
+                    if (GetKeyDown(UpArrowKey))
+                    {
+                        CycleCommandHistory(1);
+                    }
+                    else if (GetKeyDown(DownArrowKey))
+                    {
+                        CycleCommandHistory(-1);
+                    }
                 }
             }
         }
@@ -1364,6 +1387,66 @@ namespace DavidFDev.DevConsole
             _commandHistoryIndex += direction;
             InputText = _commandHistory[_commandHistoryIndex];
             InputCaretPosition = InputText.Length;
+        }
+
+        #endregion
+
+        #region Suggestion methods
+
+        private void RefreshCommandSuggestions()
+        {
+            // Do not show if there is no command or the parameters are being specified
+            if (InputText.Length == 0 || InputText.Split(' ').Length > 1)
+            {
+                _suggestionText.text = string.Empty;
+                _commandSuggestions = null;
+                _commandSuggestionIndex = 0;
+                return;
+            }
+
+            _commandSuggestions = GetCommandSuggestions(InputText.ToLower());
+            _commandSuggestionIndex = 0;
+            _suggestionText.text = _commandSuggestions.FirstOrDefault() ?? string.Empty;
+        }
+
+        private string[] GetCommandSuggestions(string text)
+        {
+            // Get a list of command names that could fill in the missing text
+            List<string> suggestions = new List<string>();
+            foreach (string commandName in _commands.Keys)
+            {
+                if (!commandName.StartsWith(text))
+                {
+                    continue;
+                }
+
+                suggestions.Add(commandName);
+            }
+            return suggestions.ToArray();
+        }
+
+        private void AutoComplete()
+        {
+            if (_commandSuggestions?.Length == 0)
+            {
+                return;
+            }
+
+            // Complete the input text with the current command suggestion
+            InputText = _commandSuggestions[_commandSuggestionIndex];
+            InputCaretPosition = InputText.Length;
+        }
+
+        private void CycleCommandSuggestions(int direction)
+        {
+            if (_commandSuggestions?.Length == 0)
+            {
+                return;
+            }
+
+            // Cycle the command suggestion in the given direction
+            _commandSuggestionIndex = (_commandHistoryIndex + direction) % _commandSuggestions.Length;
+            _suggestionText.text = _commandSuggestions[_commandSuggestionIndex];
         }
 
         #endregion
