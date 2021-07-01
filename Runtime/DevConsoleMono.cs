@@ -726,7 +726,8 @@ namespace DavidFDev.DevConsole
                     LogSeperator($"Developer console (v{_version})");
                     Log("Use <b>commands</b> to display a list of available commands.");
                     Log($"Use {GetCommand("help").ToFormattedString()} to display information about a specific command.");
-                    Log("Use UP / DOWN to cycle through command history.");
+                    Log("Use UP / DOWN to cycle through command history or suggested commands.");
+                    Log("Use TAB to autocomplete a suggested command.");
                     Log("");
                     Log("Created by @DavidF_Dev.");
                     LogSeperator();
