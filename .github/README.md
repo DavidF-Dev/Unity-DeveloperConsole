@@ -29,7 +29,7 @@ Typing "<b>print "Hello world!"</b>" will display the message "Hello world!" in 
 Text that is encased by quotation marks ``"`` will be interpreted as a single parameter.
 
 ### Scripting
-The dev console can be accessed via the ``DevConsole`` static class in the ``DavidFDev`` namespace.
+The dev console can be accessed via the ``DevConsole`` static class in the ``DavidFDev.DevConsole`` namespace.
 - ``Enable/DisableConsole()``: enable or disable the dev console entirely (disabled by default in release builds).
 - ``Open/CloseConsole()``: open or close the dev console window.
 - ``Log()``: log a message to the dev console.
@@ -38,7 +38,7 @@ The dev console can be accessed via the ``DevConsole`` static class in the ``Dav
 
 #### Example
 ```cs
-using DavidFDev;
+using DavidFDev.DevConsole;
 DevConsole.EnableConsole();
 DevConsole.SetToggleKey(null);
 DevConsole.Log("Hello world!");
@@ -108,6 +108,19 @@ DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input)
 
 <b>Q. Can I remove a built-in command?</b></br>
 A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are six permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help``, ``print``, ``clear`` & ``reset``).
+
+<b>Q. How can I stop keyboard input in the dev console from triggering game-specific actions (e.g. space will make the character jump even though the input field is focused)?</b></br>
+A. As far as I know, this is an unavoidable issue. I recommend making a global property for your game (e.g. ``AllowGameInput``) which you can query before performing any game-specific input. This property can then reference ``DevConsole.IsOpenAndFocused``, effectively disabling game-specific input when the dev console is open and the input field is focused.
+```cs
+public static bool AllowGameInput => DevConsole.IsOpenAndFocused;
+
+private void CheckGameInput()
+{
+  if (!AllowGameInput) return;
+  
+  // ... check game input
+}
+```
 
 <b>Q. This isn't quite what I'm after</b></br>
 A. There are alternatives available by other developers - each slightly different. If this one doesn't meet your needs, then maybe one of theirs will:
