@@ -878,6 +878,19 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
+            AddCommand(Command.Create<int>(
+                "fps_target",
+                "fps_max",
+                "Query or set the target framerate.",
+                Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
+                i =>
+                {
+                    Application.targetFrameRate = i;
+                    LogSuccess($"Target frame rate set to {i}.");
+                },
+                () => LogVariable("TargetFrameRate", Application.targetFrameRate)
+            ));
+
             #endregion
 
             #region Screen commands
