@@ -764,6 +764,13 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
+            AddCommand(Command.Create(
+                "closeconsole",
+                "hideconsole",
+                "Close the developer console window",
+                () => CloseConsole()
+            ));
+
             AddCommand(Command.Create<string>(
                 "help",
                 "info",
