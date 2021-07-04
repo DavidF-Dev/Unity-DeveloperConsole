@@ -738,7 +738,7 @@ namespace DavidFDev.DevConsole
 
             AddCommand(Command.Create<string>(
                 "print",
-                "say",
+                "echo",
                 "Display a message in the developer console",
                 Parameter.Create("message", "Message to display"),
                 s => Log(s)
@@ -826,7 +826,7 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create(
                 "consoleversion",
                 "",
-                "Display the version of the developer console",
+                "Display the developer console version",
                 () => Log($"Developer console version: {_version}.")
             ));
 
@@ -853,21 +853,21 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create(
                 "appversion",
                 "",
-                "Display the version of the application",
+                "Display the application version",
                 () => Log($"App version: {Application.version}.")
             ));
 
             AddCommand(Command.Create(
                 "unityversion",
                 "",
-                "Display the version of the engine",
+                "Display the engine version",
                 () => Log($"Engine version: {Application.unityVersion}.")
             ));
 
             AddCommand(Command.Create(
                 "unityinput",
                 "",
-                "Display the Unity input system being used by the developer console",
+                "Display the input system being used by the developer console",
                 () =>
                 {
 #if USE_NEW_INPUT_SYSTEM
@@ -895,6 +895,28 @@ namespace DavidFDev.DevConsole
                 () =>
                 {
                     LogVariable("Fullscreen", Screen.fullScreen);
+                }
+            ));
+
+            AddCommand(Command.Create<int>(
+                "vsync",
+                "",
+                "Query or set whether VSync is enabled",
+                Parameter.Create("vSyncCount", "The number of VSyncs that should pass between each frame (0, 1, 2, 3, or 4)."),
+                i =>
+                {
+                    if (i < 0 || i > 4)
+                    {
+                        LogError($"Provided VSyncCount is not an accepted value: \"{i}\".");
+                        return;
+                    }
+
+                    QualitySettings.vSyncCount = i;
+                    LogSuccess($"VSyncCount set to {i}.");
+                },
+                () =>
+                {
+                    LogVariable("VSyncCount", QualitySettings.vSyncCount);
                 }
             ));
 
