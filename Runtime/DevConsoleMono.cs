@@ -881,7 +881,7 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create<int>(
                 "fps_target",
                 "fps_max",
-                "Query or set the target framerate.",
+                "Query or set the target frame rate.",
                 Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
                 i =>
                 {
@@ -1173,6 +1173,17 @@ namespace DavidFDev.DevConsole
                 {
                     LogVariable("Log unity warnings", _displayUnityWarnings);
                 }
+            ));
+
+            #endregion
+
+            #region Misc commands
+
+            AddCommand(Command.Create(
+                "time",
+                "",
+                "Display the current time",
+                () => Log($"Current time: {DateTime.Now}.")
             ));
 
             #endregion
