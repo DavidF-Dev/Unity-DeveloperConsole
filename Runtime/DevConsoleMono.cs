@@ -885,6 +885,13 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
+            AddCommand(Command.Create(
+                "path",
+                "",
+                "Display the path to the application executable",
+                () => Log($"Application path: {AppDomain.CurrentDomain.BaseDirectory}.")
+            ));
+
             AddCommand(Command.Create<int>(
                 "fps_target",
                 "fps_max",
