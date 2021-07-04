@@ -50,6 +50,7 @@ namespace DavidFDev.DevConsole
         private const float MinConsoleHeight = 200;
         private const float MaxConsoleHeight = 900;
         private const int CommandHistoryLength = 10;
+        private const int MaxCachedEnumTypes = 6;
         private const InputKey DefaultToggleKey =
 #if USE_NEW_INPUT_SYSTEM
             InputKey.Backquote;
@@ -141,6 +142,7 @@ namespace DavidFDev.DevConsole
         private string[] _commandSuggestions = null;
         private int _commandSuggestionIndex = 0;
         private bool _ignoreInputChange = false;
+        private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
 
         #endregion
 
@@ -212,6 +214,7 @@ namespace DavidFDev.DevConsole
             _dynamicTransform.anchoredPosition = _initPosition;
             _dynamicTransform.sizeDelta = _initSize;
             _commandHistory.Clear();
+            _cacheEnumTypes.Clear();
             ClearConsole();
             Application.logMessageReceived -= OnLogMessageReceived;
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
@@ -827,6 +830,69 @@ namespace DavidFDev.DevConsole
                             Log($" <b>{parameter.Name}</b>: {parameter.HelpText}.");
                         }
                     }
+
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create<string>(
+                "enum",
+                "",
+                "Display information about a specified enum",
+                Parameter.Create("enumName", "Name of the enum to get information about (case-sensitive)"),
+                s =>
+                {
+                    // Check if the enum type was cached
+                    Type enumType = _cacheEnumTypes.FirstOrDefault(t => t.Name.Equals(s));
+
+                    if (enumType == null)
+                    {
+                        // Search all loaded assemblies for the enum
+                        Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+                        foreach (Assembly assembly in loadedAssemblies)
+                        {
+                            enumType = assembly.GetTypes()
+                                .SelectMany(t => t.GetMembers())
+                                .Union(assembly.GetTypes())
+                                .FirstOrDefault(t => t.ReflectedType != null && t.ReflectedType.IsEnum && t.ReflectedType.Name.Equals(s))
+                                ?.ReflectedType;
+
+                            if (enumType != null)
+                            {
+                                // Cache the type
+                                _cacheEnumTypes.Add(enumType);
+                                if (_commandHistory.Count > MaxCachedEnumTypes)
+                                {
+                                    _commandHistory.RemoveAt(0);
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    if (enumType == null)
+                    {
+                        LogError($"Could not find enum type with the specified name: \"{s}\"");
+                        return;
+                    }
+
+                    LogSeperator($"{enumType.Name} ({enumType.GetEnumUnderlyingType().Name}){(enumType.GetCustomAttribute(typeof(FlagsAttribute)) == null ? "" : " [Flags]")}");
+
+                    FieldInfo[] values = enumType.GetFields();
+                    string formattedValues = string.Empty;
+                    bool first = true;
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        if (values[i].Name.Equals("value__"))
+                        {
+                            continue;
+                        }
+
+                        formattedValues += $"{(first ? "" : "\n")}{values[i].Name} = {values[i].GetRawConstantValue()}";
+                        first = false;
+                    }
+                    Log(formattedValues);
 
                     LogSeperator();
                 }

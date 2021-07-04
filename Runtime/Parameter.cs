@@ -90,7 +90,7 @@ namespace DavidFDev.DevConsole
                 if (type.GetEnumNames().Length > MaxEnumNames)
                 {
                     // Recommend using the help_enum command
-                    enumHelpText = $"use <b>help_enum {type.Name}</b> to see options";
+                    enumHelpText = $"use <b>enum {type.Name}</b> to see options";
                 }
                 else
                 {
