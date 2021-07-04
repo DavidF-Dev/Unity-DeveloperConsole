@@ -3,6 +3,7 @@
 // Created by: DavidFDev
 
 using System;
+using System.Reflection;
 
 namespace DavidFDev.DevConsole
 {
@@ -11,6 +12,12 @@ namespace DavidFDev.DevConsole
     /// </summary>
     public sealed class Parameter
     {
+        #region Constants
+
+        private const int MaxEnumNames = 6;
+
+        #endregion
+
         #region Static methods
 
         /// <summary>
@@ -64,8 +71,7 @@ namespace DavidFDev.DevConsole
         /// <returns></returns>
         internal Parameter SetType<T>()
         {
-            Type = typeof(T);
-            return this;
+            return SetType(typeof(T));
         }
 
         /// <summary>
@@ -76,6 +82,35 @@ namespace DavidFDev.DevConsole
         internal Parameter SetType(Type type)
         {
             Type = type;
+
+            // If the type is an enum, add special help text
+            if (type.IsEnum)
+            {
+                string enumHelpText = string.Empty;
+                if (type.GetEnumNames().Length > MaxEnumNames)
+                {
+                    // Recommend using the help_enum command
+                    enumHelpText = $"use <b>help_enum {type.Name}</b> to see options";
+                }
+                else
+                {
+                    // Add names to the help text
+                    FieldInfo[] values = type.GetFields();
+                    bool first = true;
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        if (values[i].Name.Equals("value__"))
+                        {
+                            continue;
+                        }
+
+                        enumHelpText += $"{(first ? "" : ", ")}{values[i].Name}={values[i].GetRawConstantValue()}";
+                        first = false;
+                    }
+                }
+                HelpText += $"{(HelpText.Length == 0 ? "" : " ")}({enumHelpText})";
+            }
+
             return this;
         }
 
