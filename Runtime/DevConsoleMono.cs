@@ -123,6 +123,7 @@ namespace DavidFDev.DevConsole
         private Color _resizeButtonColour = default;
         private float _initLogFieldWidth = 0f;
         private float _currentLogFieldWidth = 0f;
+        private Vector2Int _screenSize = default;
 
         #endregion
 
@@ -192,6 +193,7 @@ namespace DavidFDev.DevConsole
             //Application.logMessageReceivedThreaded += OnLogMessageReceived;
             ClearConsole();
             InputText = string.Empty;
+            _screenSize = new Vector2Int(Screen.width, Screen.height);
             ConsoleIsEnabled = true;
             enabled = true;
         }
@@ -280,6 +282,15 @@ namespace DavidFDev.DevConsole
             ClearLogFields();
             _vertexCount = 0;
             _logTextStore = ClearLogText;
+        }
+
+        internal void ResetConsole()
+        {
+            // Reset the position and size of the console
+            _dynamicTransform.anchoredPosition = _initPosition;
+            _dynamicTransform.sizeDelta = _initSize;
+            _currentLogFieldWidth = _initLogFieldWidth;
+            RefreshLogFieldsSize();
         }
 
         internal void SubmitInput()
@@ -599,6 +610,13 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
+            // Check if the resolution has changed and the window should be rebuilt / reset
+            if (_screenSize.x != Screen.width || _screenSize.y != Screen.height)
+            {
+                _screenSize = new Vector2Int(Screen.width, Screen.height);
+                ResetConsole();
+            }
+
             // Force the input field to be focused by the event system
             if (_focusInputField)
             {
@@ -757,13 +775,7 @@ namespace DavidFDev.DevConsole
                 "reset",
                 "",
                 "Reset the position and size of the developer console",
-                () =>
-                {
-                    _dynamicTransform.anchoredPosition = _initPosition;
-                    _dynamicTransform.sizeDelta = _initSize;
-                    _currentLogFieldWidth = _initLogFieldWidth;
-                    RefreshLogFieldsSize();
-                }
+                () => ResetConsole()
             ));
 
             AddCommand(Command.Create(
