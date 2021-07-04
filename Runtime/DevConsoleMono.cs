@@ -18,6 +18,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Runtime.CompilerServices;
+using System.Collections;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
@@ -86,6 +87,7 @@ namespace DavidFDev.DevConsole
         [Header("Logs")]
         [SerializeField] private GameObject _logFieldPrefab = null;
         [SerializeField] private RectTransform _logContentTransform = null;
+        [SerializeField] private ScrollRect _logScrollView = null;
 
         [Header("Window")]
         [SerializeField] private RectTransform _dynamicTransform = null;
@@ -282,9 +284,9 @@ namespace DavidFDev.DevConsole
 
         internal void SubmitInput()
         {
-            if (!string.IsNullOrWhiteSpace(InputText))
+            if (!string.IsNullOrWhiteSpace(InputText) && RunCommand(InputText))
             {
-                RunCommand(InputText);
+                ScrollToBottom();
             }
 
             InputText = string.Empty;
@@ -1709,11 +1711,22 @@ namespace DavidFDev.DevConsole
             RebuildLayout();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RebuildLayout()
         {
             // Forcefully rebuild the layout, otherwise transforms are positioned incorrectly
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
+        }
+
+        private void ScrollToBottom()
+        {
+            IEnumerator ScrollToBottomCoroutine()
+            {
+                yield return new WaitForEndOfFrame();
+                _logScrollView.verticalNormalizedPosition = 0f;
+            }
+
+            // Start the coroutine that snaps the scroll view at the end of the frame
+            StartCoroutine(ScrollToBottomCoroutine());
         }
 
         #endregion
