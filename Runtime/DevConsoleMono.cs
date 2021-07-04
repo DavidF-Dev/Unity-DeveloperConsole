@@ -133,7 +133,8 @@ namespace DavidFDev.DevConsole
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
         private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
         private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
-        private string _lastCommand = string.Empty;
+        private string _currentCommand = string.Empty;
+        private string _previousCommand = string.Empty;
         private int _commandHistoryIndex = -1;
         private bool _displayUnityLogs = true;
         private bool _displayUnityErrors = true;
@@ -475,7 +476,7 @@ namespace DavidFDev.DevConsole
 
         internal void LogCommand()
         {
-            LogCommand(_lastCommand);
+            LogCommand(_currentCommand);
         }
 
         internal void LogCommand(string name)
@@ -832,6 +833,15 @@ namespace DavidFDev.DevConsole
                     }
 
                     LogSeperator();
+                },
+                () =>
+                {
+                    if (string.IsNullOrEmpty(_previousCommand) || _previousCommand.ToLower().Equals("help"))
+                    {
+                        return;
+                    }
+
+                    RunCommand($"help {_previousCommand}");
                 }
             ));
 
@@ -848,9 +858,7 @@ namespace DavidFDev.DevConsole
                     if (enumType == null)
                     {
                         // Search all loaded assemblies for the enum
-                        Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-
-                        foreach (Assembly assembly in loadedAssemblies)
+                        foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                         {
                             enumType = assembly.GetTypes()
                                 .SelectMany(t => t.GetMembers())
@@ -1629,7 +1637,8 @@ namespace DavidFDev.DevConsole
 
         private void AddToCommandHistory(string name, string input)
         {
-            _lastCommand = name;
+            _previousCommand = _currentCommand;
+            _currentCommand = name;
             _commandHistory.Insert(0, input);
             if (_commandHistory.Count == CommandHistoryLength)
             {
