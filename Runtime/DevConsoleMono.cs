@@ -892,10 +892,7 @@ namespace DavidFDev.DevConsole
                     Screen.fullScreen = b;
                     LogSuccess($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
                 },
-                () =>
-                {
-                    LogVariable("Fullscreen", Screen.fullScreen);
-                }
+                () => LogVariable("Fullscreen", Screen.fullScreen)
             ));
 
             AddCommand(Command.Create<int>(
@@ -914,10 +911,14 @@ namespace DavidFDev.DevConsole
                     QualitySettings.vSyncCount = i;
                     LogSuccess($"VSyncCount set to {i}.");
                 },
-                () =>
-                {
-                    LogVariable("VSyncCount", QualitySettings.vSyncCount);
-                }
+                () => LogVariable("VSyncCount", QualitySettings.vSyncCount)
+            ));
+
+            AddCommand(Command.Create(
+                "resolution",
+                "",
+                "Display the current screen resolution",
+                () => LogVariable("Resolution", Screen.currentResolution)
             ));
 
             #endregion
