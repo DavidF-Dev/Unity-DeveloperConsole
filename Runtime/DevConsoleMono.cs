@@ -1087,23 +1087,23 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    LogSeperator(obj.name + (obj.activeInHierarchy ? " (enabled)" : " (disabled)"));
-                    if (obj.TryGetComponent<RectTransform>(out RectTransform rect))
+                    LogSeperator($"{obj.name} ({(obj.activeInHierarchy ? "enabled" : " disabled")})");
+                    if (obj.TryGetComponent(out RectTransform rect))
                     {
                         Log("RectTransform:");
-                        Log($" Anchored position: {rect.anchoredPosition}.");
-                        Log($" Size: {rect.sizeDelta}.");
-                        Log($" Pivot: {rect.pivot}.");
+                        LogVariable(" Anchored position", rect.anchoredPosition);
+                        LogVariable(" Size", rect.sizeDelta);
+                        LogVariable(" Pivot", rect.pivot);
                     }
                     else
                     {
                         Log("Transform:");
-                        Log($" Position: {obj.transform.position}.");
-                        Log($" Rotation: {obj.transform.rotation}.");
-                        Log($" Scale: {obj.transform.localScale}.");
+                        LogVariable(" Position", obj.transform.position);
+                        LogVariable(" Rotation", obj.transform.rotation);
+                        LogVariable(" Scale", obj.transform.localScale);
                     }
-                    Log($"Tag: {obj.tag}.");
-                    Log($"Physics layer: {LayerMask.LayerToName(obj.layer)}.");
+                    LogVariable("Tag", obj.tag);
+                    LogVariable("Physics layer", LayerMask.LayerToName(obj.layer));
 
                     Component[] components = obj.GetComponents(typeof(Component));
                     if (components.Length > 1)
@@ -1113,7 +1113,7 @@ namespace DavidFDev.DevConsole
                         {
                             if (components[i] is MonoBehaviour mono)
                             {
-                                Log($" {i}: {components[i].GetType().Name} ({(mono.enabled ? "enabled" : "disabled")}).");
+                                Log($" {i}: {mono.GetType().Name} ({(mono.enabled ? "enabled" : "disabled")}).");
                             }
                             else
                             {
