@@ -892,19 +892,6 @@ namespace DavidFDev.DevConsole
                 () => Log($"Application path: {AppDomain.CurrentDomain.BaseDirectory}.")
             ));
 
-            AddCommand(Command.Create<int>(
-                "fps_target",
-                "fps_max",
-                "Query or set the target frame rate.",
-                Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
-                i =>
-                {
-                    Application.targetFrameRate = i;
-                    LogSuccess($"Target frame rate set to {i}.");
-                },
-                () => LogVariable("TargetFrameRate", Application.targetFrameRate)
-            ));
-
             #endregion
 
             #region Screen commands
@@ -946,6 +933,79 @@ namespace DavidFDev.DevConsole
                 "",
                 "Display the current screen resolution",
                 () => LogVariable("Resolution", Screen.currentResolution)
+            ));
+
+            AddCommand(Command.Create<int>(
+                "fps_target",
+                "fps_max",
+                "Query or set the target frame rate.",
+                Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
+                i =>
+                {
+                    Application.targetFrameRate = i;
+                    LogSuccess($"Target frame rate set to {i}.");
+                },
+                () => LogVariable("TargetFrameRate", Application.targetFrameRate)
+            ));
+
+            #endregion
+
+            #region Camera commands
+
+            AddCommand(Command.Create<bool>(
+                "cam_ortho",
+                "",
+                "Query or set whether the main camera is orthographic",
+                Parameter.Create("enabled", "Whether the main camera is orthographic"),
+                b =>
+                {
+                    if (Camera.main == null)
+                    {
+                        LogError("Could not find the main camera.");
+                        return;
+                    }
+
+                    Camera.main.orthographic = b;
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} orthographic mode on the main camera.");
+                },
+                () =>
+                {
+                    if (Camera.main == null)
+                    {
+                        LogError("Could not find the main camera.");
+                        return;
+                    }
+
+                    LogVariable("Orthographic", Camera.main.orthographic);
+                }
+            ));
+
+            AddCommand(Command.Create<int>(
+                "cam_fov",
+                "",
+                "Query or set the main camera field of view",
+                Parameter.Create("fieldOfView", "Field of view"),
+                f =>
+                {
+                    if (Camera.main == null)
+                    {
+                        LogError("Could not find the main camera.");
+                        return;
+                    }
+
+                    Camera.main.fieldOfView = f;
+                    LogSuccess($"Main camera's field of view set to {f}.");
+                },
+                () =>
+                {
+                    if (Camera.main == null)
+                    {
+                        LogError("Could not find the main camera.");
+                        return;
+                    }
+
+                    LogVariable("FieldOfView", Camera.main.fieldOfView);
+                }
             ));
 
             #endregion
