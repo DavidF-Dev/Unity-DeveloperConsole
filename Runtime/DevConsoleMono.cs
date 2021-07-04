@@ -875,14 +875,14 @@ namespace DavidFDev.DevConsole
                 "appversion",
                 "",
                 "Display the application version",
-                () => Log($"App version: {Application.version}.")
+                () => LogVariable("App version", Application.version)
             ));
 
             AddCommand(Command.Create(
                 "unityversion",
                 "",
                 "Display the engine version",
-                () => Log($"Engine version: {Application.unityVersion}.")
+                () => LogVariable("Engine version", Application.unityVersion)
             ));
 
             AddCommand(Command.Create(
@@ -903,7 +903,7 @@ namespace DavidFDev.DevConsole
                 "path",
                 "",
                 "Display the path to the application executable",
-                () => Log($"Application path: {AppDomain.CurrentDomain.BaseDirectory}.")
+                () => LogVariable("Application path", AppDomain.CurrentDomain.BaseDirectory)
             ));
 
             #endregion
@@ -913,14 +913,27 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create<bool>(
                 "fullscreen",
                 "",
-                "Query or set whether the window is fullscreen",
-                Parameter.Create("enabled", "Whether the window is fullscreen"),
+                "Query or set whether the window is full screen",
+                Parameter.Create("enabled", "Whether the window is full screen"),
                 b =>
                 {
                     Screen.fullScreen = b;
                     LogSuccess($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
                 },
-                () => LogVariable("Fullscreen", Screen.fullScreen)
+                () => LogVariable("Full screen", Screen.fullScreen)
+            ));
+
+            AddCommand(Command.Create<FullScreenMode>(
+                "fullscreen_mode",
+                "",
+                $"Query or set the full screen mode",
+                Parameter.Create("mode", ""),
+                m =>
+                {
+                    Screen.fullScreenMode = m;
+                    LogSuccess($"Full screen mode set to {m}.");
+                },
+                () => LogVariable("Full screen mode", Screen.fullScreenMode)
             ));
 
             AddCommand(Command.Create<int>(
@@ -939,14 +952,21 @@ namespace DavidFDev.DevConsole
                     QualitySettings.vSyncCount = i;
                     LogSuccess($"VSyncCount set to {i}.");
                 },
-                () => LogVariable("VSyncCount", QualitySettings.vSyncCount)
+                () => LogVariable("VSync count", QualitySettings.vSyncCount)
             ));
 
             AddCommand(Command.Create(
                 "resolution",
                 "",
-                "Display the current screen resolution",
+                "Display the current monitor resolution",
                 () => LogVariable("Resolution", Screen.currentResolution)
+            ));
+
+            AddCommand(Command.Create(
+                "screen_size",
+                "",
+                "Display the current window resolution",
+                () => LogVariable("Resolution", new Vector2Int(Screen.width, Screen.height))
             ));
 
             AddCommand(Command.Create<int>(
@@ -959,7 +979,7 @@ namespace DavidFDev.DevConsole
                     Application.targetFrameRate = i;
                     LogSuccess($"Target frame rate set to {i}.");
                 },
-                () => LogVariable("TargetFrameRate", Application.targetFrameRate)
+                () => LogVariable("Target frame rate", Application.targetFrameRate)
             ));
 
             #endregion
@@ -1018,7 +1038,7 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    LogVariable("FieldOfView", Camera.main.fieldOfView);
+                    LogVariable("Field of view", Camera.main.fieldOfView);
                 }
             ));
 
