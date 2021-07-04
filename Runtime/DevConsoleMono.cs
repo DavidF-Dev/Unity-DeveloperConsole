@@ -425,9 +425,9 @@ namespace DavidFDev.DevConsole
             Log($"<color={htmlColour}>{message}</color>");
         }
 
-        internal void LogVariable(string variableName, object value)
+        internal void LogVariable(string variableName, object value, string suffix = "")
         {
-            Log($"{variableName}: {value}.");
+            Log($"{variableName}: {value}{suffix}.");
         }
 
         internal void LogError(object message)
@@ -1258,6 +1258,43 @@ namespace DavidFDev.DevConsole
                 "",
                 "Display the current time",
                 () => Log($"Current time: {DateTime.Now}.")
+            ));
+
+            AddCommand(Command.Create(
+                "sys_info",
+                "",
+                "Display system information",
+                () =>
+                {
+                    LogSeperator("System information");
+
+                    LogVariable("Name", SystemInfo.deviceName);
+                    LogVariable("Model", SystemInfo.deviceModel);
+                    LogVariable("Type", SystemInfo.deviceType, SystemInfo.operatingSystemFamily == OperatingSystemFamily.Other ? "" : $" ({SystemInfo.operatingSystemFamily})");
+                    LogVariable("OS", SystemInfo.operatingSystem);
+                    if (SystemInfo.batteryLevel != -1)
+                    {
+                        Log($"Battery status: {SystemInfo.batteryStatus} ({SystemInfo.batteryLevel * 100f}%).");
+                    }
+
+                    Log("");
+
+                    LogVariable("CPU", SystemInfo.processorType);
+                    LogVariable(" Memory size", SystemInfo.systemMemorySize, " megabytes");
+                    LogVariable(" Processors", SystemInfo.processorCount);
+                    LogVariable(" Frequency", SystemInfo.processorFrequency, " MHz");
+
+                    Log("");
+
+                    LogVariable("GPU", SystemInfo.graphicsDeviceName);
+                    LogVariable(" Type", SystemInfo.graphicsDeviceType);
+                    LogVariable(" Vendor", SystemInfo.graphicsDeviceVendor);
+                    LogVariable(" Version", SystemInfo.graphicsDeviceVersion);
+                    LogVariable(" Memory size", SystemInfo.graphicsMemorySize, " megabytes");
+                    LogVariable(" Multi threaded", SystemInfo.graphicsMultiThreaded);
+
+                    LogSeperator();
+                }
             ));
 
             #endregion
