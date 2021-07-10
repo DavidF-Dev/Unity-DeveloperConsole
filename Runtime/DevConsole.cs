@@ -50,7 +50,7 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     Whether the dev console is open.
+        ///     Whether the dev console window is open.
         /// </summary>
         public static bool IsOpen
         {
@@ -68,7 +68,7 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     Whether the dev console is open and the input field is focused.
+        ///     Whether the dev console window is open and the input field is focused.
         /// </summary>
         public static bool IsOpenAndFocused => _console.ConsoleIsShowingAndFocused;
 
@@ -285,6 +285,11 @@ namespace DavidFDev.DevConsole
         /// <param name="callback"></param>
         public static void Register_OnDevConsoleOpened(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             _console.OnDevConsoleOpened += callback;
         }
 
@@ -294,6 +299,11 @@ namespace DavidFDev.DevConsole
         /// <param name="callback"></param>
         public static void Deregister_OnDevConsoleOpened(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             _console.OnDevConsoleOpened -= callback;
         }
 
@@ -303,6 +313,11 @@ namespace DavidFDev.DevConsole
         /// <param name="callback"></param>
         public static void Register_OnDevConsoleClosed(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             _console.OnDevConsoleClosed += callback;
         }
 
@@ -312,6 +327,11 @@ namespace DavidFDev.DevConsole
         /// <param name="callback"></param>
         public static void Deregister_OnDevConsoleClosed(Action callback)
         {
+            if (callback == null)
+            {
+                throw new ArgumentNullException(nameof(callback));
+            }
+
             _console.OnDevConsoleClosed -= callback;
         }
 
@@ -320,8 +340,7 @@ namespace DavidFDev.DevConsole
         private static void Init()
 #pragma warning restore IDE0051
         {
-            GameObject obj = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Prefabs/FAB_DevConsole.Instance"));
-            _console = obj.GetComponent<DevConsoleMono>();
+            _console = UnityEngine.Object.Instantiate(Resources.Load<GameObject>("Prefabs/FAB_DevConsole.Instance")).GetComponent<DevConsoleMono>();
         }
 
         #endregion

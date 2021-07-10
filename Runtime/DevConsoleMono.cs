@@ -579,7 +579,7 @@ namespace DavidFDev.DevConsole
             hideFlags = HideFlags.HideInInspector | HideFlags.HideInHierarchy;
 #endif
 
-            _versionText.text = "v" + _version.ToString();
+            _versionText.text = $"v{_version}";
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
             _initLogFieldWidth = _logFieldPrefab.GetComponent<RectTransform>().sizeDelta.x;
@@ -1778,6 +1778,7 @@ namespace DavidFDev.DevConsole
 
         private int GetVertexCount(string text)
         {
+            // Determine the number of vertices required to render the provided rich text
             Text logText = _logFields.Last().textComponent;
             _textGenerator.Populate(text, logText.GetGenerationSettings(logText.rectTransform.rect.size));
             return _textGenerator.vertexCount;
@@ -1842,6 +1843,7 @@ namespace DavidFDev.DevConsole
 
         private bool GetKeyDown(InputKey key)
         {
+            // Check if the specified key was pressed this frame, using the correct input system
 #if USE_NEW_INPUT_SYSTEM
             return Keyboard.current[key].wasPressedThisFrame;
 #else
@@ -1851,6 +1853,7 @@ namespace DavidFDev.DevConsole
 
         private Vector2 GetMousePosition()
         {
+            // Get the current mouse position, using the correct input system
 #if USE_NEW_INPUT_SYSTEM
             return Mouse.current.position.ReadValue();
 #else
