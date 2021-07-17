@@ -21,7 +21,6 @@ using System.Runtime.CompilerServices;
 using System.Collections;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.UI;
 #endif
 
 using InputKey =
@@ -51,6 +50,9 @@ namespace DavidFDev.DevConsole
         private const float MaxConsoleHeight = 900;
         private const int CommandHistoryLength = 10;
         private const int MaxCachedEnumTypes = 6;
+
+        #region Input constants
+
         private const InputKey DefaultToggleKey =
 #if USE_NEW_INPUT_SYSTEM
             InputKey.Backquote;
@@ -65,6 +67,23 @@ namespace DavidFDev.DevConsole
 #else
             "FAB_DevConsole.OldEventSystem";
 #endif
+
+        #endregion
+
+        #region PlayerPref constants
+
+        private const string PrefConsoleToggleKey =
+#if USE_NEW_INPUT_SYSTEM
+            "DevConsole.newConsoleToggleKey";
+#else
+            "DevConsole.legacyConsoleToggleKey";
+#endif
+        private const string PrefDisplayUnityLogs = "DevConsole.displayUnityLogs";
+        private const string PrefDisplayUnityErrors = "DevConsole.displayUnityErrors";
+        private const string PrefDisplayUnityExceptions = "DevConsole.displayUnityExceptions";
+        private const string PrefDisplayUnityWarnings = "DevConsole.displayUnityWarnings";
+
+        #endregion
 
         private static readonly Version _version = new Version(0, 1, 5);
         private static readonly string[] _permanentCommands =
@@ -432,46 +451,52 @@ namespace DavidFDev.DevConsole
 
         #region Log methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Log(object message)
         {
             _logTextStore += $"\n{message}";
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Log(object message, string htmlColour)
         {
             Log($"<color={htmlColour}>{message}</color>");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogVariable(string variableName, object value, string suffix = "")
         {
             Log($"{variableName}: {value}{suffix}.");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogError(object message)
         {
             Log(message, ErrorColour);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogWarning(object message)
         {
             Log(message, WarningColour);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogSuccess(object message)
         {
             Log(message, SuccessColour);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogSeperator(object message = null)
         {
             if (message == null)
             {
                 Log("-");
+                return;
             }
-            else
-            {
-                Log($"- <b>{message}</b> -");
-            }
+
+            Log($"- <b>{message}</b> -");
         }
 
         internal void LogCommand()
@@ -481,11 +506,12 @@ namespace DavidFDev.DevConsole
 
         internal void LogCommand(string name)
         {
-            Command command = GetCommand(name);
-            if (command != null)
+            if (!GetCommand(name, out Command command))
             {
-                Log($">> {command.ToFormattedString()}.");
+                return;
             }
+
+            Log($">> {command.ToFormattedString()}.");
         }
 
         #endregion
@@ -587,7 +613,7 @@ namespace DavidFDev.DevConsole
             _resizeButtonColour = _resizeButtonImage.color;
             _logFieldPrefab.SetActive(false);
 
-            InitPreferences();
+            LoadPreferences();
             InitBuiltInCommands();
             InitAttributeCommands();
 
@@ -658,7 +684,7 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            // Force the canvas to rebuild layouts, which will display the log correctly
+            // Process the stored logs, displaying them to the console
             if (_logTextStore != string.Empty)
             {
                 ProcessStoredLogs();
@@ -668,6 +694,11 @@ namespace DavidFDev.DevConsole
             if (ConsoleToggleKey.HasValue && (!ConsoleIsShowing || !_inputField.isFocused) && GetKeyDown(ConsoleToggleKey.Value))
             {
                 ToggleConsole();
+                return;
+            }
+
+            if (!ConsoleIsShowing)
+            {
                 return;
             }
 
@@ -689,7 +720,8 @@ namespace DavidFDev.DevConsole
                 // Allow cycling through command history using the UP and DOWN arrows
                 else
                 {
-                    if (_commandHistoryIndex != -1 && InputText == string.Empty)
+                    // Reset the command history index if the input text is blank
+                    if (string.IsNullOrEmpty(InputText) && _commandHistoryIndex != -1)
                     {
                         _commandHistoryIndex = -1;
                     }
@@ -708,36 +740,12 @@ namespace DavidFDev.DevConsole
 
         private void OnDestroy()
         {
-#if USE_NEW_INPUT_SYSTEM
-            // TODO: Save console toggle key in new input system
-#else
-            PlayerPrefs.SetInt("DevConsole.legacyConsoleToggleKey", !ConsoleToggleKey.HasValue ? -1 : (int)ConsoleToggleKey.Value);
-#endif
-            PlayerPrefs.SetInt("DevConsole.displayUnityLogs", _displayUnityLogs ? 1 : 0);
-            PlayerPrefs.SetInt("DevConsole.displayUnityErrors", _displayUnityErrors ? 1 : 0);
-            PlayerPrefs.SetInt("DevConsole.displayUnityExceptions", _displayUnityExceptions ? 1 : 0);
-            PlayerPrefs.SetInt("DevConsole.displayUnityWarnings", _displayUnityWarnings ? 1 : 0);
-
-            PlayerPrefs.Save();
+            SavePreferences();
         }
 
         #endregion
 
         #region Init methods
-
-        private void InitPreferences()
-        {
-#if USE_NEW_INPUT_SYSTEM
-            // TODO: Load console toggle key in new input system
-#else
-            int n = PlayerPrefs.GetInt("DevConsole.legacyConsoleToggleKey", (int)DefaultToggleKey);
-            ConsoleToggleKey = n < 0 ? (InputKey?)null : (InputKey)n;
-#endif
-            _displayUnityLogs = PlayerPrefs.GetInt("DevConsole.displayUnityLogs", 1) == 1;
-            _displayUnityErrors = PlayerPrefs.GetInt("DevConsole.displayUnityErrors", 1) == 1;
-            _displayUnityExceptions = PlayerPrefs.GetInt("DevConsole.displayUnityExceptions", 1) == 1;
-            _displayUnityWarnings = PlayerPrefs.GetInt("DevConsole.displayUnityWarnings", 1) == 1;
-        }
 
         private void InitBuiltInCommands()
         {
@@ -1531,6 +1539,11 @@ namespace DavidFDev.DevConsole
             return _commands.TryGetValue(name.ToLower(), out Command command) ? command : _commands.Values.FirstOrDefault(c => c.HasAlias(name));
         }
 
+        private bool GetCommand(string name, out Command command)
+        {
+            return _commands.TryGetValue(name.ToLower(), out command) || ((command = _commands.Values.FirstOrDefault(c => c.HasAlias(name))) != null);
+        }
+
         private string[] GetInput(string rawInput)
         {
             string[] split = rawInput.Split(' ');
@@ -1752,6 +1765,7 @@ namespace DavidFDev.DevConsole
             if (vertexCountStored > MaximumTextVertices)
             {
                 // TODO: Split into multiple
+                // For now, produce an error
                 _logTextStore = $"<color={ErrorColour}>Message to log exceeded {MaximumTextVertices} vertices and was ignored.</color>";
                 return;
             }
@@ -1819,6 +1833,7 @@ namespace DavidFDev.DevConsole
             RebuildLayout();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RebuildLayout()
         {
             // Forcefully rebuild the layout, otherwise transforms are positioned incorrectly
@@ -1841,9 +1856,14 @@ namespace DavidFDev.DevConsole
 
         #region Physical input methods
 
+        /// <summary>
+        ///     Check if the specified key was pressed this frame, using the correct input system.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool GetKeyDown(InputKey key)
         {
-            // Check if the specified key was pressed this frame, using the correct input system
 #if USE_NEW_INPUT_SYSTEM
             return Keyboard.current[key].wasPressedThisFrame;
 #else
@@ -1851,14 +1871,44 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
+        /// <summary>
+        ///     Get the current mouse position, using the correct input system.
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Vector2 GetMousePosition()
         {
-            // Get the current mouse position, using the correct input system
 #if USE_NEW_INPUT_SYSTEM
             return Mouse.current.position.ReadValue();
 #else
             return Input.mousePosition;
 #endif
+        }
+
+        #endregion
+
+        #region Pref methods
+
+        private void SavePreferences()
+        {
+            PlayerPrefs.SetInt(PrefConsoleToggleKey, !ConsoleToggleKey.HasValue ? -1 : (int)ConsoleToggleKey.Value);
+            PlayerPrefs.SetInt(PrefDisplayUnityLogs, _displayUnityLogs ? 1 : 0);
+            PlayerPrefs.SetInt(PrefDisplayUnityErrors, _displayUnityErrors ? 1 : 0);
+            PlayerPrefs.SetInt(PrefDisplayUnityExceptions, _displayUnityExceptions ? 1 : 0);
+            PlayerPrefs.SetInt(PrefDisplayUnityWarnings, _displayUnityWarnings ? 1 : 0);
+
+            PlayerPrefs.Save();
+        }
+
+        private void LoadPreferences()
+        {
+            int n = PlayerPrefs.GetInt(PrefConsoleToggleKey, (int)DefaultToggleKey);
+            ConsoleToggleKey = n < 0 ? (InputKey?)null : (InputKey)n;
+
+            _displayUnityLogs = PlayerPrefs.GetInt(PrefDisplayUnityLogs, 1) == 1;
+            _displayUnityErrors = PlayerPrefs.GetInt(PrefDisplayUnityErrors, 1) == 1;
+            _displayUnityExceptions = PlayerPrefs.GetInt(PrefDisplayUnityExceptions, 1) == 1;
+            _displayUnityWarnings = PlayerPrefs.GetInt(PrefDisplayUnityWarnings, 1) == 1;
         }
 
         #endregion
