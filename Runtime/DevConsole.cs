@@ -73,6 +73,11 @@ namespace DavidFDev.DevConsole
         public static bool IsOpenAndFocused => _console.ConsoleIsShowingAndFocused;
 
         /// <summary>
+        ///     Whether the dev console user-defined key bindings are enabled.
+        /// </summary>
+        public static bool IsKeyBindingsEnabled => _console.BindingsIsEnabled;
+
+        /// <summary>
         ///     The key used to toggle the dev console window, NULL if no key.
         /// </summary>
         public static InputKey? ToggleKey

@@ -78,6 +78,12 @@ namespace DavidFDev.DevConsole
 #else
             "DevConsole.legacyConsoleToggleKey";
 #endif
+        private const string PrefBindings =
+#if USE_NEW_INPUT_SYSTEM
+            "DevConsole.newBindings";
+#else
+            "DevConsole.legacyBindings";
+#endif
         private const string PrefDisplayUnityLogs = "DevConsole.displayUnityLogs";
         private const string PrefDisplayUnityErrors = "DevConsole.displayUnityErrors";
         private const string PrefDisplayUnityExceptions = "DevConsole.displayUnityExceptions";
@@ -121,6 +127,7 @@ namespace DavidFDev.DevConsole
         #region Input fields
 
         private bool _focusInputField = false;
+        private Dictionary<InputKey, string> _bindings = new Dictionary<InputKey, string>();
 
         #endregion
 
@@ -177,6 +184,8 @@ namespace DavidFDev.DevConsole
         internal bool ConsoleIsShowing { get; private set; }
 
         internal bool ConsoleIsShowingAndFocused => ConsoleIsShowing && _inputField.isFocused;
+
+        internal bool BindingsIsEnabled { get; set; } = true;
 
         private string InputText
         {
@@ -684,6 +693,25 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
+            // Check bindings (as long as the input field isn't focused!)
+            if (BindingsIsEnabled && !_inputField.isFocused)
+            {
+                try
+                {
+                    foreach (InputKey key in _bindings.Keys)
+                    {
+                        if (GetKeyDown(key))
+                        {
+                            RunCommand(_bindings[key]);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogError($"Checking bindings failed with an exception: {e.Message}");
+                }
+            }
+
             // Process the stored logs, displaying them to the console
             if (_logTextStore != string.Empty)
             {
@@ -931,6 +959,68 @@ namespace DavidFDev.DevConsole
                 "",
                 "Display the developer console version",
                 () => Log($"Developer console version: {_version}.")
+            ));
+
+            AddCommand(Command.Create<InputKey, string>(
+                "bind",
+                "addbind",
+                "Add a key binding for a command",
+                Parameter.Create("Key", "Key to bind the command to"),
+                Parameter.Create("Command", "Command to execute when the key bind is pressed"),
+                (key, command) =>
+                {
+                    if (_bindings.ContainsKey(key))
+                    {
+                        LogError($"A key binding already exists for <i>{key}</i>. Use {GetCommand("unbind").ToFormattedString()} to remove the key binding.");
+                        return;
+                    }
+
+                    _bindings[key] = command;
+                    LogSuccess($"Successfully added a key binding for <i>{key}</i>.");
+                }
+            ));
+
+            AddCommand(Command.Create<InputKey>(
+                "unbind",
+                "removebind",
+                "Remove a key binding",
+                Parameter.Create("Key", "Key binding to remove"),
+                key =>
+                {
+                    if (!_bindings.ContainsKey(key))
+                    {
+                        LogError($"A key binding doesn't exist for <i>{key}</i>.");
+                        return;
+                    }
+
+                    _bindings.Remove(key);
+                    LogSuccess($"Successfully removed a key binding for <i>{key}</i>.");
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "binds",
+                "",
+                "List all the key bindings",
+                () =>
+                {
+                    if (_bindings.Count == 0)
+                    {
+                        Log($"There are no key bindings. Use {GetCommand("bind").GetFormattedName()} to add a key binding.");
+                        return;
+                    }
+
+                    string result = "";
+                    foreach (InputKey key in _bindings.Keys)
+                    {
+                        result += $"<i>{key}</i>: \"{_bindings[key]}\"\n";
+                    }
+                    result = result.Remove(result.Length - 2);
+
+                    LogSeperator($"Key bindings ({_bindings.Count})");
+                    Log(result);
+                    LogSeperator();
+                }
             ));
 
             #endregion
