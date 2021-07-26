@@ -94,7 +94,7 @@ namespace DavidFDev.DevConsole
         private static readonly Version _version = new Version(0, 1, 6);
         private static readonly string[] _permanentCommands =
         {
-            "devconsole", "commands", "help", "print", "clear", "reset"
+            "devconsole", "commands", "help", "print", "clear", "reset", "bind", "unbind", "bindings"
         };
 
         #endregion
