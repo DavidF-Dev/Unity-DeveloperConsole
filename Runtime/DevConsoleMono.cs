@@ -70,7 +70,7 @@ namespace DavidFDev.DevConsole
 
         #endregion
 
-        #region PlayerPref constants
+        #region File data constants
 
         private const string PrefConsoleToggleKey =
 #if USE_NEW_INPUT_SYSTEM
@@ -1503,6 +1503,20 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
+            AddCommand(Command.Create(
+                "datapath",
+                "",
+                "Display information about where data is stored by Unity and the developer console",
+                () =>
+                {
+                    LogSeperator("Data paths");
+                    LogVariable("Data path", Application.dataPath);
+                    LogVariable("Persistent data path", Application.persistentDataPath);
+                    LogVariable("Developer console data path", DevConsoleData.FilePath);
+                    LogSeperator();
+                }
+            ));
+
             #endregion
         }
 
@@ -1981,24 +1995,27 @@ namespace DavidFDev.DevConsole
 
         private void SavePreferences()
         {
-            PlayerPrefs.SetInt(PrefConsoleToggleKey, !ConsoleToggleKey.HasValue ? -1 : (int)ConsoleToggleKey.Value);
-            PlayerPrefs.SetInt(PrefDisplayUnityLogs, _displayUnityLogs ? 1 : 0);
-            PlayerPrefs.SetInt(PrefDisplayUnityErrors, _displayUnityErrors ? 1 : 0);
-            PlayerPrefs.SetInt(PrefDisplayUnityExceptions, _displayUnityExceptions ? 1 : 0);
-            PlayerPrefs.SetInt(PrefDisplayUnityWarnings, _displayUnityWarnings ? 1 : 0);
+            DevConsoleData.SetObject(PrefConsoleToggleKey, ConsoleToggleKey);
+            DevConsoleData.SetObject(PrefBindings, _bindings);
+            DevConsoleData.SetObject(PrefDisplayUnityErrors, _displayUnityErrors);
+            DevConsoleData.SetObject(PrefDisplayUnityExceptions, _displayUnityExceptions);
+            DevConsoleData.SetObject(PrefDisplayUnityWarnings, _displayUnityWarnings);
 
-            PlayerPrefs.Save();
+            DevConsoleData.Save();
         }
 
         private void LoadPreferences()
         {
-            int n = PlayerPrefs.GetInt(PrefConsoleToggleKey, (int)DefaultToggleKey);
-            ConsoleToggleKey = n < 0 ? (InputKey?)null : (InputKey)n;
+            DevConsoleData.Load();
 
-            _displayUnityLogs = PlayerPrefs.GetInt(PrefDisplayUnityLogs, 1) == 1;
-            _displayUnityErrors = PlayerPrefs.GetInt(PrefDisplayUnityErrors, 1) == 1;
-            _displayUnityExceptions = PlayerPrefs.GetInt(PrefDisplayUnityExceptions, 1) == 1;
-            _displayUnityWarnings = PlayerPrefs.GetInt(PrefDisplayUnityWarnings, 1) == 1;
+            ConsoleToggleKey = DevConsoleData.GetObject(PrefConsoleToggleKey, (InputKey?)DefaultToggleKey);
+            _bindings = DevConsoleData.GetObject(PrefBindings, new Dictionary<InputKey, string>());
+            _displayUnityLogs = DevConsoleData.GetObject(PrefDisplayUnityLogs, true);
+            _displayUnityErrors = DevConsoleData.GetObject(PrefDisplayUnityErrors, true);
+            _displayUnityExceptions = DevConsoleData.GetObject(PrefDisplayUnityExceptions, true);
+            _displayUnityWarnings = DevConsoleData.GetObject(PrefDisplayUnityWarnings, true);
+
+            DevConsoleData.Clear();
         }
 
         #endregion
