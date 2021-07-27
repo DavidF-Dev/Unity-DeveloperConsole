@@ -1,7 +1,7 @@
 # In-game Developer Console for Unity
 This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
-The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion & autocomplete that enables quick access to commands.
+The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion, autocomplete & key bindings that enable quick access to commands.
 
 <img src="/.github/preview2.gif" alt="Developer console preview" width="72%"></img>
 
@@ -86,10 +86,13 @@ The asset provides various built-in commands.
 - ``print (String)message``: display a message in the dev console log.
 - ``exit``: exit the game.
 - ``fullscreen (Boolean)enabled``: query or set whether the window is fullscreen.
+- ``bind (InputKey)key (String)command``: bind the specified key to execute a command, even if the dev console window is closed.
 - ``scene_load (Int32)buildIndex``: load a scene.
 - ``scene_info (Int32)sceneIndex``: display information about an active scene.
 - ``obj_list``: display a hierarchical list of all game objects in the scene.
 - ``obj_info (String)name``: display information about a game object.
+- ``sys_info``: display information about the system.
+- ``enum (String)enumName``: display all values of the specified enum.
 
 And more...
 
@@ -107,10 +110,11 @@ DevConsole.AddParameterType<GameObject>((string input) => GameObject.Find(input)
 ```
 
 <b>Q. Can I remove a built-in command?</b></br>
-A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are six permanent commands that cannot be removed (``devconsole``, ``commmands``, ``help``, ``print``, ``clear`` & ``reset``).
+A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There are a few permanent commands that cannot be removed that are deemed essential for the developer console to run correctly.
 
 <b>Q. How can I stop keyboard input in the dev console from triggering game-specific actions (e.g. space will make the character jump even though the input field is focused)?</b></br>
-A. As far as I know, this is an unavoidable issue. I recommend making a global property for your game (e.g. ``AllowGameInput``) which you can query before performing any game-specific input. This property can then reference ``DevConsole.IsOpenAndFocused``, effectively disabling game-specific input when the dev console is open and the input field is focused.
+A. As far as I know, this is an unavoidable issue. I recommend making a global property for your game (e.g. ``AllowGameInput``) which you can query before performing any game-specific input. This property can then reference ``DevConsole.IsOpenAndFocused``, effectively disabling game-specific input when the dev console is open and the input field is focused. 
+</br>You can also set ``DevConsole.IsKeyBindingsEnabled`` to toggle key bindings - for example, if the user is in a text field.
 ```cs
 public static bool AllowGameInput => DevConsole.IsOpenAndFocused;
 
