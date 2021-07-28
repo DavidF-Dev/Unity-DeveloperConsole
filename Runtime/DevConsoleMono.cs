@@ -1185,15 +1185,20 @@ namespace DavidFDev.DevConsole
 
             #region Screen commands
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "fullscreen",
                 "",
                 "Query or set whether the window is full screen",
                 Parameter.Create("enabled", "Whether the window is full screen"),
                 b =>
                 {
-                    Screen.fullScreen = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} fullscreen mode.");
+                    if (!b.HasValue)
+                    {
+                        b = !Screen.fullScreen;
+                    }
+
+                    Screen.fullScreen = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} fullscreen mode.");
                 },
                 () => LogVariable("Full screen", Screen.fullScreen)
             ));
@@ -1261,7 +1266,7 @@ namespace DavidFDev.DevConsole
 
             #region Camera commands
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "cam_ortho",
                 "",
                 "Query or set whether the main camera is orthographic",
@@ -1274,8 +1279,13 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    Camera.main.orthographic = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} orthographic mode on the main camera.");
+                    if (!b.HasValue)
+                    {
+                        b = !Camera.main.orthographic;
+                    }
+
+                    Camera.main.orthographic = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} orthographic mode on the main camera.");
                 },
                 () =>
                 {
@@ -1494,15 +1504,20 @@ namespace DavidFDev.DevConsole
 
             #region Log commands
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "log_logs",
                 "",
                 "Query, enable or disable displaying Unity logs in the developer console",
                 Parameter.Create("enabled", "Whether Unity logs should be displayed in the developer console"),
                 b =>
                 {
-                    _displayUnityLogs = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity logs in the developer console.");
+                    if (!b.HasValue)
+                    {
+                        b = !_displayUnityLogs;
+                    }
+
+                    _displayUnityLogs = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} displaying Unity logs in the developer console.");
                 },
                 () =>
                 {
@@ -1510,15 +1525,20 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "log_errors",
                 "",
                 "Query, enable or disable displaying Unity errors in the developer console",
                 Parameter.Create("enabled", "Whether Unity errors should be displayed in the developer console"),
                 b =>
                 {
-                    _displayUnityErrors = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity errors in the developer console.");
+                    if (!b.HasValue)
+                    {
+                        b = !_displayUnityErrors;
+                    }
+
+                    _displayUnityErrors = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} displaying Unity errors in the developer console.");
                 },
                 () =>
                 {
@@ -1526,15 +1546,20 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "log_exceptions",
                 "",
                 "Query, enable or disable displaying Unity exceptions in the developer console",
                 Parameter.Create("enabled", "Whether Unity exceptions should be displayed in the developer console"),
                 b =>
                 {
-                    _displayUnityExceptions = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity exceptions in the developer console.");
+                    if (!b.HasValue)
+                    {
+                        b = !_displayUnityExceptions;
+                    }
+
+                    _displayUnityExceptions = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} displaying Unity exceptions in the developer console.");
                 },
                 () =>
                 {
@@ -1542,15 +1567,20 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "log_warnings",
                 "",
                 "Query, enable or disable displaying Unity warnings in the developer console",
                 Parameter.Create("enabled", "Whether Unity warnings should be displayed in the developer console"),
                 b =>
                 {
-                    _displayUnityWarnings = b;
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} displaying Unity warnings in the developer console.");
+                    if (!b.HasValue)
+                    {
+                        b = !_displayUnityWarnings;
+                    }
+
+                    _displayUnityWarnings = b.Value;
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} displaying Unity warnings in the developer console.");
                 },
                 () =>
                 {
