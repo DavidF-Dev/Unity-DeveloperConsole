@@ -393,19 +393,6 @@ namespace DavidFDev.DevConsole
 
                 try
                 {
-                    // Allow bools to be in the form of "0" and "1"
-                    if (command.Parameters[i].Type == typeof(bool) && int.TryParse(parameter, out int result))
-                    {
-                        if (result == 0)
-                        {
-                            parameter = "false";
-                        }
-                        else if (result == 1)
-                        {
-                            parameter = "true";
-                        }
-                    }
-
                     // Try to convert the parameter input into the appropriate type
                     parameters[i] = ParseParameter(parameter, command.Parameters[i].Type);
                 }
@@ -1633,7 +1620,36 @@ namespace DavidFDev.DevConsole
 
         private void InitBuiltInParsers()
         {
+            AddParameterType(typeof(bool),
+                s =>
+                {
+                    // Allow bools to be in the form of "0" and "1"
+                    if (int.TryParse(s, out int result))
+                    {
+                        if (result == 0)
+                        {
+                            return false;
+                        }
+                        else if (result == 1)
+                        {
+                            return true;
+                        }
+                    }
 
+                    return Convert.ChangeType(s, typeof(bool));
+                });
+
+            AddParameterType(typeof(bool?),
+                s =>
+                {
+                    // Allow null value, representing a toggle
+                    if (s.ToLower() == "null" || s.ToLower() == "toggle" || s == "~" || s == "!")
+                    {
+                        return null;
+                    }
+
+                    return ParseParameter(s, typeof(bool));
+                });
         }
 
         private void InitAttributeCommands()
