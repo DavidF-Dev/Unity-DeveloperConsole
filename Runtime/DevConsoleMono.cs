@@ -1154,7 +1154,7 @@ namespace DavidFDev.DevConsole
                 "showfps",
                 "displayfps",
                 "Query or set whether the fps is being displayed on-screen",
-                Parameter.Create("enabled", "Whether the fps is being displayed on-screen"),
+                Parameter.Create("enabled", "Whether the fps is being displayed on-screen (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
@@ -1189,7 +1189,7 @@ namespace DavidFDev.DevConsole
                 "fullscreen",
                 "",
                 "Query or set whether the window is full screen",
-                Parameter.Create("enabled", "Whether the window is full screen"),
+                Parameter.Create("enabled", "Whether the window is full screen (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
@@ -1270,7 +1270,7 @@ namespace DavidFDev.DevConsole
                 "cam_ortho",
                 "",
                 "Query or set whether the main camera is orthographic",
-                Parameter.Create("enabled", "Whether the main camera is orthographic"),
+                Parameter.Create("enabled", "Whether the main camera is orthographic (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (Camera.main == null)
@@ -1508,7 +1508,7 @@ namespace DavidFDev.DevConsole
                 "log_logs",
                 "",
                 "Query, enable or disable displaying Unity logs in the developer console",
-                Parameter.Create("enabled", "Whether Unity logs should be displayed in the developer console"),
+                Parameter.Create("enabled", "Whether Unity logs should be displayed in the developer console (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
@@ -1529,7 +1529,7 @@ namespace DavidFDev.DevConsole
                 "log_errors",
                 "",
                 "Query, enable or disable displaying Unity errors in the developer console",
-                Parameter.Create("enabled", "Whether Unity errors should be displayed in the developer console"),
+                Parameter.Create("enabled", "Whether Unity errors should be displayed in the developer console (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
@@ -1550,7 +1550,7 @@ namespace DavidFDev.DevConsole
                 "log_exceptions",
                 "",
                 "Query, enable or disable displaying Unity exceptions in the developer console",
-                Parameter.Create("enabled", "Whether Unity exceptions should be displayed in the developer console"),
+                Parameter.Create("enabled", "Whether Unity exceptions should be displayed in the developer console (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
@@ -1571,7 +1571,7 @@ namespace DavidFDev.DevConsole
                 "log_warnings",
                 "",
                 "Query, enable or disable displaying Unity warnings in the developer console",
-                Parameter.Create("enabled", "Whether Unity warnings should be displayed in the developer console"),
+                Parameter.Create("enabled", "Whether Unity warnings should be displayed in the developer console (use \"NULL\" to toggle)"),
                 b =>
                 {
                     if (!b.HasValue)
