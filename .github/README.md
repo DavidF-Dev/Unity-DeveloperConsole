@@ -52,6 +52,8 @@ Custom commands can be added to the dev console by developers. They can be creat
 #### Parameters
 Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. int, float, string, bool, etc.)</br>
 Enums are also supported.</br>
+Commands that use a nullable bool (Boolean?) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
+E.g. executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
 To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).
 
 #### Example using Command.Create
@@ -85,8 +87,9 @@ The asset provides various built-in commands.
 - ``help (String)commandName``: display helpful information about the specified command.
 - ``print (String)message``: display a message in the dev console log.
 - ``exit``: exit the game.
-- ``fullscreen (Boolean)enabled``: query or set whether the window is fullscreen.
+- ``fullscreen (Boolean?)enabled``: query or set whether the window is fullscreen.
 - ``bind (InputKey)key (String)command``: bind the specified key to execute a command, even if the dev console window is closed.
+- ``showfps (Boolean?)enabled``: query or set whether to display the fps on-screen.
 - ``scene_load (Int32)buildIndex``: load a scene.
 - ``scene_info (Int32)sceneIndex``: display information about an active scene.
 - ``obj_list``: display a hierarchical list of all game objects in the scene.
