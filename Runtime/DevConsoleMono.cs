@@ -50,6 +50,7 @@ namespace DavidFDev.DevConsole
         private const float MaxConsoleHeight = 900;
         private const int CommandHistoryLength = 10;
         private const int MaxCachedEnumTypes = 6;
+        private const float FpsUpdateRate = 4f;
 
         #region Input constants
 
@@ -88,6 +89,7 @@ namespace DavidFDev.DevConsole
         private const string PrefDisplayUnityErrors = "DevConsole.displayUnityErrors";
         private const string PrefDisplayUnityExceptions = "DevConsole.displayUnityExceptions";
         private const string PrefDisplayUnityWarnings = "DevConsole.displayUnityWarnings";
+        private const string PrefShowFps = "DevConsole.displayFps";
 
         #endregion
 
@@ -170,6 +172,19 @@ namespace DavidFDev.DevConsole
         private int _commandSuggestionIndex = 0;
         private bool _ignoreInputChange = false;
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
+
+        #endregion
+
+        #region Fps fields
+
+        private bool _isDisplayingFps;
+        private float _fpsDeltaTime;
+        private int _fps;
+        private float _fpsMs;
+        private float _fpsElapsed;
+        private GUIStyle _fpsStyle;
+        private Vector2 _fpsLabelSize;
+        private Color _fpsTextColour;
 
         #endregion
 
@@ -624,6 +639,7 @@ namespace DavidFDev.DevConsole
 
             LoadPreferences();
             InitBuiltInCommands();
+            InitBuiltInParsers();
             InitAttributeCommands();
 
             // Enable the console by default if in editor or a development build
@@ -691,6 +707,35 @@ namespace DavidFDev.DevConsole
             if (!ConsoleIsEnabled)
             {
                 return;
+            }
+
+            // Update fps display
+            if (_isDisplayingFps)
+            {
+                _fpsDeltaTime += (Time.unscaledDeltaTime - _fpsDeltaTime) * 0.1f;
+                _fpsElapsed += Time.deltaTime;
+                if (_fpsElapsed > 1.0f / FpsUpdateRate)
+                {
+                    // Calculate fps values
+                    _fpsMs = _fpsDeltaTime * 1000f;
+                    _fps = Mathf.RoundToInt(1.0f / _fpsDeltaTime);
+                    _fpsElapsed -= 1.0f / FpsUpdateRate;
+
+                    // Determine colour
+                    _fpsTextColour = Color.white;
+                    if (Application.targetFrameRate == -1 && _fps >= 60 || Application.targetFrameRate != -1 && _fps >= Application.targetFrameRate)
+                    {
+                        _fpsTextColour = Color.green;
+                    }
+                    else if (_fps < 10)
+                    {
+                        _fpsTextColour = Color.red;
+                    }
+                    else if (_fps < 30 && (Application.targetFrameRate > 30 || Application.targetFrameRate == -1))
+                    {
+                        _fpsTextColour = Color.yellow;
+                    }
+                }
             }
 
             // Check bindings (as long as the input field isn't focused!)
@@ -763,6 +808,46 @@ namespace DavidFDev.DevConsole
                         CycleCommandHistory(-1);
                     }
                 }
+            }
+        }
+
+        private void OnGUI()
+        {
+            if (!ConsoleIsEnabled)
+            {
+                return;
+            }
+
+            if (_isDisplayingFps)
+            {
+                if (_fpsStyle == null)
+                {
+                    // Create the style
+                    _fpsStyle = new GUIStyle(GUI.skin.box)
+                    {
+                        alignment = TextAnchor.MiddleCenter,
+                        fontSize = 20,
+                        normal = { textColor = Color.white, background = Texture2D.whiteTexture }
+                    };
+
+                    _fpsLabelSize = _fpsStyle.CalcSize(new GUIContent("0.00 ms (000 fps)"));
+                }
+
+                Color oldBackgroundColour = GUI.backgroundColor;
+                Color oldContentColour = GUI.contentColor;
+
+                // Set colours
+                GUI.backgroundColor = new Color(0f, 0f, 0f, 0.75f);
+                GUI.contentColor = _fpsTextColour;
+
+                // Create label
+                GUI.Box(
+                    new Rect(10, 10, _fpsLabelSize.x + 10f, _fpsLabelSize.y + 10f),
+                    $"{_fpsMs:0.00} ms ({_fps:0.} fps)",
+                    _fpsStyle);
+
+                GUI.backgroundColor = oldBackgroundColour;
+                GUI.contentColor = oldContentColour;
             }
         }
 
@@ -1078,6 +1163,32 @@ namespace DavidFDev.DevConsole
                 () => LogVariable("Application path", AppDomain.CurrentDomain.BaseDirectory)
             ));
 
+            AddCommand(Command.Create<bool>(
+                "showfps",
+                "displayfps",
+                "Query or set whether the fps is being displayed on-screen",
+                Parameter.Create("enabled", "Whether the fps is being displayed on-screen"),
+                b =>
+                {
+                    if (b != _isDisplayingFps)
+                    {
+                        _isDisplayingFps = !_isDisplayingFps;
+
+                        if (_isDisplayingFps)
+                        {
+                            _fps = 0;
+                            _fpsMs = 0f;
+                            _fpsDeltaTime = 0f;
+                            _fpsElapsed = 0f;
+                            _fpsStyle = null;
+                        }
+                    }
+
+                    LogSuccess($"{(b ? "Enabled" : "Disabled")} the on-screen fps.");
+                },
+                () => LogVariable("Show fps", _isDisplayingFps)
+                ));
+
             #endregion
 
             #region Screen commands
@@ -1142,8 +1253,8 @@ namespace DavidFDev.DevConsole
             ));
 
             AddCommand(Command.Create<int>(
-                "fps_target",
-                "fps_max",
+                "targetfps",
+                "",
                 "Query or set the target frame rate.",
                 Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
                 i =>
@@ -1518,6 +1629,11 @@ namespace DavidFDev.DevConsole
             ));
 
             #endregion
+        }
+
+        private void InitBuiltInParsers()
+        {
+
         }
 
         private void InitAttributeCommands()
@@ -2000,6 +2116,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefDisplayUnityErrors, _displayUnityErrors);
             DevConsoleData.SetObject(PrefDisplayUnityExceptions, _displayUnityExceptions);
             DevConsoleData.SetObject(PrefDisplayUnityWarnings, _displayUnityWarnings);
+            DevConsoleData.SetObject(PrefShowFps, _isDisplayingFps);
 
             DevConsoleData.Save();
         }
@@ -2014,6 +2131,7 @@ namespace DavidFDev.DevConsole
             _displayUnityErrors = DevConsoleData.GetObject(PrefDisplayUnityErrors, true);
             _displayUnityExceptions = DevConsoleData.GetObject(PrefDisplayUnityExceptions, true);
             _displayUnityWarnings = DevConsoleData.GetObject(PrefDisplayUnityWarnings, true);
+            _isDisplayingFps = DevConsoleData.GetObject(PrefShowFps, false);
 
             DevConsoleData.Clear();
         }
