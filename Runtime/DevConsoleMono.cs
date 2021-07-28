@@ -1150,13 +1150,18 @@ namespace DavidFDev.DevConsole
                 () => LogVariable("Application path", AppDomain.CurrentDomain.BaseDirectory)
             ));
 
-            AddCommand(Command.Create<bool>(
+            AddCommand(Command.Create<bool?>(
                 "showfps",
                 "displayfps",
                 "Query or set whether the fps is being displayed on-screen",
                 Parameter.Create("enabled", "Whether the fps is being displayed on-screen"),
                 b =>
                 {
+                    if (!b.HasValue)
+                    {
+                        b = !_isDisplayingFps;
+                    }
+
                     if (b != _isDisplayingFps)
                     {
                         _isDisplayingFps = !_isDisplayingFps;
@@ -1171,7 +1176,7 @@ namespace DavidFDev.DevConsole
                         }
                     }
 
-                    LogSuccess($"{(b ? "Enabled" : "Disabled")} the on-screen fps.");
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} the on-screen fps.");
                 },
                 () => LogVariable("Show fps", _isDisplayingFps)
                 ));
