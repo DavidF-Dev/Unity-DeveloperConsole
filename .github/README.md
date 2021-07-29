@@ -1,5 +1,5 @@
 # In-game Developer Console for Unity
-This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
+This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or players to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
 The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion, autocomplete & key bindings that enable quick access to commands.
 
