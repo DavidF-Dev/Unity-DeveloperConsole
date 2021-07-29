@@ -3,6 +3,8 @@ This asset provides an <b>in-game developer console</b> (debug console) for Unit
 
 The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion, autocomplete & key bindings that enable quick access to commands.
 
+The asset is completely free, but if you'd like to show support you can [buy me a bowl of spaghetti](https://www.buymeacoffee.com/davidfdev) 🍝
+
 <img src="/.github/preview2.gif" alt="Developer console preview" width="72%"></img>
 
 ## Setup
@@ -143,4 +145,5 @@ Otherwise, feel free to send me a message if there's a feature you'd like to see
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
 
 ## Contact
-If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).
+If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).</br></br>
+Consider showing support by [buying me a bowl of spaghetti](https://www.buymeacoffee.com/davidfdev) 🍝
