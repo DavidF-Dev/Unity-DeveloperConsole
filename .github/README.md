@@ -54,8 +54,8 @@ Custom commands can be added to the dev console by developers. They can be creat
 #### Parameters
 Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. int, float, string, bool, etc.)</br>
 Enums are also supported.</br>
-Commands that use a nullable bool (Boolean?) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
-E.g. executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
+Commands that use a nullable bool (``Boolean?``) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
+For example, executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
 To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).
 
 #### Example using Command.Create
