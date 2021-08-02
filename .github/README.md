@@ -119,9 +119,8 @@ A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There a
 
 <b>Q. How can I stop keyboard input in the dev console from triggering game-specific actions (e.g. space will make the character jump even though the input field is focused)?</b></br>
 A. As far as I know, this is an unavoidable issue. I recommend making a global property for your game (e.g. ``AllowGameInput``) which you can query before performing any game-specific input. This property can then reference ``DevConsole.IsOpenAndFocused``, effectively disabling game-specific input when the dev console is open and the input field is focused. 
-</br>You can also set ``DevConsole.IsKeyBindingsEnabled`` to toggle key bindings - for example, if the user is in a text field.
 ```cs
-public static bool AllowGameInput => DevConsole.IsOpenAndFocused;
+public static bool AllowGameInput => !DevConsole.IsOpenAndFocused;
 
 private void CheckGameInput()
 {
