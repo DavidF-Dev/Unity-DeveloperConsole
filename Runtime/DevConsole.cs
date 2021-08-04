@@ -92,6 +92,22 @@ namespace DavidFDev.DevConsole
 
         #endregion
 
+        #region Events
+
+        public static event Action OnConsoleEnabled;
+
+        public static event Action OnConsoleDisabled;
+
+        public static event Action OnConsoleOpened;
+
+        public static event Action OnConsoleClosed;
+
+        public static event Action OnConsoleFocused;
+
+        public static event Action OnConsoleFocusLost;
+
+        #endregion
+
         #region Static methods
 
         /// <summary>
@@ -288,61 +304,39 @@ namespace DavidFDev.DevConsole
             _console.ClearConsole();
         }
 
-        /// <summary>
-        ///     Register a callback for when the dev console is opened.
-        /// </summary>
-        /// <param name="callback"></param>
-        public static void Register_OnDevConsoleOpened(Action callback)
-        {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
+        #region Invoke events
 
-            _console.OnDevConsoleOpened += callback;
+        internal static void InvokeOnConsoleEnabled()
+        {
+            OnConsoleEnabled?.Invoke();
         }
 
-        /// <summary>
-        ///     Deregister a callback for when the dev console is opened.
-        /// </summary>
-        /// <param name="callback"></param>
-        public static void Deregister_OnDevConsoleOpened(Action callback)
+        internal static void InvokeOnConsoleDisabled()
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
-            _console.OnDevConsoleOpened -= callback;
+            OnConsoleDisabled?.Invoke();
         }
 
-        /// <summary>
-        ///     Register a callback for when the dev console is closed.
-        /// </summary>
-        /// <param name="callback"></param>
-        public static void Register_OnDevConsoleClosed(Action callback)
+        internal static void InvokeOnConsoleOpened()
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
-            _console.OnDevConsoleClosed += callback;
+            OnConsoleOpened?.Invoke();
         }
 
-        /// <summary>
-        ///     Deregister a callback for when the dev console is closed.
-        /// </summary>
-        /// <param name="callback"></param>
-        public static void Deregister_OnDevConsoleClosed(Action callback)
+        internal static void InvokeOnConsoleClosed()
         {
-            if (callback == null)
-            {
-                throw new ArgumentNullException(nameof(callback));
-            }
-
-            _console.OnDevConsoleClosed -= callback;
+            OnConsoleClosed?.Invoke();
         }
+
+        internal static void InvokeOnConsoleFocused()
+        {
+            OnConsoleFocused?.Invoke();
+        }
+
+        internal static void InvokeOnConsoleFocusLost()
+        {
+            OnConsoleFocusLost?.Invoke();
+        }
+
+        #endregion
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
 #pragma warning disable IDE0051

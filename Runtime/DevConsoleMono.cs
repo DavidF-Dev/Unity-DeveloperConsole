@@ -129,6 +129,7 @@ namespace DavidFDev.DevConsole
         #region Input fields
 
         private bool _focusInputField = false;
+        private bool _oldFocusInputField = false;
         private Dictionary<InputKey, string> _bindings = new Dictionary<InputKey, string>();
 
         #endregion
@@ -216,14 +217,6 @@ namespace DavidFDev.DevConsole
 
         #endregion
 
-        #region Events
-
-        internal event Action OnDevConsoleOpened;
-
-        internal event Action OnDevConsoleClosed;
-
-        #endregion
-
         #region Methods
 
         #region Console methods
@@ -242,6 +235,8 @@ namespace DavidFDev.DevConsole
             _screenSize = new Vector2Int(Screen.width, Screen.height);
             ConsoleIsEnabled = true;
             enabled = true;
+
+            DevConsole.InvokeOnConsoleEnabled();
         }
 
         internal void DisableConsole()
@@ -264,6 +259,8 @@ namespace DavidFDev.DevConsole
             //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             ConsoleIsEnabled = false;
             enabled = false;
+
+            DevConsole.InvokeOnConsoleDisabled();
         }
 
         internal void OpenConsole()
@@ -288,7 +285,7 @@ namespace DavidFDev.DevConsole
             _focusInputField = true;
             InputText = InputText.TrimEnd('`');
 
-            OnDevConsoleOpened?.Invoke();
+            DevConsole.InvokeOnConsoleOpened();
         }
 
         internal void CloseConsole()
@@ -305,7 +302,7 @@ namespace DavidFDev.DevConsole
             _repositioning = false;
             _resizing = false;
 
-            OnDevConsoleClosed?.Invoke();
+            DevConsole.InvokeOnConsoleClosed();
         }
 
         internal void ToggleConsole()
@@ -664,6 +661,20 @@ namespace DavidFDev.DevConsole
             {
                 EventSystem.current.SetSelectedGameObject(_inputField.gameObject, null);
                 _focusInputField = false;
+            }
+
+            // Check if the input field focus changed and invoke the event
+            if (_inputField.isFocused != _oldFocusInputField)
+            {
+                if (_inputField.isFocused)
+                {
+                    DevConsole.InvokeOnConsoleFocused();
+                }
+                else
+                {
+                    DevConsole.InvokeOnConsoleFocusLost();
+                }
+                _oldFocusInputField = _inputField.isFocused;
             }
 
             // Move the developer console using the mouse position
