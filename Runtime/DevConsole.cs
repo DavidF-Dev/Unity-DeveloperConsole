@@ -230,10 +230,10 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     Log a message with a seperator bar.
+        ///     Log a message with a seperator bar. A NULL message will log an empty seperator.
         /// </summary>
         /// <param name="message"></param>
-        public static void LogSeperator(object message)
+        public static void LogSeperator(object message = null)
         {
             _console.LogSeperator(message);
         }
