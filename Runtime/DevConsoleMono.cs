@@ -2037,7 +2037,7 @@ namespace DavidFDev.DevConsole
             {
                 // TODO: Split into multiple
                 // For now, produce an error
-                _logTextStore = $"<color={ErrorColour}>Message to log exceeded {MaximumTextVertices} vertices and was ignored.</color>";
+                _logTextStore = $"\n<color={ErrorColour}>Message to log exceeded {MaximumTextVertices} vertices and was ignored.</color>";
                 return;
             }
 
