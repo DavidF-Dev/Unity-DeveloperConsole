@@ -197,9 +197,10 @@ namespace DavidFDev.DevConsole
         /// </summary>
         /// <param name="variableName"></param>
         /// <param name="value"></param>
-        public static void LogVariable(string variableName, object value)
+        /// <param name="suffix"></param>
+        public static void LogVariable(string variableName, object value, string suffix = "")
         {
-            _console.LogVariable(variableName, value);
+            _console.LogVariable(variableName, value, suffix);
         }
 
         /// <summary>
