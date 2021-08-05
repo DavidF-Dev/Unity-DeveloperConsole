@@ -21,13 +21,21 @@ namespace DavidFDev.DevConsole
         /// <param name="name">Name used to call the command (e.g. "print").</param>
         /// <param name="aliases">Optional names that can be used to call the command, seperated by commas (e.g. "display,say").</param>
         /// <param name="helpText">Description of the command (e.g. "Display a message in the developer console").</param>
+        /// <param name="onlyInDevBuild">Whether to only add the command if the project is a development build.</param>
         /// <param name="parameterHelpText">Descriptions of the parameters (e.g. "Message to display in the developer console").</param>
-        public DevConsoleCommandAttribute(string name, string aliases, string helpText, params string[] parameterHelpText)
+        public DevConsoleCommandAttribute(string name, string aliases, string helpText, bool onlyInDevBuild, params string[] parameterHelpText)
         {
             Name = name;
             Aliases = aliases.Split(',');
             HelpText = helpText;
             ParameterHelpText = parameterHelpText ?? new string[0];
+            OnlyInDevBuild = onlyInDevBuild;
+        }
+
+        /// <inheritdoc cref="DevConsoleCommandAttribute(string, string, string, bool, string[])" />
+        public DevConsoleCommandAttribute(string name, string aliases, string helpText, params string[] parameterHelpText)
+            : this(name, aliases, helpText, false, parameterHelpText)
+        {
         }
 
         #endregion
@@ -53,6 +61,8 @@ namespace DavidFDev.DevConsole
         ///     Descriptions for the parameters.
         /// </summary>
         internal string[] ParameterHelpText { get; }
+
+        internal bool OnlyInDevBuild { get; }
 
         #endregion
     }

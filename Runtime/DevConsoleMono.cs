@@ -1764,7 +1764,7 @@ namespace DavidFDev.DevConsole
                                 DevConsoleCommandAttribute commandAttribute = (DevConsoleCommandAttribute)attribute;
                                 if (commandAttribute != null)
                                 {
-                                    AddCommand(Command.Create(commandAttribute, method));
+                                    AddCommand(Command.Create(commandAttribute, method), commandAttribute.OnlyInDevBuild);
                                 }
                             }
                         }
