@@ -1,7 +1,9 @@
 # In-game Developer Console for Unity
-This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or users to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
+This asset provides an <b>in-game developer console</b> (debug console) for Unity projects, allowing developers or players to execute commands or view incoming Unity messages (i.e. Debug.Log, errors, etc.)
 
 The dev console window has a user-friendly look, inspired by Valve's Source engine console and Discord's user-interface. It includes text suggestion, autocomplete & key bindings that enable quick access to commands.
+
+The asset is completely free, but if you'd like to show support you can [buy me a bowl of spaghetti](https://www.buymeacoffee.com/davidfdev) 🍝
 
 <img src="/.github/preview2.gif" alt="Developer console preview" width="72%"></img>
 
@@ -11,7 +13,7 @@ Simply import the package into your project and you're good to go. No additional
   - Git URL: ``https://github.com/DavidF-Dev/Unity-DeveloperConsole.git``</br>
     <img src="/.github/install1.png" alt="Package manager install" width="25%"></src>
   - <i>Or</i> add the following line to <i>Packages/manifest.json</i>:</br>``"com.davidfdev.devconsole": "https://github.com/DavidF-Dev/Unity-DeveloperConsole.git"``
-- Import via the Unity asset store [here]().
+- Import via the Unity asset store [here](https://u3d.as/2EE5).
 - Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
 
 ## Usage
@@ -52,8 +54,8 @@ Custom commands can be added to the dev console by developers. They can be creat
 #### Parameters
 Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. int, float, string, bool, etc.)</br>
 Enums are also supported.</br>
-Commands that use a nullable bool (Boolean?) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
-E.g. executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
+Commands that use a nullable bool (``Boolean?``) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
+For example, executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
 To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).
 
 #### Example using Command.Create
@@ -117,9 +119,8 @@ A. Yes, use ``DevConsole.RemoveCommand()`` to remove almost any command. There a
 
 <b>Q. How can I stop keyboard input in the dev console from triggering game-specific actions (e.g. space will make the character jump even though the input field is focused)?</b></br>
 A. As far as I know, this is an unavoidable issue. I recommend making a global property for your game (e.g. ``AllowGameInput``) which you can query before performing any game-specific input. This property can then reference ``DevConsole.IsOpenAndFocused``, effectively disabling game-specific input when the dev console is open and the input field is focused. 
-</br>You can also set ``DevConsole.IsKeyBindingsEnabled`` to toggle key bindings - for example, if the user is in a text field.
 ```cs
-public static bool AllowGameInput => DevConsole.IsOpenAndFocused;
+public static bool AllowGameInput => !DevConsole.IsOpenAndFocused;
 
 private void CheckGameInput()
 {
@@ -143,4 +144,5 @@ Otherwise, feel free to send me a message if there's a feature you'd like to see
 - [FiraCode](https://github.com/tonsky/FiraCode) font used under the SIL Open Font License 1.1.
 
 ## Contact
-If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).
+If you have any questions or would like to get in contact, shoot me an email at contact@davidfdev.com. Alternatively, you can send me a direct message on Twitter at [@DavidF_Dev](https://twitter.com/DavidF_Dev).</br></br>
+Consider showing support by [buying me a bowl of spaghetti](https://www.buymeacoffee.com/davidfdev) 🍝

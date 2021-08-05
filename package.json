@@ -1,8 +1,8 @@
 {
 	"name": "com.davidfdev.devconsole",
-	"version": "0.1.8",
+	"version": "0.1.8-alpha",
 	"displayName": "In-game Developer Console by DavidFDev",
-	"description": "A user-friendly in-game developer console that allows developers or users to execute commands or view incoming Unity messages. (MIT License)",
+	"description": "A user-friendly in-game developer console that allows developers or players to execute commands or view incoming Unity messages. (MIT License)",
 	"unity": "2020.1",
 	"hideInEditor": false,
 	"documentationUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole",
