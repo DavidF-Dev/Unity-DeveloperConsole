@@ -533,12 +533,14 @@ namespace DavidFDev.DevConsole
         {
             const char EmptyChar = '\0';
 
+            // If a new line character is entered, submit the command
             if (addedChar == '\n')
             {
                 addedChar = EmptyChar;
                 SubmitInput();
             }
 
+            // If a TAB character is entered, autocomplete the suggested command
             else if (addedChar == '\t')
             {
                 addedChar = EmptyChar;
