@@ -7,6 +7,8 @@
 #endif
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 using InputKey =
@@ -303,6 +305,31 @@ namespace DavidFDev.DevConsole
         public static void ClearConsole()
         {
             _console.ClearConsole();
+        }
+
+        /// <summary>
+        ///     Invoke an enumerator as a Unity coroutine. Useful for commands that may not have a reference to a MonoBehaviour.
+        /// </summary>
+        /// <param name="enumerator"></param>
+        public static void InvokeCoroutine(IEnumerator enumerator)
+        {
+            _console.StartCoroutine(enumerator);
+        }
+
+        /// <summary>
+        ///     Invoke an action after a specified time has passed. Useful for commands that may not have a reference to a MonoBehaviour.
+        /// </summary>
+        /// <param name="action"></param>
+        /// <param name="delay"></param>
+        public static void InvokeDelayed(Action action, float delay)
+        {
+            IEnumerator Invoke()
+            {
+                yield return new WaitForSeconds(delay);
+                action?.Invoke();
+            }
+
+            _console.StartCoroutine(Invoke());
         }
 
         #region Invoke events
