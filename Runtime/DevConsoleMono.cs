@@ -92,6 +92,7 @@ namespace DavidFDev.DevConsole
         private const string PrefDisplayUnityExceptions = "DevConsole.displayUnityExceptions";
         private const string PrefDisplayUnityWarnings = "DevConsole.displayUnityWarnings";
         private const string PrefShowFps = "DevConsole.displayFps";
+        private const string PrefLogTextSize = "DevConsole.logTextSize";
 
         #endregion
 
@@ -2237,6 +2238,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefDisplayUnityExceptions, _displayUnityExceptions);
             DevConsoleData.SetObject(PrefDisplayUnityWarnings, _displayUnityWarnings);
             DevConsoleData.SetObject(PrefShowFps, _isDisplayingFps);
+            DevConsoleData.SetObject(PrefLogTextSize, _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize);
 
             DevConsoleData.Save();
         }
@@ -2252,6 +2254,7 @@ namespace DavidFDev.DevConsole
             _displayUnityExceptions = DevConsoleData.GetObject(PrefDisplayUnityExceptions, true);
             _displayUnityWarnings = DevConsoleData.GetObject(PrefDisplayUnityWarnings, true);
             _isDisplayingFps = DevConsoleData.GetObject(PrefShowFps, false);
+            _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize = DevConsoleData.GetObject(PrefLogTextSize, _initLogTextSize);
 
             DevConsoleData.Clear();
         }
