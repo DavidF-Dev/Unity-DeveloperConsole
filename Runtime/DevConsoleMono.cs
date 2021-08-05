@@ -171,7 +171,6 @@ namespace DavidFDev.DevConsole
         private bool _displayUnityWarnings = true;
         private string[] _commandSuggestions = null;
         private int _commandSuggestionIndex = 0;
-        private bool _ignoreInputChange = false;
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
 
         #endregion
@@ -283,7 +282,6 @@ namespace DavidFDev.DevConsole
             _canvasGroup.blocksRaycasts = true;
             ConsoleIsShowing = true;
             _focusInputField = true;
-            InputText = InputText.TrimEnd('`');
 
             DevConsole.InvokeOnConsoleOpened();
         }
@@ -526,31 +524,34 @@ namespace DavidFDev.DevConsole
 
         #region Unity events
 
-        internal void OnInputValueChanged()
+        internal void OnInputValueChanged(string _)
         {
-            if (_ignoreInputChange)
-            {
-                return;
-            }
+            RefreshCommandSuggestions();
+        }
 
-            _ignoreInputChange = true;
+        internal char OnValidateInput(string input, int charIndex, char addedChar)
+        {
+            const char EmptyChar = '\0';
 
-            // Submit the input if a new line is entered (ENTER)
-            if (InputText.Contains("\n"))
+            if (addedChar == '\n')
             {
-                InputText = InputText.Replace("\n", string.Empty);
+                addedChar = EmptyChar;
                 SubmitInput();
             }
 
-            // Try autocomplete if tab is entered (TAB)
-            else if (InputText.Contains("\t"))
+            else if (addedChar == '\t')
             {
-                InputText = InputText.Replace("\t", string.Empty);
+                addedChar = EmptyChar;
                 AutoComplete();
             }
 
+            else if (InputText.Length == 0 && ConsoleToggleKey.HasValue && GetKeyDown(ConsoleToggleKey.Value))
+            {
+                addedChar = EmptyChar;
+            }
+
             RefreshCommandSuggestions();
-            _ignoreInputChange = false;
+            return addedChar;
         }
 
         internal void OnRepositionButtonPointerDown(BaseEventData eventData)
@@ -620,6 +621,8 @@ namespace DavidFDev.DevConsole
             _currentLogFieldWidth = _initLogFieldWidth;
             _resizeButtonColour = _resizeButtonImage.color;
             _logFieldPrefab.SetActive(false);
+            _inputField.onValueChanged.AddListener(x => OnInputValueChanged(x));
+            _inputField.onValidateInput += OnValidateInput;
 
             LoadPreferences();
             InitBuiltInCommands();
@@ -762,7 +765,7 @@ namespace DavidFDev.DevConsole
             }
 
             // Check if the developer console toggle key was pressed
-            if (ConsoleToggleKey.HasValue && (!ConsoleIsShowing || !_inputField.isFocused) && GetKeyDown(ConsoleToggleKey.Value))
+            if (ConsoleToggleKey.HasValue && (!ConsoleIsShowing || (!_inputField.isFocused || InputText.Length <= 1)) && GetKeyDown(ConsoleToggleKey.Value))
             {
                 ToggleConsole();
                 return;
