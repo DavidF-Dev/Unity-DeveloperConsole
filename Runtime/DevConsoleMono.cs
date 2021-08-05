@@ -48,6 +48,8 @@ namespace DavidFDev.DevConsole
         private const float MaxConsoleWidth = 1200;
         private const float MinConsoleHeight = 200;
         private const float MaxConsoleHeight = 900;
+        private const int MinLogTextSize = 14;
+        private const int MaxLogTextSize = 35;
         private const int CommandHistoryLength = 10;
         private const int MaxCachedEnumTypes = 6;
         private const float FpsUpdateRate = 4f;
@@ -140,6 +142,7 @@ namespace DavidFDev.DevConsole
         private string _logTextStore = "";
         private readonly TextGenerator _textGenerator = new TextGenerator();
         private int _vertexCount = 0;
+        private int _initLogTextSize = 0;
 
         #endregion
 
@@ -626,6 +629,7 @@ namespace DavidFDev.DevConsole
             _initPosition = _dynamicTransform.anchoredPosition;
             _initSize = _dynamicTransform.sizeDelta;
             _initLogFieldWidth = _logFieldPrefab.GetComponent<RectTransform>().sizeDelta.x;
+            _initLogTextSize = _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize;
             _currentLogFieldWidth = _initLogFieldWidth;
             _resizeButtonColour = _resizeButtonImage.color;
             _logFieldPrefab.SetActive(false);
@@ -1136,6 +1140,29 @@ namespace DavidFDev.DevConsole
                     LogSeperator();
                 }
             ));
+
+            AddCommand(Command.Create<int>(
+                "log_size",
+                "",
+                "Query or set the font size used in the developer console log",
+                Parameter.Create("fontSize", ""),
+                fontSize =>
+                {
+                    if (fontSize < MinLogTextSize || fontSize > MaxLogTextSize)
+                    {
+                        LogError($"Invalid font size specified: {fontSize}. Must be between {MinLogTextSize} and {MaxLogTextSize}.");
+                        return;
+                    }
+
+                    Text text = _logFieldPrefab.GetComponent<InputField>().textComponent;
+                    int oldTextSize = text.fontSize;
+                    text.fontSize = fontSize;
+                    _logFields.ForEach(x => x.textComponent.fontSize = fontSize);
+                    RefreshLogFieldsSize();
+                    LogSuccess($"Successfully changed the log font size to {fontSize} (was {oldTextSize}).");
+                },
+                () => LogVariable("Log font size", _logFields.First().textComponent.fontSize, $" (Default: {_initLogTextSize})")
+                ));
 
             #endregion
 
