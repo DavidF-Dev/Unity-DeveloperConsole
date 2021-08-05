@@ -6,5 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9-alpha] - 2021-08-05
+- Added events for when the console is enabled/disabled, opened/closed and focused/unfocused.
+- Added option for commands created using the attribute to only be available in development builds.
+- Added helper methods to start coroutines or invoke methods after a time has passed.
+- Added command: "log_size" - changes the font size used in the developer console log.
+- Added command: "customcommands" - lists available custom commands.
+- Changed key binds to be disabled when any object is selected by the current event system.
+- Fixed issues to do with interacting with the input field.
+
 ## [0.1.7-alpha] - 2021-07-29
 - Initial pre-release for internal testing.
