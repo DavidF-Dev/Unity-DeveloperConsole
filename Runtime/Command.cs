@@ -186,6 +186,11 @@ namespace DavidFDev.DevConsole
         /// </summary>
         internal Action DefaultCallback { get; private set; }
 
+        /// <summary>
+        ///     Whether the command is a custom command.
+        /// </summary>
+        internal bool IsCustomCommand { get; private set; }
+
         #endregion
 
         #region Methods
@@ -227,6 +232,14 @@ namespace DavidFDev.DevConsole
         internal bool HasAlias(params string[] aliases)
         {
             return aliases.Length > 0 && aliases.Any(a => !string.IsNullOrEmpty(a) && Aliases.Contains(a.ToLower()));
+        }
+
+        /// <summary>
+        ///     Set whether the command is a custom command.
+        /// </summary>
+        internal void SetAsCustomCommand()
+        {
+            IsCustomCommand = true;
         }
 
         /// <summary>

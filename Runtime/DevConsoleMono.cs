@@ -420,6 +420,12 @@ namespace DavidFDev.DevConsole
             if (!string.IsNullOrEmpty(command.Name) && !_commands.ContainsKey(command.Name) && !_commands.Values.Select(c => c.Aliases).Any(a => command.HasAlias(a)))
             {
                 _commands.Add(command.Name, command);
+
+                if (!_init)
+                {
+                    command.SetAsCustomCommand();
+                }
+
                 return true;
             }
             return false;
@@ -1038,6 +1044,26 @@ namespace DavidFDev.DevConsole
                 {
                     LogSeperator("Commands");
                     Log(string.Join(", ", _commands.Keys.OrderBy(s => s)));
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "customcommands",
+                "",
+                "Display a sorted list of all available custom commands",
+                () =>
+                {
+                    IList<string> customCommands = _commands.Keys.Where(s => _commands[s].IsCustomCommand).ToList();
+
+                    if (customCommands?.Count == 0)
+                    {
+                        Log("There are no custom commands defined.");
+                        return;
+                    }
+
+                    LogSeperator("Custom commands");
+                    Log(string.Join(", ", customCommands.OrderBy(s => s)));
                     LogSeperator();
                 }
             ));
