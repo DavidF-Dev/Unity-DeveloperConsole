@@ -741,8 +741,8 @@ namespace DavidFDev.DevConsole
                 }
             }
 
-            // Check bindings (as long as the input field isn't focused!)
-            if (BindingsIsEnabled && !_inputField.isFocused)
+            // Check bindings (as long as the input field or any other object isn't focused!)
+            if (BindingsIsEnabled && !_inputField.isFocused && (EventSystem.current == null || EventSystem.current.currentSelectedGameObject == null))
             {
                 try
                 {
