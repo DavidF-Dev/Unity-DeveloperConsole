@@ -2045,18 +2045,34 @@ namespace DavidFDev.DevConsole
         private string[] GetCommandSuggestions(string text)
         {
             // Get a list of command names that could fill in the missing text
+            // Store alias suggestions separately and add on end later (so the result contains real commands before aliases)
             List<string> suggestions = new List<string>();
+            List<string> aliasSuggestions = new List<string>();
             string textToLower = text.ToLower();
-            foreach (string commandName in _commands.Keys)
+
+            foreach (Command command in _commands.Values)
             {
-                if (!commandName.StartsWith(textToLower))
+                // Check if the command name matches the text
+                if (command.Name.StartsWith(textToLower))
                 {
-                    continue;
+                    // Combine current input with suggestion so capitalisation remains
+                    // Add to suggestions list
+                    suggestions.Add(text + command.Name.Substring(text.Length));
                 }
 
-                // Combine current input with suggestion so capitalisation remains
-                suggestions.Add(text + commandName.Substring(text.Length));
+                // Iterate over the command aliases
+                foreach (string alias in command.Aliases)
+                {
+                    // Check if this command alias matches the text
+                    if (alias.StartsWith(textToLower))
+                    {
+                        // Combine current input with suggestion so capitalisation remains
+                        // Add to alias suggestions list
+                        aliasSuggestions.Add(text + alias.Substring(text.Length));
+                    }
+                }
             }
+            suggestions.AddRange(aliasSuggestions);
             return suggestions.ToArray();
         }
 
