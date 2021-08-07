@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 using InputKey =
@@ -179,6 +180,7 @@ namespace DavidFDev.DevConsole
         ///     Log a message to the dev console.
         /// </summary>
         /// <param name="message"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Log(object message)
         {
             _console.Log(message);
@@ -189,6 +191,7 @@ namespace DavidFDev.DevConsole
         /// </summary>
         /// <param name="message"></param>
         /// <param name="colour"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Log(object message, Color colour)
         {
             _console.Log(message, ColorUtility.ToHtmlStringRGBA(colour));
@@ -200,6 +203,7 @@ namespace DavidFDev.DevConsole
         /// <param name="variableName"></param>
         /// <param name="value"></param>
         /// <param name="suffix"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogVariable(string variableName, object value, string suffix = "")
         {
             _console.LogVariable(variableName, value, suffix);
@@ -209,6 +213,7 @@ namespace DavidFDev.DevConsole
         ///     Log an error message to the dev console.
         /// </summary>
         /// <param name="message"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogError(object message)
         {
             _console.LogError(message);
@@ -218,6 +223,7 @@ namespace DavidFDev.DevConsole
         ///     Log a warning message to the dev console.
         /// </summary>
         /// <param name="message"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogWarning(object message)
         {
             _console.LogWarning(message);
@@ -227,6 +233,7 @@ namespace DavidFDev.DevConsole
         ///     Log a success message to the dev console.
         /// </summary>
         /// <param name="message"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogSuccess(object message)
         {
             _console.LogSuccess(message);
@@ -236,6 +243,7 @@ namespace DavidFDev.DevConsole
         ///     Log a message with a seperator bar. A NULL message will log an empty seperator.
         /// </summary>
         /// <param name="message"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogSeperator(object message = null)
         {
             _console.LogSeperator(message);
@@ -249,6 +257,7 @@ namespace DavidFDev.DevConsole
         /// <param name="toString"></param>
         /// <param name="prefix"></param>
         /// <param name="suffix"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogCollection<T>(in IReadOnlyCollection<T> collection, Func<T, string> toString = null, string prefix = "", string suffix = "")
         {
             _console.LogCollection(collection, toString, prefix, suffix);
@@ -257,6 +266,7 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Log the most recently executed command syntax to the dev console.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogCommand()
         {
             _console.LogCommand();
@@ -266,6 +276,7 @@ namespace DavidFDev.DevConsole
         ///     Log command syntax to the dev console.
         /// </summary>
         /// <param name="name">Command name.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void LogCommand(string name)
         {
             _console.LogCommand(name);
