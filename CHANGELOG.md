@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Changed command suggestions / autocomplete to also work with aliases.
+- Fixed issues with displaying logs that exceed the rendering limit.
 
 ## [0.1.9-alpha] - 2021-08-05
 - Added events for when the console is enabled/disabled, opened/closed and focused/unfocused.

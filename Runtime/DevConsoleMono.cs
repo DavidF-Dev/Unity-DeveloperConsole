@@ -774,7 +774,9 @@ namespace DavidFDev.DevConsole
             // Process the stored logs, displaying them to the console
             if (_logTextStore != string.Empty)
             {
-                ProcessStoredLogs();
+                string logText = string.Copy(_logTextStore);
+                _logTextStore = string.Empty;
+                ProcessLogText(logText);
             }
 
             // Check if the developer console toggle key was pressed
@@ -2113,37 +2115,49 @@ namespace DavidFDev.DevConsole
 
         #region Log content methods
 
-        private void ProcessStoredLogs()
+        private void ProcessLogText(in string logText)
         {
-            // Determine number of vertices needed to render the stored logs
-            int vertexCountStored = GetVertexCount(_logTextStore);
+            // Determine number of vertices needed to render the log text
+            int vertexCountStored = GetVertexCount(logText);
 
-            // Check if the stored logs exceeds the maximum vertex count
+            // Check if the log text exceeds the maximum vertex count
             if (vertexCountStored > MaximumTextVertices)
             {
-                // TODO: Split into multiple
-                // For now, produce an error
-                _logTextStore = $"\n<color={ErrorColour}>Message to log exceeded {MaximumTextVertices} vertices and was ignored.</color>";
+                // Split into two halves and recursively call this same method
+
+                // Attempt to split into two halves at the closest new line character from the middle
+                int length = logText.IndexOf('\n', logText.Length / 2);
+                if (length == -1)
+                {
+                    // Otherwise just split straight in the middle (may format weirdly in the console)
+                    length = logText.Length / 2;
+                }
+
+                // Process the first half
+                ProcessLogText(logText.Substring(0, length));
+
+                // Process the second half
+                ProcessLogText(logText.Substring(length, logText.Length - length));
                 return;
             }
 
-            // Check if the stored logs appended to the current logs exceeds the maximum vertex count
+            // Check if the log text appended to the current logs exceeds the maximum vertex count
             else if (_vertexCount + vertexCountStored > MaximumTextVertices)
             {
                 // Split once
                 AddLogField();
-                _logFields.Last().text = _logTextStore.TrimStart('\n');
+                _logFields.Last().text = logText.TrimStart('\n');
                 _vertexCount = vertexCountStored;
             }
 
-            // Otherwise, simply append the stored logs to the current logs
+            // Otherwise, simply append the log text to the current logs
             else
             {
-                _logFields.Last().text += _logTextStore;
+                _logFields.Last().text += logText;
                 _vertexCount += vertexCountStored;
             }
 
-            _logTextStore = string.Empty;
+            // Refresh the UI, so that the text re-positions nicely
             RebuildLayout();
         }
 
