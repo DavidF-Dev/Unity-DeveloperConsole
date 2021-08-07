@@ -218,6 +218,27 @@ namespace DavidFDev.DevConsole
             set => _inputField.caretPosition = value;
         }
 
+        private int LogTextSize
+        {
+            get => _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize;
+            set
+            {
+                Text text = _logFieldPrefab.GetComponent<InputField>().textComponent;
+                if (text.fontSize == value)
+                {
+                    return;
+                }
+
+                text.fontSize = value;
+
+                if (_logFields?.Count > 0)
+                {
+                    _logFields.ForEach(x => x.textComponent.fontSize = value);
+                    RefreshLogFieldsSize();
+                }
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -607,6 +628,16 @@ namespace DavidFDev.DevConsole
 #if !UNITY_ANDROID && !UNITY_IOS
             Application.OpenURL(@"https://www.davidfdev.com");
 #endif
+        }
+
+        internal void OnIncreaseTextSizeButtonPressed()
+        {
+            LogTextSize = Math.Min(MaxLogTextSize, LogTextSize + 4);
+        }
+
+        internal void OnDecreaseTextSizeButtonPressed()
+        {
+            LogTextSize = Math.Max(MinLogTextSize, LogTextSize - 4);
         }
 
         #endregion
@@ -1157,11 +1188,8 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    Text text = _logFieldPrefab.GetComponent<InputField>().textComponent;
-                    int oldTextSize = text.fontSize;
-                    text.fontSize = fontSize;
-                    _logFields.ForEach(x => x.textComponent.fontSize = fontSize);
-                    RefreshLogFieldsSize();
+                    int oldTextSize = LogTextSize;
+                    LogTextSize = fontSize;
                     LogSuccess($"Successfully changed the log font size to {fontSize} (was {oldTextSize}).");
                 },
                 () => LogVariable("Log font size", _logFields.First().textComponent.fontSize, $" (Default: {_initLogTextSize})")
@@ -2269,7 +2297,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefDisplayUnityExceptions, _displayUnityExceptions);
             DevConsoleData.SetObject(PrefDisplayUnityWarnings, _displayUnityWarnings);
             DevConsoleData.SetObject(PrefShowFps, _isDisplayingFps);
-            DevConsoleData.SetObject(PrefLogTextSize, _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize);
+            DevConsoleData.SetObject(PrefLogTextSize, LogTextSize);
 
             DevConsoleData.Save();
         }
@@ -2285,7 +2313,7 @@ namespace DavidFDev.DevConsole
             _displayUnityExceptions = DevConsoleData.GetObject(PrefDisplayUnityExceptions, true);
             _displayUnityWarnings = DevConsoleData.GetObject(PrefDisplayUnityWarnings, true);
             _isDisplayingFps = DevConsoleData.GetObject(PrefShowFps, false);
-            _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize = DevConsoleData.GetObject(PrefLogTextSize, _initLogTextSize);
+            LogTextSize = DevConsoleData.GetObject(PrefLogTextSize, _initLogTextSize);
 
             DevConsoleData.Clear();
         }
