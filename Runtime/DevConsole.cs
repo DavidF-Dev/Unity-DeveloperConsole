@@ -242,6 +242,19 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Log a collection in list format.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="collection"></param>
+        /// <param name="toString"></param>
+        /// <param name="prefix"></param>
+        /// <param name="suffix"></param>
+        public static void LogCollection<T>(in IReadOnlyCollection<T> collection, Func<T, string> toString = null, string prefix = "", string suffix = "")
+        {
+            _console.LogCollection(collection, toString, prefix, suffix);
+        }
+
+        /// <summary>
         ///     Log the most recently executed command syntax to the dev console.
         /// </summary>
         public static void LogCommand()

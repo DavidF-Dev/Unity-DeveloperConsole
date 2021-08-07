@@ -536,6 +536,19 @@ namespace DavidFDev.DevConsole
             Log($"- <b>{message}</b> -");
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void LogCollection<T>(in IReadOnlyCollection<T> collection, Func<T, string> toString = null, string prefix = "", string suffix = "")
+        {
+            if (collection == null || collection.Count == 0)
+            {
+                return;
+            }
+
+            Log(string.Join("\n",
+                collection.Select(x => $"{prefix}{toString?.Invoke(x) ?? x.ToString()}{suffix}"))
+                );
+        }
+
         internal void LogCommand()
         {
             LogCommand(_currentCommand);
