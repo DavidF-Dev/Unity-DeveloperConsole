@@ -549,11 +549,13 @@ namespace DavidFDev.DevConsole
                 );
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogCommand()
         {
             LogCommand(_currentCommand);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogCommand(string name)
         {
             if (!GetCommand(name, out Command command))
