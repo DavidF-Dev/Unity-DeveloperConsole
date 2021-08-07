@@ -1897,7 +1897,7 @@ namespace DavidFDev.DevConsole
 
             List<string> parameters = new List<string>()
             {
-                split[0]
+                split[0]        // command name (e.g. "print")
             };
             bool buildingParameter = false;
             string parameter = "";
@@ -2039,6 +2039,7 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
+            // Get a collection of command suggestions and show the first result
             _commandSuggestions = GetCommandSuggestions(InputText);
             _commandSuggestionIndex = 0;
             _suggestionText.text = _commandSuggestions.FirstOrDefault() ?? string.Empty;
