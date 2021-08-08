@@ -5,8 +5,8 @@
 	"description": "A user-friendly in-game developer console that allows developers or players to execute commands or view incoming Unity messages. (MIT License)",
 	"unity": "2020.1",
 	"hideInEditor": false,
-	"documentationUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole",
-	"changelogUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases",
+	"documentationUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/DOCUMENTATION.md",
+	"changelogUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/CHANGELOG.md",
 	"licensesUrl": "https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/LICENSE.md",
 	"author":
 	{

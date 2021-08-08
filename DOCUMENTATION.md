@@ -1,5 +1,5 @@
 # Documentation
-It is recommended to view this file in a markdown viewer, such as GitHub: 
+It is recommended to view this file in a markdown viewer, such as [GitHub](https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/DOCUMENTATION.md). 
 
 ## Usage
 When the game is running, press tilde ``~`` to toggle the dev console window. The window has an input field along the bottom where commands can be entered. Pressing ENTER will execute the typed command.
