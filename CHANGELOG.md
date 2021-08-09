@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added helper method for logging a collection in list format.
 - Changed command suggestions / autocomplete to also work with aliases.
 - Fixed issues with displaying logs that exceed the rendering limit.
+- Fixed issue with "customcommands" not showing commands created via the attribute method.
 
 ## [0.1.9-alpha] - 2021-08-05
 - Added events for when the console is enabled/disabled, opened/closed and focused/unfocused.

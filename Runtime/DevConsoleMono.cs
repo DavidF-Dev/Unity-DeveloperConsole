@@ -428,7 +428,7 @@ namespace DavidFDev.DevConsole
             return true;
         }
 
-        internal bool AddCommand(Command command, bool onlyInDevBuild = false)
+        internal bool AddCommand(Command command, bool onlyInDevBuild = false, bool isCustomCommand = false)
         {
             if (onlyInDevBuild && !Debug.isDebugBuild)
             {
@@ -446,7 +446,7 @@ namespace DavidFDev.DevConsole
             {
                 _commands.Add(command.Name, command);
 
-                if (!_init)
+                if (isCustomCommand)
                 {
                     command.SetAsCustomCommand();
                 }
@@ -1863,7 +1863,7 @@ namespace DavidFDev.DevConsole
                                 DevConsoleCommandAttribute commandAttribute = (DevConsoleCommandAttribute)attribute;
                                 if (commandAttribute != null)
                                 {
-                                    AddCommand(Command.Create(commandAttribute, method), commandAttribute.OnlyInDevBuild);
+                                    AddCommand(Command.Create(commandAttribute, method), commandAttribute.OnlyInDevBuild, true);
                                 }
                             }
                         }

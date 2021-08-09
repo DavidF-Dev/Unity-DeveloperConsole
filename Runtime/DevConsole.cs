@@ -126,7 +126,7 @@ namespace DavidFDev.DevConsole
                 throw new ArgumentNullException(nameof(command));
             }
 
-            return _console.AddCommand(command, onlyInDevBuild);
+            return _console.AddCommand(command, onlyInDevBuild, true);
         }
 
         /// <summary>
