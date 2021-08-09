@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.2.1-alpha] - 2021-08-09
 - Added documentation.
 - Added buttons on the developer console to increase/decrease the log font size.
 - Added helper method for logging a collection in list format.
