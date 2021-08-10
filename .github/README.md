@@ -92,6 +92,7 @@ The asset provides various built-in commands.
 - ``fullscreen (Boolean?)enabled``: query or set whether the window is fullscreen.
 - ``bind (InputKey)key (String)command``: bind the specified key to execute a command, even if the dev console window is closed.
 - ``showfps (Boolean?)enabled``: query or set whether to display the fps on-screen.
+- ``cs_evaluate (String)expression``: evaluate a C# expression or statement and display the result.
 - ``scene_load (Int32)buildIndex``: load a scene.
 - ``scene_info (Int32)sceneIndex``: display information about an active scene.
 - ``obj_list``: display a hierarchical list of all game objects in the scene.
