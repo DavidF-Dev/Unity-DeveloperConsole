@@ -19,6 +19,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Runtime.CompilerServices;
 using System.Collections;
+using Mono.CSharp;
+using Enum = System.Enum;
 #if INPUT_SYSTEM_INSTALLED
 using UnityEngine.InputSystem;
 #endif
@@ -93,6 +95,7 @@ namespace DavidFDev.DevConsole
         private const string PrefDisplayUnityWarnings = "DevConsole.displayUnityWarnings";
         private const string PrefShowFps = "DevConsole.displayFps";
         private const string PrefLogTextSize = "DevConsole.logTextSize";
+        private const string PrefIncludedUsings = "DevConsole.includedUsings";
 
         #endregion
 
@@ -176,6 +179,9 @@ namespace DavidFDev.DevConsole
         private string[] _commandSuggestions = null;
         private int _commandSuggestionIndex = 0;
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
+
+        private Evaluator _monoEvaluator = null;
+        private List<string> _includedUsings = new List<string>();
 
         #endregion
 
@@ -1705,6 +1711,176 @@ namespace DavidFDev.DevConsole
 
             #endregion
 
+            #region Reflection commands
+
+            AddCommand(Command.Create<string>(
+                "cs_evaluate",
+                "cs_eval,evaluate,eval",
+                "Evaluate a C# expression or statement and display the result",
+                Parameter.Create("expression", "The expression to evaluate"),
+                input =>
+                {
+                    InitMonoEvaluator();
+                    try
+                    {
+                        Log($"{_monoEvaluator?.Evaluate(input)}.");
+                    }
+                    catch (Exception e)
+                    {
+                        LogError($"An exception was thrown whilst evaluating the C# expression or statement: {e.Message}.");
+                    }
+                }
+            ));
+
+            AddCommand(Command.Create<string>(
+                "cs_run",
+                "run",
+                "Execute a C# expression or statement",
+                Parameter.Create("statement", "The statement to execute"),
+                input =>
+                {
+                    InitMonoEvaluator();
+                    try
+                    {
+                        if (_monoEvaluator?.Run(input) ?? false)
+                        {
+                            LogSuccess("Successfully executed the C# expression or statement.");
+                        }
+                        else
+                        {
+                            LogError("Failed to parse the C# expression or statement.");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        LogError($"An exception was thrown whilst executing the C# expression or statement: {e.Message}.");
+                    }
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "cs_usings",
+                "",
+                "Display a list of all active using statements",
+                () =>
+                {
+                    InitMonoEvaluator();
+
+                    string usings = _monoEvaluator.GetUsing();
+
+                    if (string.IsNullOrEmpty(usings))
+                    {
+                        Log("There are no active using statements.");
+                        return;
+                    }
+
+                    LogSeperator("Usings");
+                    Log(usings.TrimEnd('\n'));
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "cs_variables",
+                "cs_vars",
+                "Display a list of all local variables defined",
+                () =>
+                {
+                    InitMonoEvaluator();
+
+                    string vars = _monoEvaluator.GetVars();
+
+                    if (string.IsNullOrEmpty(vars))
+                    {
+                        Log("There are no local variables defined.");
+                        return;
+                    }
+
+                    LogSeperator("Local variables");
+                    Log(vars.TrimEnd('\n'));
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create<string, bool>(
+                "cs_setusing",
+                "",
+                "Set whether a using statement is included automatically when starting the developer console",
+                Parameter.Create("namespace", "Namespace to use as the using statement (e.g. \"System.Collections\""),
+                Parameter.Create("enabled", "Whether the using statement is automatically included upon starting the developer console"),
+                (usingName, enabled) =>
+                {
+                    InitMonoEvaluator();
+
+                    if (enabled)
+                    {
+                        if (_includedUsings.Contains(usingName))
+                        {
+                            LogError($"The specifed using statement is already enabled: \"{usingName}\".");
+                            return;
+                        }
+
+                        _includedUsings.Add(usingName);
+                        LogSuccess($"Enabled \"{usingName}\" as an automatically included using statement.");
+                    }
+                    else
+                    {
+                        if (!_includedUsings.Contains(usingName))
+                        {
+                            LogError($"The specified using statement is already disabled: \"{usingName}\".");
+                            return;
+                        }
+
+                        _includedUsings.Remove(usingName);
+                        LogSuccess($"Disabled \"{usingName}\" as an automatically included using statement.");
+                    }
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "cs_autousings",
+                "",
+                "Display a list of all user-defined using statements that are included automatically when starting the developer console",
+                () =>
+                {
+                    if (_includedUsings.Count == 0)
+                    {
+                        Log("There are no user-defined using statements.");
+                        return;
+                    }
+
+                    LogSeperator("User-defined usings");
+                    LogCollection(_includedUsings);
+                    LogSeperator();
+                }
+            ));
+
+            AddCommand(Command.Create(
+                "cs_help",
+                "",
+                "Display information about the reflection commands",
+                () =>
+                {
+                    Command evaluateCmd = GetCommand("cs_evaluate");
+                    Command runCmd = GetCommand("cs_run");
+                    Command usingsCmd = GetCommand("cs_usings");
+                    Command varsCmd = GetCommand("cs_vars");
+                    Command setUsingCmd = GetCommand("cs_setusing");
+                    Command autoUsingsCmd = GetCommand("cs_autousings");
+
+                    LogSeperator("Reflection commands help");
+                    LogVariable(evaluateCmd.ToFormattedString(), evaluateCmd.HelpText);
+                    LogVariable(runCmd.ToFormattedString(), runCmd.HelpText);
+                    LogVariable(usingsCmd.ToFormattedString(), usingsCmd.HelpText);
+                    LogVariable(varsCmd.ToFormattedString(), varsCmd.HelpText);
+                    LogVariable(setUsingCmd.ToFormattedString(), setUsingCmd.HelpText);
+                    LogVariable(autoUsingsCmd.ToFormattedString(), autoUsingsCmd.HelpText);
+                    LogSeperator();
+                }
+            ));
+
+            #endregion
+
             #region Misc commands
 
             AddCommand(Command.Create(
@@ -2313,6 +2489,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefDisplayUnityWarnings, _displayUnityWarnings);
             DevConsoleData.SetObject(PrefShowFps, _isDisplayingFps);
             DevConsoleData.SetObject(PrefLogTextSize, LogTextSize);
+            DevConsoleData.SetObject(PrefIncludedUsings, _includedUsings);
 
             DevConsoleData.Save();
         }
@@ -2329,8 +2506,46 @@ namespace DavidFDev.DevConsole
             _displayUnityWarnings = DevConsoleData.GetObject(PrefDisplayUnityWarnings, true);
             _isDisplayingFps = DevConsoleData.GetObject(PrefShowFps, false);
             LogTextSize = DevConsoleData.GetObject(PrefLogTextSize, _initLogTextSize);
+            _includedUsings = DevConsoleData.GetObject(PrefIncludedUsings, new List<string>()
+            {
+                "System", "System.Linq", "UnityEngine", "UnityEngine.SceneManagement", "UnityEngine.UI"
+            });
 
             DevConsoleData.Clear();
+        }
+
+        #endregion
+
+        #region Reflection methods
+
+        private void InitMonoEvaluator()
+        {
+            if (_monoEvaluator != null)
+            {
+                return;
+            }
+
+            CompilerSettings settings = new CompilerSettings();
+
+            // Add assembly references to the settings
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly == null)
+                {
+                    continue;
+                }
+
+                settings.AssemblyReferences.Add(assembly.FullName);
+            }
+
+            CompilerContext context = new CompilerContext(settings, new ConsoleReportPrinter());
+            _monoEvaluator = new Evaluator(context);
+
+            // Add the included using statements
+            foreach (string includedUsing in _includedUsings)
+            {
+                _monoEvaluator.Run($"using {includedUsing};");
+            }
         }
 
         #endregion

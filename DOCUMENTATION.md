@@ -119,6 +119,15 @@ Listed below are all the built-in commands that come with the developer console 
 - ``log_exceptions (Boolean)enabled``: Query, enable or disable displaying Unity exceptions in the developer console.
 - ``log_warnings (Boolean)enabled``: Query, enable or disable displaying Unity warnings in the developer console.
 
+### Reflection commands
+- ``cs_evaluate (String)expression``: Evaluate a C# expression or statement and display the result.
+- ``cs_run (String)statement``: Execute a C# expression or statement.
+- ``cs_usings``: Display a list of all active using statements.
+- ``cs_vars``: Display a list of all local variables defined.
+- ``cs_setusing (String)namespace (Boolean)enabled``: Set whether a using statement is included automatically when starting the developer console.
+- ``cs_autousings``: Display a list of all user-defined using statements that are included automatically when starting the developer console.
+- ``cs_help``: Display information about the reflection commands.
+
 ### Misc commands
 - ``time``: Display the current time.
 - ``sys_info``: Display system information.
