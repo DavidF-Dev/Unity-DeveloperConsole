@@ -401,7 +401,15 @@ namespace DavidFDev.DevConsole
             // Try to execute the default callback if the command has no parameters specified
             if (input.Length == 1 && command.DefaultCallback != null)
             {
-                command.DefaultCallback();
+                try
+                {
+                    command.DefaultCallback();
+                }
+                catch (Exception e)
+                {
+                    LogError($"Command default callback threw an exception: {e.Message}.");
+                    return false;
+                }
                 return true;
             }
 
@@ -430,7 +438,15 @@ namespace DavidFDev.DevConsole
             }
 
             // Execute the command callback with the parameters, if any
-            command.Callback(parameters.Length == 0 ? null : parameters);
+            try
+            {
+                command.Callback(parameters.Length == 0 ? null : parameters);
+            }
+            catch (Exception e)
+            {
+                LogError($"Command callback threw an exception: {e.Message}.");
+                return false;
+            }
             return true;
         }
 
