@@ -258,8 +258,8 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            Application.logMessageReceived += OnLogMessageReceived;
-            //Application.logMessageReceivedThreaded += OnLogMessageReceived;
+            //Application.logMessageReceived += OnLogMessageReceived;
+            Application.logMessageReceivedThreaded += OnLogMessageReceived;
             ClearConsole();
             InputText = string.Empty;
             _screenSize = new Vector2Int(Screen.width, Screen.height);
@@ -285,8 +285,8 @@ namespace DavidFDev.DevConsole
             _commandHistory.Clear();
             _cacheEnumTypes.Clear();
             ClearConsole();
-            Application.logMessageReceived -= OnLogMessageReceived;
-            //Application.logMessageReceivedThreaded -= OnLogMessageReceived;
+            //Application.logMessageReceived -= OnLogMessageReceived;
+            Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             ConsoleIsEnabled = false;
             enabled = false;
 
