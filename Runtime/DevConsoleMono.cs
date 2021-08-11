@@ -958,8 +958,11 @@ namespace DavidFDev.DevConsole
                     Log("Use <b>commands</b> to display a list of available commands.");
                     Log($"Use {GetCommand("help").ToFormattedString()} to display information about a specific command.");
                     Log("Use UP / DOWN to cycle through command history or suggested commands.");
-                    Log("Use TAB to autocomplete a suggested command.");
-                    Log("");
+                    Log("Use TAB to autocomplete a suggested command.\n");
+#if UNITY_EDITOR
+                    Log("Please note that the developer console is disabled by default in release builds.");
+                    Log("Enable it manually via script: <b>DevConsole.EnableConsole()</b>.\n");
+#endif
                     Log("Created by @DavidF_Dev.");
                     LogSeperator();
                 }
