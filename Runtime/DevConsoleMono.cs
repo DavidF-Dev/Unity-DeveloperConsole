@@ -388,7 +388,7 @@ namespace DavidFDev.DevConsole
         {
             if (!string.IsNullOrWhiteSpace(InputText) && RunCommand(InputText))
             {
-                ScrollToBottom();
+                ScrollToBottomAtEndOfFrame();
             }
 
             InputText = string.Empty;
@@ -2492,12 +2492,13 @@ namespace DavidFDev.DevConsole
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
         }
 
-        private void ScrollToBottom()
+        private void ScrollToBottomAtEndOfFrame()
         {
             IEnumerator ScrollToBottomCoroutine()
             {
                 yield return new WaitForEndOfFrame();
                 _logScrollView.verticalNormalizedPosition = 0f;
+                _logScrollView.CalculateLayoutInputVertical();
             }
 
             // Start the coroutine that snaps the scroll view at the end of the frame
