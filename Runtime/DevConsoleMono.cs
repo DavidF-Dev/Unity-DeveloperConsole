@@ -224,6 +224,24 @@ namespace DavidFDev.DevConsole
             set => _inputField.caretPosition = value;
         }
 
+        private string StoredLogText
+        {
+            get
+            {
+                lock(_logTextStore)
+                {
+                    return _logTextStore;
+                }
+            }
+            set
+            {
+                lock(_logTextStore)
+                {
+                    _logTextStore = value;
+                }
+            }
+        }
+
         private int LogTextSize
         {
             get => _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize;
@@ -354,7 +372,7 @@ namespace DavidFDev.DevConsole
         {
             ClearLogFields();
             _vertexCount = 0;
-            _logTextStore = ClearLogText;
+            StoredLogText = ClearLogText;
         }
 
         internal void ResetConsole()
@@ -513,7 +531,7 @@ namespace DavidFDev.DevConsole
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Log(object message)
         {
-            _logTextStore += $"\n{message}";
+            StoredLogText += $"\n{message}";
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -840,10 +858,10 @@ namespace DavidFDev.DevConsole
             }
 
             // Process the stored logs, displaying them to the console
-            if (_logTextStore != string.Empty)
+            if (StoredLogText != string.Empty)
             {
-                string logText = string.Copy(_logTextStore);
-                _logTextStore = string.Empty;
+                string logText = string.Copy(StoredLogText);
+                StoredLogText = string.Empty;
                 ProcessLogText(logText);
             }
 

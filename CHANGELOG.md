@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added commands for executing C# expressions or statements at runtime.
 - Added exception handling for command callbacks.
 - Added a reminder in the devconsole command that the console is disabled by default in release builds.
+- Added locks to DevConsole.Log methods to ensure nothing scary happens when using multiple threads.
 - Changed DevConsole.InvokeCoroutine method to return the Coroutine instance.
 - Fixed Unity logs from other threads not showing in the developer console log.
 
