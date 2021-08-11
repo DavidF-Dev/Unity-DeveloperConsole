@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Added commands for executing C# expressions or statements at runtime.
 - Added exception handling for command callbacks.
+- Changed DevConsole.InvokeCoroutine method to return the Coroutine instance.
 
 ## [0.2.1-alpha] - 2021-08-09
 - Added documentation.

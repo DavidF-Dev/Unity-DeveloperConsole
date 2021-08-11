@@ -335,9 +335,9 @@ namespace DavidFDev.DevConsole
         ///     Invoke an enumerator as a Unity coroutine. Useful for commands that may not have a reference to a MonoBehaviour.
         /// </summary>
         /// <param name="enumerator"></param>
-        public static void InvokeCoroutine(IEnumerator enumerator)
+        public static Coroutine InvokeCoroutine(IEnumerator enumerator)
         {
-            _console.StartCoroutine(enumerator);
+            return _console.StartCoroutine(enumerator);
         }
 
         /// <summary>
@@ -345,7 +345,7 @@ namespace DavidFDev.DevConsole
         /// </summary>
         /// <param name="action"></param>
         /// <param name="delay"></param>
-        public static void InvokeDelayed(Action action, float delay)
+        public static Coroutine InvokeDelayed(Action action, float delay)
         {
             IEnumerator Invoke()
             {
@@ -353,7 +353,7 @@ namespace DavidFDev.DevConsole
                 action?.Invoke();
             }
 
-            _console.StartCoroutine(Invoke());
+            return _console.StartCoroutine(Invoke());
         }
 
         #region Invoke events
