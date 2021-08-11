@@ -1739,7 +1739,26 @@ namespace DavidFDev.DevConsole
                     InitMonoEvaluator();
                     try
                     {
-                        Log($"{_monoEvaluator?.Evaluate(input)}.");
+                        if (!input.EndsWith(";"))
+                        {
+                            input += ";";
+                        }
+
+                        object result = _monoEvaluator?.Evaluate(input) ?? null;
+
+                        if (result == null)
+                        {
+                            Log($"Null.");
+                            return;
+                        }
+
+                        if (result is IEnumerable<object> enumerable)
+                        {
+                            Log($"{{ {string.Join(", ", enumerable)} }}");
+                            return;
+                        }
+
+                        Log($"{result}.");
                     }
                     catch (Exception e)
                     {
@@ -1758,6 +1777,11 @@ namespace DavidFDev.DevConsole
                     InitMonoEvaluator();
                     try
                     {
+                        if (!input.EndsWith(";"))
+                        {
+                            input += ";";
+                        }
+
                         if (_monoEvaluator?.Run(input) ?? false)
                         {
                             LogSuccess("Successfully executed the C# expression or statement.");
