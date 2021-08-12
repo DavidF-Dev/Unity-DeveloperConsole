@@ -1773,9 +1773,9 @@ namespace DavidFDev.DevConsole
                             return;
                         }
 
-                        if (result is IEnumerable<object> enumerable)
+                        if (typeof(IEnumerable).IsAssignableFrom(result.GetType()))
                         {
-                            Log($"{{ {string.Join(", ", enumerable)} }}");
+                            Log($"{{ {string.Join(", ", ((IEnumerable)result).Cast<object>())} }}");
                             return;
                         }
 
