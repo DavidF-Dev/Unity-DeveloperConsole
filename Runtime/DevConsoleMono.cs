@@ -638,7 +638,6 @@ namespace DavidFDev.DevConsole
                 addedChar = EmptyChar;
             }
 
-            RefreshCommandSuggestions();
             return addedChar;
         }
 
@@ -2363,6 +2362,11 @@ namespace DavidFDev.DevConsole
             _commandSuggestions = GetCommandSuggestions(InputText);
             _commandSuggestionIndex = 0;
             _suggestionText.text = _commandSuggestions.FirstOrDefault() ?? string.Empty;
+        }
+
+        private void RefreshCommandParameterSuggestions()
+        {
+
         }
 
         private string[] GetCommandSuggestions(string text)
