@@ -176,7 +176,8 @@ namespace DavidFDev.DevConsole
         private bool _displayUnityErrors = true;
         private bool _displayUnityExceptions = true;
         private bool _displayUnityWarnings = true;
-        private string[] _commandSuggestions = null;
+        private string[] _commandStringSuggestions = null;
+        private Command[] _commandSuggestions = null;
         private int _commandSuggestionIndex = 0;
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
 
@@ -613,6 +614,7 @@ namespace DavidFDev.DevConsole
         internal void OnInputValueChanged(string _)
         {
             RefreshCommandSuggestions();
+            RefreshCommandParameterSuggestions();
         }
 
         internal char OnValidateInput(string input, int charIndex, char addedChar)
@@ -879,7 +881,7 @@ namespace DavidFDev.DevConsole
             if (_inputField.isFocused)
             {
                 // Allow cycling through command suggestions using the UP and DOWN arrows
-                if (_commandSuggestions != null && _commandSuggestions.Length > 0)
+                if (_commandStringSuggestions != null && _commandStringSuggestions.Length > 0)
                 {
                     if (GetKeyDown(UpArrowKey))
                     {
@@ -2353,28 +2355,82 @@ namespace DavidFDev.DevConsole
             if (InputText.Length == 0 || InputText.StartsWith(" ") || InputText.Split(' ').Length > 1 || _commandHistoryIndex != -1)
             {
                 _suggestionText.text = string.Empty;
+                _commandStringSuggestions = null;
                 _commandSuggestions = null;
                 _commandSuggestionIndex = 0;
                 return;
             }
 
             // Get a collection of command suggestions and show the first result
-            _commandSuggestions = GetCommandSuggestions(InputText);
+            _commandStringSuggestions = GetCommandSuggestions(InputText, out _commandSuggestions);
             _commandSuggestionIndex = 0;
-            _suggestionText.text = _commandSuggestions.FirstOrDefault() ?? string.Empty;
+            _suggestionText.text = _commandStringSuggestions.ElementAtOrDefault(_commandSuggestionIndex) ?? string.Empty;
         }
 
         private void RefreshCommandParameterSuggestions()
         {
+            string suffix = "";
 
+            // If there is a current command suggestion, use it for the parameter suggestions
+            if (_commandStringSuggestions?.Length > 0)
+            {
+                Command command = _commandSuggestions.ElementAtOrDefault(_commandSuggestionIndex);
+                if (command == null)
+                {
+                    return;
+                }
+                suffix = $" {string.Join(" ", command.Parameters.Select(x => x.ToString()))}";
+            }
+
+            // Otherwise determine the current command from the input
+            else
+            {
+                // Split the input
+                string[] splitInput = InputText.Split(' ');
+                if (splitInput.Length == 0)
+                {
+                    return;
+                }
+
+                // Get the command
+                Command command = GetCommand(splitInput[0]);
+                if (command == null)
+                {
+                    return;
+                }
+
+                // Gather the remaining parameters
+                List<string> parameters = new List<string>();
+                for (int i = splitInput.Length - 2; i < command.Parameters.Length; ++i)
+                {
+                    // If the current parameter is empty, then still show the parameter suggestion
+                    if (i + 1 > 0 && i + 1 < splitInput.Length && !string.IsNullOrEmpty(splitInput[i + 1]))
+                    {
+                        continue;
+                    }
+
+                    parameters.Add(command.Parameters[i].ToString());
+                }
+
+                if (parameters.Count == 0)
+                {
+                    return;
+                }
+
+                suffix = $"{new string(' ', string.Join(" ", splitInput.Where(x => !string.IsNullOrEmpty(x))).Length)} {string.Join(" ", parameters)}";
+            }
+
+            _suggestionText.text += suffix;
         }
 
-        private string[] GetCommandSuggestions(string text)
+        private string[] GetCommandSuggestions(string text, out Command[] commands)
         {
             // Get a list of command names that could fill in the missing text
             // Store alias suggestions separately and add on end later (so the result contains real commands before aliases)
             List<string> suggestions = new List<string>();
             List<string> aliasSuggestions = new List<string>();
+            List<Command> cmds = new List<Command>();
+            List<Command> aliasCmds = new List<Command>();
             string textToLower = text.ToLower();
 
             foreach (Command command in _commands.Values)
@@ -2385,6 +2441,7 @@ namespace DavidFDev.DevConsole
                     // Combine current input with suggestion so capitalisation remains
                     // Add to suggestions list
                     suggestions.Add(text + command.Name.Substring(text.Length));
+                    cmds.Add(command);
                 }
 
                 // Iterate over the command aliases
@@ -2396,28 +2453,31 @@ namespace DavidFDev.DevConsole
                         // Combine current input with suggestion so capitalisation remains
                         // Add to alias suggestions list
                         aliasSuggestions.Add(text + alias.Substring(text.Length));
+                        aliasCmds.Add(command);
                     }
                 }
             }
             suggestions.AddRange(aliasSuggestions);
+            cmds.AddRange(aliasCmds);
+            commands = cmds.ToArray();
             return suggestions.ToArray();
         }
 
         private void AutoComplete()
         {
-            if (_commandSuggestions == null || _commandSuggestions.Length == 0)
+            if (_commandStringSuggestions == null || _commandStringSuggestions.Length == 0)
             {
                 return;
             }
 
             // Complete the input text with the current command suggestion
-            InputText = _commandSuggestions[_commandSuggestionIndex];
+            InputText = _commandStringSuggestions[_commandSuggestionIndex];
             InputCaretPosition = InputText.Length;
         }
 
         private void CycleCommandSuggestions(int direction)
         {
-            if (_commandSuggestions == null || _commandSuggestions.Length == 0)
+            if (_commandStringSuggestions == null || _commandStringSuggestions.Length == 0)
             {
                 return;
             }
@@ -2426,13 +2486,14 @@ namespace DavidFDev.DevConsole
             _commandSuggestionIndex += direction;
             if (_commandSuggestionIndex < 0)
             {
-                _commandSuggestionIndex = _commandSuggestions.Length - 1;
+                _commandSuggestionIndex = _commandStringSuggestions.Length - 1;
             }
-            else if (_commandSuggestionIndex == _commandSuggestions.Length)
+            else if (_commandSuggestionIndex == _commandStringSuggestions.Length)
             {
                 _commandSuggestionIndex = 0;
             }
-            _suggestionText.text = _commandSuggestions[_commandSuggestionIndex];
+            _suggestionText.text = _commandStringSuggestions[_commandSuggestionIndex];
+            RefreshCommandParameterSuggestions();
             InputCaretPosition = InputText.Length;
         }
 

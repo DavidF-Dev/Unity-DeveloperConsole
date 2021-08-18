@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Added real-time parameter information when typing out a command.
 - Added commands for executing C# expressions or statements at runtime.
 - Added exception handling for command callbacks.
 - Added a reminder in the devconsole command that the console is disabled by default in release builds.
