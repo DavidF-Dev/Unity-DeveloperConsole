@@ -119,6 +119,15 @@ namespace DavidFDev.DevConsole
             return this;
         }
 
+        /// <summary>
+        ///     Get the parameter as a formatted string.
+        /// </summary>
+        /// <returns></returns>
+        internal string ToFormattedString()
+        {
+            return $"<i>({Type.Name})</i><b>{Name}</b>";
+        }
+
         #endregion
     }
 }
