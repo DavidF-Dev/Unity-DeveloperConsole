@@ -195,6 +195,11 @@ namespace DavidFDev.DevConsole
 
         #region Methods
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         /// <summary>
         ///     Ensure the command name is valid.
         /// </summary>
