@@ -66,7 +66,7 @@ namespace DavidFDev.DevConsole
 
         public override string ToString()
         {
-            return $"<i>({Type.Name})</i><b>{Name}</b>";
+            return $"({Type.Name}){Name}";
         }
 
         /// <summary>

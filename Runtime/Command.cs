@@ -258,7 +258,7 @@ namespace DavidFDev.DevConsole
         /// <returns></returns>
         internal string GetFormattedParameter(int parameterIndex)
         {
-            return Parameters[parameterIndex].ToString();
+            return $"<i>({Parameters[parameterIndex].Type.Name})</i><b>{Parameters[parameterIndex].Name}</b>";
         }
 
         /// <summary>
