@@ -64,6 +64,11 @@ namespace DavidFDev.DevConsole
 
         #region Methods
 
+        public override string ToString()
+        {
+            return $"<i>({Type.Name})</i><b>{Name}</b>";
+        }
+
         /// <summary>
         ///     Set the internal type of the parameter.
         /// </summary>
