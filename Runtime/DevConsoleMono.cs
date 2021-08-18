@@ -2002,6 +2002,15 @@ namespace DavidFDev.DevConsole
                 }
             ));
 
+            AddCommand(Command.Create<Color>(
+                "colour",
+                "color",
+                "Display a colour in the developer console",
+                Parameter.Create("colour", "Colour to display. Formats: #RRGGBBAA (hex), #RRGGBB (hex), name (red,yellow,etc.), R.R,G.G,B.B (0.0-1.0), RRR,GGG,BBB (0-255)"),
+                colour => LogVariable($"<color=#{ColorUtility.ToHtmlStringRGBA(colour)}>Colour</color>", colour),
+                () => Log("Supported formats: #RRGGBBAA (hex), #RRGGBB (hex), name (red,yellow,etc.), R.R,G.G,B.B (0.0-1.0), RRR,GGG,BBB (0-255).")
+                ));
+
             #endregion
         }
 
@@ -2036,6 +2045,37 @@ namespace DavidFDev.DevConsole
                     }
 
                     return ParseParameter(s, typeof(bool));
+                });
+
+            AddParameterType(typeof(Color),
+                s =>
+                {
+                    if (ColorUtility.TryParseHtmlString(s, out Color colour))
+                    {
+                        return colour;
+                    }
+
+                    string[] components = s.Split(',');
+                    int length = Math.Min(4, components.Length);
+
+                    try
+                    {
+                        colour = Color.black;
+                        for (int i = 0; i < length; ++i)
+                        {
+                            colour[i] = Mathf.RoundToInt(int.Parse(components[i]) / 255f);
+                        }
+                    }
+                    catch
+                    {
+                        colour = Color.black;
+                        for (int i = 0; i < length; ++i)
+                        {
+                            colour[i] = float.Parse(components[i]);
+                        }
+                    }
+
+                    return colour;
                 });
         }
 

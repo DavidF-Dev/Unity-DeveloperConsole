@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added exception handling for command callbacks.
 - Added a reminder in the devconsole command that the console is disabled by default in release builds.
 - Added locks to DevConsole.Log methods to ensure nothing scary happens when using multiple threads.
+- Added Color as a supported parameter type.
+- Added command: "colour" - displays the provided colour in the developer console.
 - Changed DevConsole.InvokeCoroutine method to return the Coroutine instance.
 - Fixed Unity logs from other threads not showing in the developer console log.
 

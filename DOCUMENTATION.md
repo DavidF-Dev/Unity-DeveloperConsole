@@ -132,3 +132,4 @@ Listed below are all the built-in commands that come with the developer console 
 - ``time``: Display the current time.
 - ``sys_info``: Display system information.
 - ``datapath``: Display information about where data is stored by Unity and the developer console.
+- ``colour``: Display a colour in the developer console.
