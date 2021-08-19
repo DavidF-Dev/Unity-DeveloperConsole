@@ -155,6 +155,7 @@ namespace DavidFDev.DevConsole
         private readonly TextGenerator _textGenerator = new TextGenerator();
         private int _vertexCount = 0;
         private int _initLogTextSize = 0;
+        private bool _pretendScrollAtBottom = false;
 
         #endregion
 
@@ -382,6 +383,7 @@ namespace DavidFDev.DevConsole
             ClearLogFields();
             _vertexCount = 0;
             StoredLogText = ClearLogText;
+            _pretendScrollAtBottom = true;
         }
 
         internal void ResetConsole()
@@ -397,7 +399,7 @@ namespace DavidFDev.DevConsole
         {
             if (!string.IsNullOrWhiteSpace(InputText) && RunCommand(InputText))
             {
-                ScrollToBottomAtEndOfFrame();
+                ScrollTo(0.0f);
             }
 
             InputText = string.Empty;
@@ -887,9 +889,12 @@ namespace DavidFDev.DevConsole
             // Process the stored logs, displaying them to the console
             if (StoredLogText != string.Empty)
             {
+                bool scrollToBottom = _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f);
+                float scrollTo = scrollToBottom || _pretendScrollAtBottom ? 0.0f : _logScrollView.verticalNormalizedPosition;
                 string logText = string.Copy(StoredLogText);
                 StoredLogText = string.Empty;
                 ProcessLogText(logText);
+                ScrollTo(scrollTo);
             }
 
             // Check if the developer console toggle key was pressed
@@ -2635,17 +2640,21 @@ namespace DavidFDev.DevConsole
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
         }
 
-        private void ScrollToBottomAtEndOfFrame()
+        private void ScrollTo(float vertical)
         {
-            IEnumerator ScrollToBottomCoroutine()
+            IEnumerator ScrollTo()
             {
                 yield return new WaitForEndOfFrame();
-                _logScrollView.verticalNormalizedPosition = 0f;
-                _logScrollView.CalculateLayoutInputVertical();
+                _logScrollView.verticalNormalizedPosition = vertical;
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_logScrollView.transform);
+                if (_pretendScrollAtBottom && (_logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f)))
+                {
+                    _pretendScrollAtBottom = false;
+                }
             }
 
             // Start the coroutine that snaps the scroll view at the end of the frame
-            StartCoroutine(ScrollToBottomCoroutine());
+            StartCoroutine(ScrollTo());
         }
 
         #endregion

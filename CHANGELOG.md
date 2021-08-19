@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed DevConsole.InvokeCoroutine method to return the Coroutine instance.
 - Fixed Unity logs from other threads not showing in the developer console log.
 - Fixed generic or nullable parameter types not having their type displayed nicely.
+- Fixed log scroll view not snapping to bottom intuitively.
 
 ## [0.2.1-alpha] - 2021-08-09
 - Added documentation.
