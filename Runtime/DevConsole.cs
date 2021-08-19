@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -354,6 +355,27 @@ namespace DavidFDev.DevConsole
             }
 
             return _console.StartCoroutine(Invoke());
+        }
+
+        /// <summary>
+        ///     Get the user-friendly name of the parameter type.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal static string GetFriendlyName(Type type)
+        {
+            if (type.IsGenericType)
+            {
+                Type nullable = Nullable.GetUnderlyingType(type);
+                if (nullable != null)
+                {
+                    return $"{GetFriendlyName(nullable)}?";
+                }
+
+                return $"{type.Name.Split('`')[0]}<{string.Join(", ", type.GetGenericArguments().Select(x => GetFriendlyName(x)))}>";
+            }
+
+            return type.Name;
         }
 
         #region Invoke events

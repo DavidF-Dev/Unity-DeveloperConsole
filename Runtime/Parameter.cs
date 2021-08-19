@@ -3,6 +3,7 @@
 // Created by: DavidFDev
 
 using System;
+using System.Linq;
 using System.Reflection;
 
 namespace DavidFDev.DevConsole
@@ -51,6 +52,11 @@ namespace DavidFDev.DevConsole
         internal Type Type { get; private set; }
 
         /// <summary>
+        ///     User-friendly name of the parameter type.
+        /// </summary>
+        internal string FriendlyTypeName { get; private set; }
+
+        /// <summary>
         ///     Name of the parameter.
         /// </summary>
         internal string Name { get; private set; }
@@ -66,7 +72,7 @@ namespace DavidFDev.DevConsole
 
         public override string ToString()
         {
-            return $"({Type.Name}){Name}";
+            return $"({FriendlyTypeName}){Name}";
         }
 
         /// <summary>
@@ -87,6 +93,7 @@ namespace DavidFDev.DevConsole
         internal Parameter SetType(Type type)
         {
             Type = type;
+            FriendlyTypeName = DevConsole.GetFriendlyName(type);
 
             // If the type is an enum, add special help text
             if (type.IsEnum)
@@ -125,7 +132,7 @@ namespace DavidFDev.DevConsole
         /// <returns></returns>
         internal string ToFormattedString()
         {
-            return $"<i>({Type.Name})</i><b>{Name}</b>";
+            return $"<i>({FriendlyTypeName})</i><b>{Name}</b>";
         }
 
         #endregion
