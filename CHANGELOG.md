@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added real-time parameter information when typing out a command.
+- Added built-in support for null and default values for parameters.
 - Added commands for executing C# expressions or statements at runtime.
 - Added exception handling for command callbacks.
 - Added a reminder in the devconsole command that the console is disabled by default in release builds.

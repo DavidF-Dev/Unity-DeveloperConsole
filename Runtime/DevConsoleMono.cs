@@ -2040,7 +2040,7 @@ namespace DavidFDev.DevConsole
                 s =>
                 {
                     // Allow null value, representing a toggle
-                    if (s.ToLower() == "null" || s.ToLower() == "toggle" || s == "~" || s == "!")
+                    if (s.ToLower() == "null" || s == "~")
                     {
                         return null;
                     }
@@ -2292,6 +2292,18 @@ namespace DavidFDev.DevConsole
 
         private object ParseParameter(string input, Type type)
         {
+            // Special case if the type is nullable or a class
+            if ((Nullable.GetUnderlyingType(type) != null || type.IsClass) && (input.ToLower() == "null" || input == "~"))
+            {
+                return null;
+            }
+
+            // Special case if the type is a struct
+            if (type.IsValueType && (input.ToLower() == "default" || input == "~"))
+            {
+                return Activator.CreateInstance(type);
+            }
+
             // Check if a parse function exists for the type
             if (_parameterParseFuncs.TryGetValue(type, out Func<string, object> parseFunc))
             {
