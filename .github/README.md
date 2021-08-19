@@ -52,11 +52,13 @@ Custom commands can be added to the dev console by developers. They can be creat
 - Add the ``[DevConsoleCommand]`` attribute above a static method declaration, using the method body as the callback and arguments as command parameters.
 
 #### Parameters
-Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. int, float, string, bool, etc.)</br>
-Enums are also supported.</br>
-Commands that use a nullable bool (``Boolean?``) parameter accept "~", "!", "null", and "toggle" - used primarily as a toggle.</br>
-For example, executing "<b>showfps !</b>" will toggle showing the fps on-screen.</br></br>
-To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).
+Default supported parameter types implement the [``IConvertible``](https://docs.microsoft.com/en-us/dotnet/api/system.iconvertible) interface (e.g. ``int``, ``float``, ``string``, ``bool``, etc.)</br>
+To add a custom type, use ``DevConsole.AddParameterType<T>()`` (see FAQ below).</br>
+- Enums are also supported.</br>
+- Nullable-type parameters accept "null" and "~" (e.g. ``GameObject`` or ``Color?``).
+- Value-type parameters accept "default" and "~" (e.g. ``Int32`` or ``Color``).
+
+Commands that use a nullable bool (``Boolean?``) are used primarily as a toggle. For example, executing "<b>showfps ~</b>" will toggle showing the fps on-screen.
 
 #### Example using Command.Create
 ```cs
