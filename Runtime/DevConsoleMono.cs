@@ -66,6 +66,13 @@ namespace DavidFDev.DevConsole
 #endif
         private const InputKey UpArrowKey = InputKey.UpArrow;
         private const InputKey DownArrowKey = InputKey.DownArrow;
+        private const InputKey BackspaceKey = InputKey.Backspace;
+        private const InputKey LeftControlKey =
+#if USE_NEW_INPUT_SYSTEM
+            InputKey.LeftCtrl;
+#else
+            InputKey.LeftControl;
+#endif
         private const string InputSystemPrefabPath = "Prefabs/" +
 #if USE_NEW_INPUT_SYSTEM
             "FAB_DevConsole.NewEventSystem";
@@ -137,6 +144,7 @@ namespace DavidFDev.DevConsole
         private bool _focusInputField = false;
         private bool _oldFocusInputField = false;
         private Dictionary<InputKey, string> _bindings = new Dictionary<InputKey, string>();
+        private bool _ignoreCtrlBackspace = false;
 
         #endregion
 
@@ -613,6 +621,24 @@ namespace DavidFDev.DevConsole
 
         internal void OnInputValueChanged(string _)
         {
+            // Check if CTRL + Backspace was pressed, and remove a word before the caret position
+            if (!_ignoreCtrlBackspace && GetKey(LeftControlKey) && GetKeyDown(BackspaceKey))
+            {
+                string tilCaret = InputText.Substring(0, InputCaretPosition);
+                string afterCaret = InputText.Substring(InputCaretPosition, InputText.Length - InputCaretPosition);
+                string[] split = tilCaret.Split(' ');
+                int length = 0;
+                for (int i = 0; i < split.Length - 1; ++i)
+                {
+                    length += split[i].Length + 1;
+                }
+
+                _ignoreCtrlBackspace = true;
+                InputText = InputText.Substring(0, length) + afterCaret;
+                _ignoreCtrlBackspace = false;
+                InputCaretPosition = length;
+            }
+
             RefreshCommandSuggestions();
             RefreshCommandParameterSuggestions();
         }
@@ -2638,6 +2664,21 @@ namespace DavidFDev.DevConsole
             return Keyboard.current[key].wasPressedThisFrame;
 #else
             return Input.GetKeyDown(key);
+#endif
+        }
+
+        /// <summary>
+        ///     Check if the specified key is pressed, using the correct input system.
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private bool GetKey(InputKey key)
+        {
+#if USE_NEW_INPUT_SYSTEM
+            return Keyboard.current[key].isPressed;
+#else
+            return Input.GetKey(key);
 #endif
         }
 
