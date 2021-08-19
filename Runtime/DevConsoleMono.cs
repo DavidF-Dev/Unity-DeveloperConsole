@@ -156,6 +156,7 @@ namespace DavidFDev.DevConsole
         private int _vertexCount = 0;
         private int _initLogTextSize = 0;
         private bool _pretendScrollAtBottom = false;
+        private bool _scrollToBottomNextFrame = false;
 
         #endregion
 
@@ -399,7 +400,7 @@ namespace DavidFDev.DevConsole
         {
             if (!string.IsNullOrWhiteSpace(InputText) && RunCommand(InputText))
             {
-                ScrollTo(0.0f);
+                _scrollToBottomNextFrame = true;
             }
 
             InputText = string.Empty;
@@ -780,6 +781,19 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
+            // Scroll the view to the bottom
+            if (_scrollToBottomNextFrame)
+            {
+                _logScrollView.verticalNormalizedPosition = 0.0f;
+                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_logScrollView.transform);
+                //_logScrollView.verticalNormalizedPosition = 0.0f;
+                if (_pretendScrollAtBottom && (_logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f)))
+                {
+                    _pretendScrollAtBottom = false;
+                }
+                _scrollToBottomNextFrame = false;
+            }
+
             // Check if the resolution has changed and the window should be rebuilt / reset
             if (_screenSize.x != Screen.width || _screenSize.y != Screen.height)
             {
@@ -889,12 +903,16 @@ namespace DavidFDev.DevConsole
             // Process the stored logs, displaying them to the console
             if (StoredLogText != string.Empty)
             {
-                bool scrollToBottom = _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f);
-                float scrollTo = scrollToBottom || _pretendScrollAtBottom ? 0.0f : _logScrollView.verticalNormalizedPosition;
+                // Check if should scroll to the bottom (not working - vertical changes between Update() and LateUpdate() - why???!!!)
+                if (_pretendScrollAtBottom || _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f))
+                {
+                    _scrollToBottomNextFrame = true;
+                }
+
                 string logText = string.Copy(StoredLogText);
                 StoredLogText = string.Empty;
                 ProcessLogText(logText);
-                ScrollTo(scrollTo);
+                RebuildLayout();
             }
 
             // Check if the developer console toggle key was pressed
@@ -2590,9 +2608,6 @@ namespace DavidFDev.DevConsole
                 _logFields.Last().text += logText;
                 _vertexCount += vertexCountStored;
             }
-
-            // Refresh the UI, so that the text re-positions nicely
-            RebuildLayout();
         }
 
         private int GetVertexCount(string text)
@@ -2643,23 +2658,6 @@ namespace DavidFDev.DevConsole
         {
             // Forcefully rebuild the layout, otherwise transforms are positioned incorrectly
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
-        }
-
-        private void ScrollTo(float vertical)
-        {
-            IEnumerator ScrollTo()
-            {
-                yield return new WaitForEndOfFrame();
-                _logScrollView.verticalNormalizedPosition = vertical;
-                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_logScrollView.transform);
-                if (_pretendScrollAtBottom && (_logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f)))
-                {
-                    _pretendScrollAtBottom = false;
-                }
-            }
-
-            // Start the coroutine that snaps the scroll view at the end of the frame
-            StartCoroutine(ScrollTo());
         }
 
         #endregion
