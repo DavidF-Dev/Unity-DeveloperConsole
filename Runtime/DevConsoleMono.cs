@@ -2412,6 +2412,11 @@ namespace DavidFDev.DevConsole
 
         private void RefreshCommandParameterSuggestions()
         {
+            if (_commandHistoryIndex != -1)
+            {
+                return;
+            }
+
             string suffix = "";
 
             // If there is a current command suggestion, use it for the parameter suggestions
