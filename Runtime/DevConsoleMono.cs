@@ -786,7 +786,6 @@ namespace DavidFDev.DevConsole
             {
                 _logScrollView.verticalNormalizedPosition = 0.0f;
                 LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_logScrollView.transform);
-                //_logScrollView.verticalNormalizedPosition = 0.0f;
                 if (_pretendScrollAtBottom && (_logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f)))
                 {
                     _pretendScrollAtBottom = false;
@@ -904,7 +903,7 @@ namespace DavidFDev.DevConsole
             if (StoredLogText != string.Empty)
             {
                 // Check if should scroll to the bottom (not working - vertical changes between Update() and LateUpdate() - why???!!!)
-                if (_pretendScrollAtBottom || _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f))
+                if (_pretendScrollAtBottom || _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f) || _logScrollView.verticalNormalizedPosition < 0.1f)
                 {
                     _scrollToBottomNextFrame = true;
                 }
