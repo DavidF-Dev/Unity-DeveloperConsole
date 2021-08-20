@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.2.2-alpha] - 2021-08-20
 - Added real-time parameter information when typing out a command.
 - Added built-in support for null and default values for parameters.
 - Added support for CTRL + Backspace in the input field.
