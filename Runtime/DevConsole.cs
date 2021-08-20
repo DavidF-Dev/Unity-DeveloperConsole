@@ -91,7 +91,7 @@ namespace DavidFDev.DevConsole
         public static InputKey? ToggleKey
         {
             get => _console.ConsoleToggleKey;
-            set => _console.SetToggleKey(value);
+            set => _console.ConsoleToggleKey = value;
         }
 
         #endregion
@@ -158,6 +158,37 @@ namespace DavidFDev.DevConsole
             }
 
             return _console.RunCommand(input);
+        }
+
+        /// <summary>
+        ///     Get a command instance by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static Command GetCommand(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return _console.GetCommand(name);
+        }
+
+        /// <summary>
+        ///     Get a command instance by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        public static bool GetCommand(string name, out Command command)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return _console.GetCommand(name, out command);
         }
 
         /// <summary>
@@ -289,7 +320,7 @@ namespace DavidFDev.DevConsole
         /// <param name="toggleKey"></param>
         public static void SetToggleKey(InputKey? toggleKey)
         {
-            _console.SetToggleKey(toggleKey);
+            _console.ConsoleToggleKey = toggleKey;
         }
 
         /// <summary>

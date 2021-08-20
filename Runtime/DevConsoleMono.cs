@@ -118,80 +118,268 @@ namespace DavidFDev.DevConsole
 
         #region Serialised fields
 
-        [SerializeField] private CanvasGroup _canvasGroup = null;
-        [SerializeField] private Text _versionText = null;
+        /// <summary>
+        ///     Reference to the canvas group that the dev console window is a part of.
+        /// </summary>
+        [SerializeField]
+        private CanvasGroup _canvasGroup = null;
 
+        /// <summary>
+        ///     Reference to the text that displays the deev console's version number.
+        /// </summary>
+        [SerializeField]
+        private Text _versionText = null;
+
+        /// <summary>
+        ///     Reference to the input field for entering commands.
+        /// </summary>
         [Header("Input")]
-        [SerializeField] private InputField _inputField = null;
-        [SerializeField] private Text _suggestionText = null;
+        [SerializeField]
+        private InputField _inputField = null;
 
+        /// <summary>
+        ///     Reference to the text that shows command and parameter suggestions (within the input field).
+        /// </summary>
+        [SerializeField]
+        private Text _suggestionText = null;
+
+        /// <summary>
+        ///     Reference to the game object to instantiate for new log fields (when vertices reach their limit).
+        /// </summary>
         [Header("Logs")]
-        [SerializeField] private GameObject _logFieldPrefab = null;
-        [SerializeField] private RectTransform _logContentTransform = null;
-        [SerializeField] private ScrollRect _logScrollView = null;
+        [SerializeField]
+        private GameObject _logFieldPrefab = null;
 
+        /// <summary>
+        ///     Reference to the transform that new log fields should be parented to.
+        /// </summary>
+        [SerializeField]
+        private RectTransform _logContentTransform = null;
+
+        /// <summary>
+        ///     Reference to the scrollrect for the logs.
+        /// </summary>
+        [SerializeField]
+        private ScrollRect _logScrollView = null;
+
+        /// <summary>
+        ///     Reference to the rect transform that controls the position and size of the dev console window.
+        /// </summary>
         [Header("Window")]
-        [SerializeField] private RectTransform _dynamicTransform = null;
-        [SerializeField] private Image _resizeButtonImage = null;
-        [SerializeField] private Color _resizeButtonHoverColour = default;
+        [SerializeField]
+        private RectTransform _dynamicTransform = null;
+
+        /// <summary>
+        ///     Reference to the image component on the resize button.
+        /// </summary>
+        [SerializeField]
+        private Image _resizeButtonImage = null;
+
+        /// <summary>
+        ///     The colour effect to apply to the hover button when resizing the dev console window.
+        /// </summary>
+        [SerializeField]
+        private Color _resizeButtonHoverColour = default;
 
         #endregion
 
+        /// <summary>
+        ///     When true, the developer console is performing initialisation code (at startup).
+        /// </summary>
         private bool _init = false;
 
         #region Input fields
 
+        /// <summary>
+        ///     When true, the input field will forcefully be focused at the beginning of the next frame.
+        /// </summary>
         private bool _focusInputField = false;
+
+        /// <summary>
+        ///     The previous state of whether the input field was focused - used to invoke an event.
+        /// </summary>
         private bool _oldFocusInputField = false;
+
+        /// <summary>
+        ///     Dictionary of key bindings for commands.
+        /// </summary>
         private Dictionary<InputKey, string> _bindings = new Dictionary<InputKey, string>();
+
+        /// <summary>
+        ///     Whether the CTRL + Backspace input should be ignored, used to prevent multiple occurences from one input.
+        /// </summary>
         private bool _ignoreCtrlBackspace = false;
 
         #endregion
 
         #region Log fields
 
+        /// <summary>
+        ///     List of the instantiated log fields.
+        /// </summary>
         private readonly List<InputField> _logFields = new List<InputField>();
+
+        /// <summary>
+        ///     Log text that is going to be displayed next frame (use the thread-safe property instead).
+        /// </summary>
         private string _logTextStore = "";
+
+        /// <summary>
+        ///     Used to determine the number of vertices a string requires to render.
+        /// </summary>
         private readonly TextGenerator _textGenerator = new TextGenerator();
+
+        /// <summary>
+        ///     Keeps track of how many vertices are being used by the most recent instantiated log field.
+        /// </summary>
         private int _vertexCount = 0;
+
+        /// <summary>
+        /// The initial font size of the text in the log field.
+        /// </summary>
         private int _initLogTextSize = 0;
+
+        /// <summary>
+        ///     Used when the console is first enabled, allowing it to scroll to the bottom even though it's not at the bottom.
+        /// </summary>
         private bool _pretendScrollAtBottom = false;
+
+        /// <summary>
+        ///     When true, the log scroll view will forcefully scroll to the bottom (0.0) at the beginning of next frame.
+        /// </summary>
         private bool _scrollToBottomNextFrame = false;
 
         #endregion
 
         #region Window fields
 
+        /// <summary>
+        ///     True if the dev console window is being repositioned by the user.
+        /// </summary>
         private bool _repositioning = false;
+
+        /// <summary>
+        ///     The initial position of the dev console window.
+        /// </summary>
         private Vector2 _initPosition = default;
+
+        /// <summary>
+        ///     Used for calculating the position of the dev console window when repositioning.
+        /// </summary>
         private Vector2 _repositionOffset = default;
+
+        /// <summary>
+        ///     True if the dev console window is being resized by the user.
+        /// </summary>
         private bool _resizing = false;
+
+        /// <summary>
+        ///     The initial size of the dev console window.
+        /// </summary>
         private Vector2 _initSize = default;
+
+        /// <summary>
+        ///     The initial resize button colour (when unpressed).
+        /// </summary>
         private Color _resizeButtonColour = default;
+
+        /// <summary>
+        ///     The initial width of the log field prefab.
+        /// </summary>
         private float _initLogFieldWidth = 0f;
+
+        /// <summary>
+        ///     The current width of the log field instances.
+        /// </summary>
         private float _currentLogFieldWidth = 0f;
+
+        /// <summary>
+        ///     Used to compare to the current screen size for changes - which will reset the dev console window.
+        /// </summary>
         private Vector2Int _screenSize = default;
 
         #endregion
 
         #region Command fields
 
+        /// <summary>
+        ///     Dictionary of all the active commands by command name.
+        /// </summary>
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
+
+        /// <summary>
+        ///     Dictionary of all the parameter parser functions by type.
+        /// </summary>
         private readonly Dictionary<Type, Func<string, object>> _parameterParseFuncs = new Dictionary<Type, Func<string, object>>();
+
+        /// <summary>
+        ///     List that contains the previously entered commands, which the user can cycle through.
+        /// </summary>
         private readonly List<string> _commandHistory = new List<string>(CommandHistoryLength);
+
+        /// <summary>
+        ///     The name of the currently executing command.
+        /// </summary>
         private string _currentCommand = string.Empty;
+
+        /// <summary>
+        ///     The name of the most previous entered command.
+        /// </summary>
         private string _previousCommand = string.Empty;
+
+        /// <summary>
+        ///     Index of which command from the history is being displayed to the user (-1 means there is none).
+        /// </summary>
         private int _commandHistoryIndex = -1;
+
+        /// <summary>
+        ///     Whether Unity logs should be displayed in the dev console.
+        /// </summary>
         private bool _displayUnityLogs = true;
+
+        /// <summary>
+        ///     Whether Unity errors should be displayed in the dev console.
+        /// </summary>
         private bool _displayUnityErrors = true;
+
+        /// <summary>
+        ///     Whether Unity exceptions should be displayed in the dev console.
+        /// </summary>
         private bool _displayUnityExceptions = true;
+
+        /// <summary>
+        ///     Whether Unity warnings should be displayed in the dev console.
+        /// </summary>
         private bool _displayUnityWarnings = true;
+
+        /// <summary>
+        ///     Array of command suggestions based off the current user input.
+        /// </summary>
         private string[] _commandStringSuggestions = null;
+
+        /// <summary>
+        ///     Array of commands that are suggested based off the current user input.
+        /// </summary>
         private Command[] _commandSuggestions = null;
+
+        /// <summary>
+        ///     Index of which command from the suggestions is being displayed to the user.
+        /// </summary>
         private int _commandSuggestionIndex = 0;
+
+        /// <summary>
+        ///     List of cached enum types, used by the "enum" command to reduce the need to use reflection.
+        /// </summary>
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
 
+        /// <summary>
+        ///     Evaluator used by "cs_evaluate" and "cs_run" to execuet C# expressions or statements.
+        /// </summary>
         private Evaluator _monoEvaluator = null;
+
+        /// <summary>
+        ///     List of using statements that are included by default with the evaluator.
+        /// </summary>
         private List<string> _includedUsings = new List<string>();
 
         #endregion
@@ -213,28 +401,52 @@ namespace DavidFDev.DevConsole
 
         #region Properties
 
-        internal InputKey? ConsoleToggleKey { get; private set; } = DefaultToggleKey;
+        /// <summary>
+        ///     The key used to toggle the developer console window (NULL, if none).
+        /// </summary>
+        internal InputKey? ConsoleToggleKey { get; set; } = DefaultToggleKey;
 
+        /// <summary>
+        ///     Whether the console is enabled.
+        /// </summary>
         internal bool ConsoleIsEnabled { get; private set; }
 
+        /// <summary>
+        ///     Whether the console is showing.
+        /// </summary>
         internal bool ConsoleIsShowing { get; private set; }
 
+        /// <summary>
+        ///     Whether the console is showing and the input field is focused.
+        /// </summary>
         internal bool ConsoleIsShowingAndFocused => ConsoleIsShowing && _inputField.isFocused;
 
+        /// <summary>
+        ///     Whether key bindings are enabled for commands.
+        /// </summary>
         internal bool BindingsIsEnabled { get; set; } = true;
 
+        /// <summary>
+        ///     The text entered by the user in the input field.
+        /// </summary>
         private string InputText
         {
             get => _inputField.text;
             set => _inputField.text = value;
         }
 
+        /// <summary>
+        ///     The index of the input caret in the input field.
+        /// </summary>
         private int InputCaretPosition
         {
             get => _inputField.caretPosition;
             set => _inputField.caretPosition = value;
         }
 
+        /// <summary>
+        ///     Log text that is going to be displayed next frame (thread-safe).
+        /// </summary>
         private string StoredLogText
         {
             get
@@ -253,6 +465,9 @@ namespace DavidFDev.DevConsole
             }
         }
 
+        /// <summary>
+        ///     The font size of the text in the log.
+        /// </summary>
         private int LogTextSize
         {
             get => _logFieldPrefab.GetComponent<InputField>().textComponent.fontSize;
@@ -280,6 +495,9 @@ namespace DavidFDev.DevConsole
 
         #region Console methods
 
+        /// <summary>
+        ///     Enable the dev console.
+        /// </summary>
         internal void EnableConsole()
         {
             if (!_init && ConsoleIsEnabled)
@@ -287,7 +505,6 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            //Application.logMessageReceived += OnLogMessageReceived;
             Application.logMessageReceivedThreaded += OnLogMessageReceived;
             ClearConsole();
             InputText = string.Empty;
@@ -298,6 +515,9 @@ namespace DavidFDev.DevConsole
             DevConsole.InvokeOnConsoleEnabled();
         }
 
+        /// <summary>
+        ///     Disable the dev console.
+        /// </summary>
         internal void DisableConsole()
         {
             if (!_init && !ConsoleIsEnabled)
@@ -314,7 +534,6 @@ namespace DavidFDev.DevConsole
             _commandHistory.Clear();
             _cacheEnumTypes.Clear();
             ClearConsole();
-            //Application.logMessageReceived -= OnLogMessageReceived;
             Application.logMessageReceivedThreaded -= OnLogMessageReceived;
             ConsoleIsEnabled = false;
             enabled = false;
@@ -322,6 +541,9 @@ namespace DavidFDev.DevConsole
             DevConsole.InvokeOnConsoleDisabled();
         }
 
+        /// <summary>
+        ///     Open the dev console - making it visible.
+        /// </summary>
         internal void OpenConsole()
         {
             if (!_init && (!ConsoleIsEnabled || ConsoleIsShowing))
@@ -346,6 +568,9 @@ namespace DavidFDev.DevConsole
             DevConsole.InvokeOnConsoleOpened();
         }
 
+        /// <summary>
+        ///     Close the dev console - hiding it in the background.
+        /// </summary>
         internal void CloseConsole()
         {
             if (!_init && (!ConsoleIsEnabled || !ConsoleIsShowing))
@@ -363,6 +588,9 @@ namespace DavidFDev.DevConsole
             DevConsole.InvokeOnConsoleClosed();
         }
 
+        /// <summary>
+        ///     Toggle the dev console visibility.
+        /// </summary>
         internal void ToggleConsole()
         {
             if (ConsoleIsShowing)
@@ -374,11 +602,9 @@ namespace DavidFDev.DevConsole
             OpenConsole();
         }
 
-        internal void SetToggleKey(InputKey? toggleKey)
-        {
-            ConsoleToggleKey = toggleKey;
-        }
-
+        /// <summary>
+        ///     Clear the contents of the dev console log.
+        /// </summary>
         internal void ClearConsole()
         {
             ClearLogFields();
@@ -387,15 +613,20 @@ namespace DavidFDev.DevConsole
             _pretendScrollAtBottom = true;
         }
 
+        /// <summary>
+        ///     Reset the position and size of the dev console window.
+        /// </summary>
         internal void ResetConsole()
         {
-            // Reset the position and size of the console
             _dynamicTransform.anchoredPosition = _initPosition;
             _dynamicTransform.sizeDelta = _initSize;
             _currentLogFieldWidth = _initLogFieldWidth;
             RefreshLogFieldsSize();
         }
 
+        /// <summary>
+        ///     Submit the current user input and attempt to evaluate the command.
+        /// </summary>
         internal void SubmitInput()
         {
             if (!string.IsNullOrWhiteSpace(InputText) && RunCommand(InputText))
@@ -406,6 +637,11 @@ namespace DavidFDev.DevConsole
             InputText = string.Empty;
         }
 
+        /// <summary>
+        ///     Run a command, given the raw input by the user.
+        /// </summary>
+        /// <param name="rawInput"></param>
+        /// <returns></returns>
         internal bool RunCommand(string rawInput)
         {
             // Get the input as an array
@@ -437,7 +673,8 @@ namespace DavidFDev.DevConsole
                 }
                 catch (Exception e)
                 {
-                    LogError($"Command default callback threw an exception: {e.Message}.");
+                    LogError($"Command default callback threw an exception.");
+                    Debug.LogException(e);
                     return false;
                 }
                 return true;
@@ -474,12 +711,20 @@ namespace DavidFDev.DevConsole
             }
             catch (Exception e)
             {
-                LogError($"Command callback threw an exception: {e.Message}.");
+                LogError($"Command callback threw an exception.");
+                Debug.LogException(e);
                 return false;
             }
             return true;
         }
 
+        /// <summary>
+        ///     Add a command to the dev console.
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="onlyInDevBuild"></param>
+        /// <param name="isCustomCommand"></param>
+        /// <returns></returns>
         internal bool AddCommand(Command command, bool onlyInDevBuild = false, bool isCustomCommand = false)
         {
             if (onlyInDevBuild && !Debug.isDebugBuild)
@@ -508,6 +753,11 @@ namespace DavidFDev.DevConsole
             return false;
         }
 
+        /// <summary>
+        ///     Remove a command from the dev console.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         internal bool RemoveCommand(string name)
         {
             Command command = GetCommand(name);
@@ -517,7 +767,7 @@ namespace DavidFDev.DevConsole
                 return true;
             }
 
-            if (_permanentCommands.Contains(name))
+            if (_permanentCommands.Contains(command.Name))
             {
                 return false;
             }
@@ -525,6 +775,33 @@ namespace DavidFDev.DevConsole
             return _commands.Remove(command.Name);
         }
 
+        /// <summary>
+        ///     Get a command instance by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        internal Command GetCommand(string name)
+        {
+            return _commands.TryGetValue(name.ToLower(), out Command command) ? command : _commands.Values.FirstOrDefault(c => c.HasAlias(name));
+        }
+
+        /// <summary>
+        ///     Get a command instance by name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="command"></param>
+        /// <returns></returns>
+        internal bool GetCommand(string name, out Command command)
+        {
+            return _commands.TryGetValue(name.ToLower(), out command) || ((command = _commands.Values.FirstOrDefault(c => c.HasAlias(name))) != null);
+        }
+
+        /// <summary>
+        ///     Add a parameter type parser function.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="parseFunc"></param>
+        /// <returns></returns>
         internal bool AddParameterType(Type type, Func<string, object> parseFunc)
         {
             // Try to add the parameter type, if one doesn't already exist for this type
@@ -622,6 +899,10 @@ namespace DavidFDev.DevConsole
 
         #region Unity events
 
+        /// <summary>
+        ///     Invoked when the input field text is changed.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnInputValueChanged(string _)
         {
             // Check if CTRL + Backspace was pressed, and remove a word before the caret position
@@ -646,7 +927,14 @@ namespace DavidFDev.DevConsole
             RefreshCommandParameterSuggestions();
         }
 
-        internal char OnValidateInput(string input, int charIndex, char addedChar)
+        /// <summary>
+        ///     Invoked when a character is going to be added to the input field.
+        /// </summary>
+        /// <param name="_"></param>
+        /// <param name="__"></param>
+        /// <param name="addedChar">Character that was inputted.</param>
+        /// <returns>The character to add to the input text.</returns>
+        internal char OnValidateInput(string _, int __, char addedChar)
         {
             const char EmptyChar = '\0';
 
@@ -664,6 +952,7 @@ namespace DavidFDev.DevConsole
                 AutoComplete();
             }
 
+            // If the toggle key is pressed and the input field text is empty - ignore the character
             else if (InputText.Length == 0 && ConsoleToggleKey.HasValue && GetKeyDown(ConsoleToggleKey.Value))
             {
                 addedChar = EmptyChar;
@@ -672,22 +961,38 @@ namespace DavidFDev.DevConsole
             return addedChar;
         }
 
+        /// <summary>
+        ///     Invoked when the mouse is pressed down on the reposition button.
+        /// </summary>
+        /// <param name="eventData"></param>
         internal void OnRepositionButtonPointerDown(BaseEventData eventData)
         {
             _repositioning = true;
             _repositionOffset = ((PointerEventData)eventData).position - (Vector2)_dynamicTransform.position;
         }
 
+        /// <summary>
+        ///     Invoked when the mouse is released after pressing the reposition button.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnRepositionButtonPointerUp(BaseEventData _)
         {
             _repositioning = false;
         }
 
+        /// <summary>
+        ///     Invoked when the mouse button is pressed down on the resize button.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnResizeButtonPointerDown(BaseEventData _)
         {
             _resizing = true;
         }
 
+        /// <summary>
+        ///     Invoked when the mouse is released after pressing the resize button.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnResizeButtonPointerUp(BaseEventData _)
         {
             _resizing = false;
@@ -695,11 +1000,19 @@ namespace DavidFDev.DevConsole
             RefreshLogFieldsSize();
         }
 
+        /// <summary>
+        ///     Invoked when the mouse cursor enters the resize button rect.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnResizeButtonPointerEnter(BaseEventData _)
         {
             _resizeButtonImage.color = _resizeButtonColour * _resizeButtonHoverColour;
         }
 
+        /// <summary>
+        ///     Invoked when the mouse cursor exits the resize button rect.
+        /// </summary>
+        /// <param name="_"></param>
         internal void OnResizeButtonPointerExit(BaseEventData _)
         {
             if (!_resizing)
@@ -708,6 +1021,9 @@ namespace DavidFDev.DevConsole
             }
         }
 
+        /// <summary>
+        ///     Invoked when the author button is pressed.
+        /// </summary>
         internal void OnAuthorButtonPressed()
         {
 #if !UNITY_ANDROID && !UNITY_IOS
@@ -715,14 +1031,64 @@ namespace DavidFDev.DevConsole
 #endif
         }
 
+        /// <summary>
+        ///     Invoked when the increase text size button is pressed.
+        /// </summary>
         internal void OnIncreaseTextSizeButtonPressed()
         {
             LogTextSize = Math.Min(MaxLogTextSize, LogTextSize + 4);
         }
 
+        /// <summary>
+        ///     Invoked when the decrease text size button is pressed.
+        /// </summary>
         internal void OnDecreaseTextSizeButtonPressed()
         {
             LogTextSize = Math.Max(MinLogTextSize, LogTextSize - 4);
+        }
+
+        /// <summary>
+        ///     Invoked when a Unity log message is received.
+        /// </summary>
+        /// <param name="logString"></param>
+        /// <param name="_"></param>
+        /// <param name="type"></param>
+        private void OnLogMessageReceived(string logString, string _, LogType type)
+        {
+            string time = DateTime.Now.ToString("HH:mm:ss");
+            switch (type)
+            {
+                case LogType.Log:
+                    if (!_displayUnityLogs)
+                    {
+                        return;
+                    }
+                    Log($"({time}) <b>Log:</b> {logString}");
+                    break;
+                case LogType.Error:
+                    if (!_displayUnityErrors)
+                    {
+                        return;
+                    }
+                    Log($"({time}) <color={ErrorColour}><b>Error:</b> </color>{logString}");
+                    break;
+                case LogType.Exception:
+                    if (!_displayUnityExceptions)
+                    {
+                        return;
+                    }
+                    Log($"({time}) <color={ErrorColour}><b>Exception:</b> </color>{logString}");
+                    break;
+                case LogType.Warning:
+                    if (!_displayUnityWarnings)
+                    {
+                        return;
+                    }
+                    Log($"({time}) <color={WarningColour}><b>Warning:</b> </color>{logString}");
+                    break;
+                default:
+                    break;
+            }
         }
 
         #endregion
@@ -1012,6 +1378,9 @@ namespace DavidFDev.DevConsole
 
         #region Init methods
 
+        /// <summary>
+        ///     Add all the built-in commands.
+        /// </summary>
         private void InitBuiltInCommands()
         {
             #region Console commands
@@ -2064,6 +2433,9 @@ namespace DavidFDev.DevConsole
             #endregion
         }
 
+        /// <summary>
+        ///     Add all the built-in parameter type parser functions.
+        /// </summary>
         private void InitBuiltInParsers()
         {
             AddParameterType(typeof(bool),
@@ -2129,6 +2501,9 @@ namespace DavidFDev.DevConsole
                 });
         }
 
+        /// <summary>
+        ///     Search for, and add all the attribute commands.
+        /// </summary>
         private void InitAttributeCommands()
         {
             // https://github.com/yasirkula/UnityIngameDebugConsole/blob/master/Plugins/IngameDebugConsole/Scripts/DebugLogConsole.cs
@@ -2205,58 +2580,17 @@ namespace DavidFDev.DevConsole
             }
         }
 
-        private void OnLogMessageReceived(string logString, string stackTrace, LogType type)
-        {
-            string time = DateTime.Now.ToString("HH:mm:ss");
-            switch (type)
-            {
-                case LogType.Log:
-                    if (!_displayUnityLogs)
-                    {
-                        return;
-                    }
-                    Log($"({time}) <b>Log:</b> {logString}");
-                    break;
-                case LogType.Error:
-                    if (!_displayUnityErrors)
-                    {
-                        return;
-                    }
-                    Log($"({time}) <color={ErrorColour}><b>Error:</b> </color>{logString}");
-                    break;
-                case LogType.Exception:
-                    if (!_displayUnityExceptions)
-                    {
-                        return;
-                    }
-                    Log($"({time}) <color={ErrorColour}><b>Exception:</b> </color>{logString}");
-                    break;
-                case LogType.Warning:
-                    if (!_displayUnityWarnings)
-                    {
-                        return;
-                    }
-                    Log($"({time}) <color={WarningColour}><b>Warning:</b> </color>{logString}");
-                    break;
-                default:
-                    break;
-            }
-        }
-
         #endregion
 
         #region Command methods
 
-        private Command GetCommand(string name)
-        {
-            return _commands.TryGetValue(name.ToLower(), out Command command) ? command : _commands.Values.FirstOrDefault(c => c.HasAlias(name));
-        }
-
-        private bool GetCommand(string name, out Command command)
-        {
-            return _commands.TryGetValue(name.ToLower(), out command) || ((command = _commands.Values.FirstOrDefault(c => c.HasAlias(name))) != null);
-        }
-
+        /// <summary>
+        ///     Convert the raw input string into an array.
+        ///     First element is the command name.
+        ///     Remaining elements are the provided parameters (which may not correlate to the command parameters).
+        /// </summary>
+        /// <param name="rawInput"></param>
+        /// <returns></returns>
         private string[] GetInput(string rawInput)
         {
             string[] split = rawInput.Split(' ');
@@ -2310,6 +2644,13 @@ namespace DavidFDev.DevConsole
             return parameters.ToArray();
         }
 
+        /// <summary>
+        ///     Convert the input into a converted array of parameters based on the parameter count.
+        ///     Extra parameters will be aggregated together.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="parameterCount"></param>
+        /// <returns></returns>
         private string[] ConvertInput(string[] input, int parameterCount)
         {
             if (input.Length - 1 <= parameterCount)
@@ -2339,6 +2680,12 @@ namespace DavidFDev.DevConsole
             return newInput;
         }
 
+        /// <summary>
+        ///     Parse a parameter based on the user input.
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         private object ParseParameter(string input, Type type)
         {
             // Special case if the type is nullable or a class
@@ -2359,7 +2706,7 @@ namespace DavidFDev.DevConsole
                 return parseFunc(input);
             }
 
-            // Special case if the type is an enum
+            // Special case if the type is an enum (and it isn't handled specifically by a parser function)
             if (type.IsEnum)
             {
                 object enumParameter;
@@ -2373,6 +2720,11 @@ namespace DavidFDev.DevConsole
             return Convert.ChangeType(input, type);
         }
 
+        /// <summary>
+        ///     Add a command to the command history given the name and user input.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="input"></param>
         private void AddToCommandHistory(string name, string input)
         {
             _previousCommand = _currentCommand;
@@ -2385,6 +2737,10 @@ namespace DavidFDev.DevConsole
             _commandHistoryIndex = -1;
         }
 
+        /// <summary>
+        ///     Cycle the command history in the given direction and display to the user.
+        /// </summary>
+        /// <param name="direction"></param>
         private void CycleCommandHistory(int direction)
         {
             if (_commandHistory.Count == 0 ||
@@ -2410,6 +2766,9 @@ namespace DavidFDev.DevConsole
 
         #region Suggestion methods
 
+        /// <summary>
+        ///     Refresh the command suggestions based on the user input.
+        /// </summary>
         private void RefreshCommandSuggestions()
         {
             // Do not show if there is no command or the parameters are being specified
@@ -2428,6 +2787,9 @@ namespace DavidFDev.DevConsole
             _suggestionText.text = _commandStringSuggestions.ElementAtOrDefault(_commandSuggestionIndex) ?? string.Empty;
         }
 
+        /// <summary>
+        ///     Refresh the parameter suggestions based on the user input.
+        /// </summary>
         private void RefreshCommandParameterSuggestions()
         {
             if (_commandHistoryIndex != -1)
@@ -2489,6 +2851,12 @@ namespace DavidFDev.DevConsole
             _suggestionText.text += suffix;
         }
 
+        /// <summary>
+        ///     Get the command suggestions for the provided text.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="commands">Array of commands.</param>
+        /// <returns>Array of command suggestion substrings.</returns>
         private string[] GetCommandSuggestions(string text, out Command[] commands)
         {
             // Get a list of command names that could fill in the missing text
@@ -2529,6 +2897,9 @@ namespace DavidFDev.DevConsole
             return suggestions.ToArray();
         }
 
+        /// <summary>
+        ///     Attempt to autocomplete based on the current command suggestion.
+        /// </summary>
         private void AutoComplete()
         {
             if (_commandStringSuggestions == null || _commandStringSuggestions.Length == 0)
@@ -2541,6 +2912,10 @@ namespace DavidFDev.DevConsole
             InputCaretPosition = InputText.Length;
         }
 
+        /// <summary>
+        ///     Cycle the command suggestions in the given direction, and display to the user.
+        /// </summary>
+        /// <param name="direction"></param>
         private void CycleCommandSuggestions(int direction)
         {
             if (_commandStringSuggestions == null || _commandStringSuggestions.Length == 0)
@@ -2567,6 +2942,10 @@ namespace DavidFDev.DevConsole
 
         #region Log content methods
 
+        /// <summary>
+        ///     Process the provided log text, displaying it in the dev console log.
+        /// </summary>
+        /// <param name="logText"></param>
         private void ProcessLogText(in string logText)
         {
             // Determine number of vertices needed to render the log text
@@ -2610,6 +2989,11 @@ namespace DavidFDev.DevConsole
             }
         }
 
+        /// <summary>
+        ///     Get the vertex count required to render the provided rich text.
+        /// </summary>
+        /// <param name="text"></param>
+        /// <returns></returns>
         private int GetVertexCount(string text)
         {
             // Determine the number of vertices required to render the provided rich text
@@ -2618,6 +3002,9 @@ namespace DavidFDev.DevConsole
             return _textGenerator.vertexCount;
         }
 
+        /// <summary>
+        ///     Instantiate a new log field instance and add to the list.
+        /// </summary>
         private void AddLogField()
         {
             // Instantiate a new log field and set it up with default values
@@ -2630,6 +3017,9 @@ namespace DavidFDev.DevConsole
             obj.SetActive(true);
         }
 
+        /// <summary>
+        ///     Clear all the existing log field instances, and then create one default.
+        /// </summary>
         private void ClearLogFields()
         {
             // Clear log fields
@@ -2641,6 +3031,9 @@ namespace DavidFDev.DevConsole
             AddLogField();
         }
 
+        /// <summary>
+        ///     Refresh the size of all the log field instances.
+        /// </summary>
         private void RefreshLogFieldsSize()
         {
             // Refresh the width of the log fields to the current width (determined by dev console window width)
@@ -2653,10 +3046,12 @@ namespace DavidFDev.DevConsole
             RebuildLayout();
         }
 
+        /// <summary>
+        ///     Forcefully rebuild the layout, otherwise transforms are positioned incorrectly.
+        /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void RebuildLayout()
         {
-            // Forcefully rebuild the layout, otherwise transforms are positioned incorrectly
             LayoutRebuilder.ForceRebuildLayoutImmediate(_logContentTransform);
         }
 
@@ -2712,6 +3107,9 @@ namespace DavidFDev.DevConsole
 
         #region Pref methods
 
+        /// <summary>
+        ///     Save all the preferences to file.
+        /// </summary>
         private void SavePreferences()
         {
             DevConsoleData.SetObject(PrefConsoleToggleKey, ConsoleToggleKey);
@@ -2726,6 +3124,9 @@ namespace DavidFDev.DevConsole
             DevConsoleData.Save();
         }
 
+        /// <summary>
+        ///     Load all the preferences from file.
+        /// </summary>
         private void LoadPreferences()
         {
             DevConsoleData.Load();
@@ -2750,6 +3151,9 @@ namespace DavidFDev.DevConsole
 
         #region Reflection methods
 
+        /// <summary>
+        ///     Initialsie the evaluator used for excuting C# expressions or statements.
+        /// </summary>
         private void InitMonoEvaluator()
         {
             if (_monoEvaluator != null)

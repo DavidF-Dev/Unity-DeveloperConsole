@@ -3,7 +3,6 @@
 // Created by: DavidFDev
 
 using System;
-using System.Linq;
 using System.Reflection;
 
 namespace DavidFDev.DevConsole
@@ -15,6 +14,9 @@ namespace DavidFDev.DevConsole
     {
         #region Constants
 
+        /// <summary>
+        ///     The maximum number of enum states to show next to the help text for an enum parameter.
+        /// </summary>
         private const int MaxEnumNames = 6;
 
         #endregion
@@ -40,31 +42,33 @@ namespace DavidFDev.DevConsole
 
         #region Constructors
 
-        private Parameter() { }
+        private Parameter()
+        {
+        }
 
         #endregion
 
         #region Properties
 
         /// <summary>
-        ///     IConvertible type of the parameter.
+        ///     Type of the parameter.
         /// </summary>
-        internal Type Type { get; private set; }
+        public Type Type { get; private set; }
 
         /// <summary>
         ///     User-friendly name of the parameter type.
         /// </summary>
-        internal string FriendlyTypeName { get; private set; }
+        public string FriendlyTypeName { get; private set; }
 
         /// <summary>
         ///     Name of the parameter.
         /// </summary>
-        internal string Name { get; private set; }
+        public string Name { get; private set; }
 
         /// <summary>
         ///     Description of the parameter.
         /// </summary>
-        internal string HelpText { get; private set; }
+        public string HelpText { get; private set; }
 
         #endregion
 
@@ -73,6 +77,15 @@ namespace DavidFDev.DevConsole
         public override string ToString()
         {
             return $"({FriendlyTypeName}){Name}";
+        }
+
+        /// <summary>
+        ///     Get the parameter as a formatted string.
+        /// </summary>
+        /// <returns></returns>
+        public string ToFormattedString()
+        {
+            return $"<i>({FriendlyTypeName})</i><b>{Name}</b>";
         }
 
         /// <summary>
@@ -124,15 +137,6 @@ namespace DavidFDev.DevConsole
             }
 
             return this;
-        }
-
-        /// <summary>
-        ///     Get the parameter as a formatted string.
-        /// </summary>
-        /// <returns></returns>
-        internal string ToFormattedString()
-        {
-            return $"<i>({FriendlyTypeName})</i><b>{Name}</b>";
         }
 
         #endregion

@@ -149,7 +149,9 @@ namespace DavidFDev.DevConsole
 
         #region Constructors
 
-        private Command() { }
+        private Command()
+        {
+        }
 
         #endregion
 
@@ -158,17 +160,22 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Name of the command.
         /// </summary>
-        internal string Name { get; private set; }
+        public string Name { get; private set; }
+
+        /// <summary>
+        ///     Description of the command.
+        /// </summary>
+        public string HelpText { get; private set; }
+
+        /// <summary>
+        ///     Whether the command is a custom command (not a built-in command).
+        /// </summary>
+        public bool IsCustomCommand { get; private set; }
 
         /// <summary>
         ///     Optional command names.
         /// </summary>
         internal string[] Aliases { get; private set; }
-
-        /// <summary>
-        ///     Description of the command.
-        /// </summary>
-        internal string HelpText { get; private set; }
 
         /// <summary>
         ///     Array of parameters required to execute the command.
@@ -186,11 +193,6 @@ namespace DavidFDev.DevConsole
         /// </summary>
         internal Action DefaultCallback { get; private set; }
 
-        /// <summary>
-        ///     Whether the command is a custom command.
-        /// </summary>
-        internal bool IsCustomCommand { get; private set; }
-
         #endregion
 
         #region Methods
@@ -198,6 +200,62 @@ namespace DavidFDev.DevConsole
         public override string ToString()
         {
             return Name;
+        }
+
+        /// <summary>
+        ///     Get the command syntax as a formatted string.
+        /// </summary>
+        /// <returns></returns>
+        public string ToFormattedString()
+        {
+            string result = GetFormattedName();
+            for (int i = 0; i < Parameters.Length; i++)
+            {
+                if (i < Parameters.Length)
+                {
+                    result += " ";
+                }
+
+                result += GetFormattedParameter(i);
+            }
+            return result;
+        }
+
+        /// <summary>
+        ///     Get the command name as a formatted string.
+        /// </summary>
+        /// <returns></returns>
+        public string GetFormattedName()
+        {
+            return $"<b>{Name}</b>";
+        }
+
+        /// <summary>
+        ///     Get a parameter as a formatted string.
+        /// </summary>
+        /// <param name="parameterIndex"></param>
+        /// <returns></returns>
+        public string GetFormattedParameter(int parameterIndex)
+        {
+            return Parameters[parameterIndex].ToFormattedString();
+        }
+
+        /// <summary>
+        ///     Get the command aliases.
+        /// </summary>
+        /// <returns></returns>
+        public IReadOnlyList<string> GetAliases()
+        {
+            return Aliases;
+        }
+
+        /// <summary>
+        ///     Get the command parameters.
+        /// </summary>
+        /// <returns></returns>
+        public IReadOnlyList<Parameter> GetParameters()
+        {
+            return Parameters;
         }
 
         /// <summary>
@@ -245,44 +303,6 @@ namespace DavidFDev.DevConsole
         internal void SetAsCustomCommand()
         {
             IsCustomCommand = true;
-        }
-
-        /// <summary>
-        ///     Get the command name as a formatted string.
-        /// </summary>
-        /// <returns></returns>
-        internal string GetFormattedName()
-        {
-            return $"<b>{Name}</b>";
-        }
-
-        /// <summary>
-        ///     Get a parameter as a formatted string.
-        /// </summary>
-        /// <param name="parameterIndex"></param>
-        /// <returns></returns>
-        internal string GetFormattedParameter(int parameterIndex)
-        {
-            return Parameters[parameterIndex].ToFormattedString();
-        }
-
-        /// <summary>
-        ///     Get the command syntax as a formatted string.
-        /// </summary>
-        /// <returns></returns>
-        internal string ToFormattedString()
-        {
-            string result = GetFormattedName();
-            for (int i = 0; i < Parameters.Length; i++)
-            {
-                if (i < Parameters.Length)
-                {
-                    result += " ";
-                }
-
-                result += GetFormattedParameter(i);
-            }
-            return result;
         }
 
         #endregion

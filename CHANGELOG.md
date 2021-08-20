@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added Color as a supported parameter type.
 - Added command: "colour" - displays the provided colour in the developer console.
 - Changed DevConsole.InvokeCoroutine method to return the Coroutine instance.
+- Changed some method access levels from internal to public.
 - Fixed Unity logs from other threads not showing in the developer console log.
 - Fixed generic or nullable parameter types not having their type displayed nicely.
 - Fixed log scroll view not snapping to bottom intuitively.
