@@ -1455,7 +1455,7 @@ namespace DavidFDev.DevConsole
 
                     if (!string.IsNullOrEmpty(command.HelpText))
                     {
-                        Log(command.HelpText + ".");
+                        Log($"{command.HelpText}.");
                     }
 
                     if (command.Aliases?.Length > 0 && command.Aliases.Any(a => !string.IsNullOrEmpty(a)))
@@ -1481,8 +1481,9 @@ namespace DavidFDev.DevConsole
                 },
                 () =>
                 {
-                    if (string.IsNullOrEmpty(_previousCommand) || _previousCommand.ToLower().Equals("help"))
+                    if (string.IsNullOrWhiteSpace(_previousCommand) || _previousCommand.ToLower().Equals("help"))
                     {
+                        RunCommand($"help help");
                         return;
                     }
 
