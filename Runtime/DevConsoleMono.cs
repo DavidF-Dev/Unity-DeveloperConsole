@@ -902,8 +902,9 @@ namespace DavidFDev.DevConsole
             // Process the stored logs, displaying them to the console
             if (StoredLogText != string.Empty)
             {
-                // Check if should scroll to the bottom (not working - vertical changes between Update() and LateUpdate() - why???!!!)
-                if (_pretendScrollAtBottom || _logScrollView.verticalNormalizedPosition < 0f || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, 0f) || _logScrollView.verticalNormalizedPosition < 0.1f)
+                // Check if should scroll to the bottom
+                const float scrollPerc = 0.001f;
+                if (_pretendScrollAtBottom || _logScrollView.verticalNormalizedPosition < scrollPerc || Mathf.Approximately(_logScrollView.verticalNormalizedPosition, scrollPerc))
                 {
                     _scrollToBottomNextFrame = true;
                 }
