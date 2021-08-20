@@ -47,7 +47,7 @@ namespace DavidFDev.DevConsole
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
         private const int MaximumTextVertices = 64000;
         private const float MinConsoleWidth = 650;
-        private const float MaxConsoleWidth = 1200;
+        private const float MaxConsoleWidth = 1600;
         private const float MinConsoleHeight = 200;
         private const float MaxConsoleHeight = 900;
         private const int MinLogTextSize = 14;
