@@ -1512,37 +1512,66 @@ namespace DavidFDev.DevConsole
                     // Check if the enum type was cached
                     Type enumType = _cacheEnumTypes.FirstOrDefault(t => t.Name.Equals(s));
 
+#if INPUT_SYSTEM_INSTALLED
+                    // Special case for Key
+                    if (s.Equals("Key"))
+                    {
+                        enumType = typeof(Key);
+                    }
+#endif
+
                     if (enumType == null)
                     {
+                        List<Type> options = new List<Type>();
+
                         // Search all loaded assemblies for the enum
                         foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                         {
                             enumType = assembly.GetTypes()
                                 .SelectMany(t => t.GetMembers())
                                 .Union(assembly.GetTypes())
-                                .FirstOrDefault(t => t.ReflectedType != null && t.ReflectedType.IsEnum && t.ReflectedType.Name.Equals(s))
+                                .FirstOrDefault(t => t.ReflectedType != null && t.ReflectedType.IsEnum && (t.ReflectedType.Name.Equals(s) || s.Equals($"{t.ReflectedType.Namespace}.{t.ReflectedType.Name}")))
                                 ?.ReflectedType;
 
                             if (enumType != null)
                             {
-                                // Cache the type
-                                _cacheEnumTypes.Add(enumType);
-                                if (_cacheEnumTypes.Count > MaxCachedEnumTypes)
+                                if (s.Equals($"{enumType.Namespace}.{enumType.Name}"))
                                 {
-                                    _cacheEnumTypes.RemoveAt(0);
+                                    options = new List<Type>() { enumType };
+                                    break;
                                 }
-                                break;
+
+                                options.Add(enumType);
                             }
+                        }
+
+                        if (options.Count > 1)
+                        {
+                            LogError($"Multiple results found: {string.Join(", ", options.Select(x => $"{x.Namespace}.{x.Name}"))}.");
+                            return;
+                        }
+
+                        else if (options.Count == 1)
+                        {
+                            // Select the first type
+                            enumType = options.FirstOrDefault();
+
+                            // Cache the type
+                            _cacheEnumTypes.Add(enumType);
+                            if (_cacheEnumTypes.Count > MaxCachedEnumTypes)
+                            {
+                                _cacheEnumTypes.RemoveAt(0);
+                            }
+                        }
+
+                        else
+                        {
+                            LogError($"Could not find enum type with the specified name: \"{s}\"");
+                            return;
                         }
                     }
 
-                    if (enumType == null)
-                    {
-                        LogError($"Could not find enum type with the specified name: \"{s}\"");
-                        return;
-                    }
-
-                    LogSeperator($"{enumType.Name} ({enumType.GetEnumUnderlyingType().Name}){(enumType.GetCustomAttribute(typeof(FlagsAttribute)) == null ? "" : " [Flags]")}");
+                    LogSeperator($"{enumType.Namespace}.{enumType.Name} ({enumType.GetEnumUnderlyingType().Name}){(enumType.GetCustomAttribute(typeof(FlagsAttribute)) == null ? "" : " [Flags]")}");
 
                     FieldInfo[] values = enumType.GetFields();
                     string formattedValues = string.Empty;

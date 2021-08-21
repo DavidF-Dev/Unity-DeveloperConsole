@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Added LogException methods.
 - Changed the size of the input field so that the text is larger.
+- Changed enum command parameter to support namespaces to distinguish between enums with same names.
 - Fixed strings being displayed incorrectly by cs_evaluate.
 - Fixed issue with cached enum types.
 
