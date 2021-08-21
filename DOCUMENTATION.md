@@ -1,5 +1,5 @@
 # Documentation
-In-game Developer Console for Unity by DavidFDev (v0.2.3-alpha).</br>
+In-game Developer Console for Unity by DavidFDev (v1.0.0).</br>
 It is recommended to view this file in a markdown viewer.
 View on [GitHub](https://github.com/DavidF-Dev/Unity-DeveloperConsole/blob/main/DOCUMENTATION.md). 
 
