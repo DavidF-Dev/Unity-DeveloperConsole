@@ -836,6 +836,17 @@ namespace DavidFDev.DevConsole
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal void LogException(Exception exception)
+        {
+            if (exception == null)
+            {
+                return;
+            }
+
+            Log($"({DateTime.Now:HH:mm:ss}) <color={ErrorColour}><b>Exception:</b> </color>{exception.Message}");
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void LogError(object message)
         {
             Log(message, ErrorColour);

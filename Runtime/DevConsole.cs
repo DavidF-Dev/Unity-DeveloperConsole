@@ -242,6 +242,16 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Log an exception to the dev console.
+        /// </summary>
+        /// <param name="exception"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void LogException(Exception exception)
+        {
+            _console.LogException(exception);
+        }
+
+        /// <summary>
         ///     Log an error message to the dev console.
         /// </summary>
         /// <param name="message"></param>
