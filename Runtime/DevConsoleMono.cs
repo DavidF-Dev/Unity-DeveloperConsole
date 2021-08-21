@@ -1527,9 +1527,9 @@ namespace DavidFDev.DevConsole
                             {
                                 // Cache the type
                                 _cacheEnumTypes.Add(enumType);
-                                if (_commandHistory.Count > MaxCachedEnumTypes)
+                                if (_cacheEnumTypes.Count > MaxCachedEnumTypes)
                                 {
-                                    _commandHistory.RemoveAt(0);
+                                    _cacheEnumTypes.RemoveAt(0);
                                 }
                                 break;
                             }
