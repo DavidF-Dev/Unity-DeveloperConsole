@@ -2204,7 +2204,7 @@ namespace DavidFDev.DevConsole
                             return;
                         }
 
-                        if (typeof(IEnumerable).IsAssignableFrom(result.GetType()))
+                        if (result.GetType() != typeof(string) && typeof(IEnumerable).IsAssignableFrom(result.GetType()))
                         {
                             Log($"{{ {string.Join(", ", ((IEnumerable)result).Cast<object>())} }}");
                             return;
