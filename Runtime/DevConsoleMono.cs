@@ -1691,15 +1691,8 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    string result = "";
-                    foreach (InputKey key in _bindings.Keys)
-                    {
-                        result += $"<i>{key}</i>: \"{_bindings[key]}\"\n";
-                    }
-                    result = result.Remove(result.Length - 2);
-
                     LogSeperator($"Key bindings ({_bindings.Count})");
-                    Log(result);
+                    Log(string.Join("\n", _bindings.Keys.Select(x => $"<i>{x}</i>: \"{_bindings[x]}\"")));
                     LogSeperator();
                 }
             ));
@@ -1849,7 +1842,7 @@ namespace DavidFDev.DevConsole
                 "vsync",
                 "",
                 "Query or set whether VSync is enabled",
-                Parameter.Create("vSyncCount", "The number of VSyncs that should pass between each frame (0, 1, 2, 3, or 4)."),
+                Parameter.Create("vSyncCount", "The number of VSyncs that should pass between each frame (0, 1, 2, 3, or 4)"),
                 i =>
                 {
                     if (i < 0 || i > 4)
@@ -1865,17 +1858,17 @@ namespace DavidFDev.DevConsole
             ));
 
             AddCommand(Command.Create(
-                "resolution",
-                "",
+                "monitor_size",
+                "monitor_resolution",
                 "Display the current monitor resolution",
-                () => LogVariable("Resolution", Screen.currentResolution)
+                () => LogVariable("Monitor size", Screen.currentResolution)
             ));
 
             AddCommand(Command.Create(
-                "screen_size",
-                "",
+                "window_size",
+                "window_resolution",
                 "Display the current window resolution",
-                () => LogVariable("Resolution", new Vector2Int(Screen.width, Screen.height))
+                () => LogVariable("Window size", $"{Screen.width} x {Screen.height}")
             ));
 
             AddCommand(Command.Create<int>(

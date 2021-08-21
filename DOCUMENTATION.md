@@ -102,7 +102,8 @@ Listed below are all the built-in commands that come with the developer console 
 - ``fullscreen (Boolean)enabled``: Query or set whether the window is full screen.
 - ``fullscreen_mode (FullScreenMode)mode``: Query or set the full screen mode.
 - ``vsync (Int32)vSyncCount``: Query or set whether VSync is enabled.
-- ``resolution``: Display the current screen resolution.
+- ``monitor_size``: Display the current monitor resolution.
+- ``window_size``: Display the current window resolution.
 - ``targetfps (Int32)targetFrameRate``: Query or set the target frame rate.
 
 ### Camera commands
