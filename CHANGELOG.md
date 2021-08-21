@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added LogException methods.
 - Changed the size of the input field so that the text is larger.
 - Fixed strings being displayed incorrectly by cs_evaluate.
+- Fixed issue with cached enum types.
 
 ## [0.2.2-alpha] - 2021-08-20
 - Added real-time parameter information when typing out a command.
