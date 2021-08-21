@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added LogException methods.
+- Added DisableToggleKey method.
 - Changed the size of the input field so that the text is larger.
 - Changed enum command parameter to support namespaces to distinguish between enums with same names.
 - Changed resolution command names to be easier to understand.

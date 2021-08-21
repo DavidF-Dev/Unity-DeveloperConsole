@@ -334,6 +334,14 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Disable the key used to toggle the dev console.
+        /// </summary>
+        public static void DisableToggleKey()
+        {
+            _console.ConsoleToggleKey = null;
+        }
+
+        /// <summary>
         ///     Enable the dev console.
         /// </summary>
         public static void EnableConsole()
