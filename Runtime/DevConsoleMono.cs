@@ -1841,7 +1841,7 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create<int>(
                 "targetfps",
                 "",
-                "Query or set the target frame rate.",
+                "Query or set the target frame rate",
                 Parameter.Create("targetFrameRate", "Frame rate the application will try to render at."),
                 i =>
                 {
