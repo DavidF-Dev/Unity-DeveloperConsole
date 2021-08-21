@@ -584,6 +584,11 @@ namespace DavidFDev.DevConsole
             ConsoleIsShowing = false;
             _repositioning = false;
             _resizing = false;
+            _focusInputField = false;
+            if (_inputField.isFocused && EventSystem.current != null)
+            {
+                EventSystem.current.SetSelectedGameObject(null);
+            }
 
             DevConsole.InvokeOnConsoleClosed();
         }
@@ -948,6 +953,12 @@ namespace DavidFDev.DevConsole
         internal char OnValidateInput(string _, int __, char addedChar)
         {
             const char EmptyChar = '\0';
+
+            // Ignore inputs if the dev console window is closed
+            if (!ConsoleIsShowing)
+            {
+                return EmptyChar;
+            }
 
             // If a new line character is entered, submit the command
             if (addedChar == '\n')

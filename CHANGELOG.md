@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed enum command parameter to support namespaces to distinguish between enums with same names.
 - Fixed strings being displayed incorrectly by cs_evaluate.
 - Fixed issue with cached enum types.
+- Fixed input field not unfocusing when the developer console window is closed.
 
 ## [0.2.2-alpha] - 2021-08-20
 - Added real-time parameter information when typing out a command.
