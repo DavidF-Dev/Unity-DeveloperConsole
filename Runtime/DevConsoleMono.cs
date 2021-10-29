@@ -55,6 +55,7 @@ namespace DavidFDev.DevConsole
         private const int CommandHistoryLength = 10;
         private const int MaxCachedEnumTypes = 6;
         private const float FpsUpdateRate = 4f;
+        private const float StatUpdateRate = 0.1f;
 
         #region Input constants
 
@@ -103,6 +104,9 @@ namespace DavidFDev.DevConsole
         private const string PrefShowFps = "DevConsole.displayFps";
         private const string PrefLogTextSize = "DevConsole.logTextSize";
         private const string PrefIncludedUsings = "DevConsole.includedUsings";
+        private const string PrefShowStats = "DevConsole.displayStats";
+        private const string PrefStats = "DevConsole.stats";
+        private const string PrefHiddenStats = "DevConsole.hiddenStats";
 
         #endregion
 
@@ -394,6 +398,17 @@ namespace DavidFDev.DevConsole
         private GUIStyle _fpsStyle;
         private Vector2 _fpsLabelSize;
         private Color _fpsTextColour;
+
+        #endregion
+
+        #region Stat display fields
+
+        private bool _isDisplayingStats;
+        private GUIStyle _statStyle;
+        private Dictionary<string, string> _stats = new Dictionary<string, string>();
+        private HashSet<string> _hiddenStats = new HashSet<string>();
+        private Dictionary<string, string> _cachedStats = new Dictionary<string, string>();
+        private float _statUpdateTime;
 
         #endregion
 
@@ -1386,6 +1401,85 @@ namespace DavidFDev.DevConsole
                     $"{_fpsMs:0.00} ms ({_fps:0.} fps)",
                     _fpsStyle);
 
+                GUI.backgroundColor = oldBackgroundColour;
+                GUI.contentColor = oldContentColour;
+            }
+
+            if (_isDisplayingStats && _stats.Any())
+            {
+                if (_statStyle == null)
+                {
+                    // Create the style
+                    _statStyle = new GUIStyle(GUI.skin.box)
+                    {
+                        alignment = TextAnchor.MiddleCenter,
+                        fontSize = 18,
+                        normal = { textColor = Color.white, background = Texture2D.whiteTexture }
+                    };
+                }
+
+                // Initialise
+                Color oldBackgroundColour = GUI.backgroundColor;
+                Color oldContentColour = GUI.contentColor;
+                GUI.backgroundColor = new Color(0f, 0f, 0f, 0.75f);
+                const float padding = 5f;
+                int num = 0;
+                InitMonoEvaluator();
+
+                bool updateCache = Time.time > _statUpdateTime;
+                if (updateCache)
+                {
+                    _statUpdateTime = Time.time + StatUpdateRate;
+                }
+
+                // Create a label for each stat
+                foreach (KeyValuePair<string, string> stat in _stats)
+                {
+                    // Ignore if hidden
+                    if (_hiddenStats.Contains(stat.Key))
+                    {
+                        continue;
+                    }
+
+                    // Determine stat result
+                    string result;
+                    if (!updateCache && _cachedStats.ContainsKey(stat.Key))
+                    {
+                        // Note: updates very often
+                        result = _cachedStats[stat.Key];
+                    }
+                    else
+                    {
+                        // Note: updates once every now and then (according to StatUpdateRate)
+                        try
+                        {
+                            result = _monoEvaluator?.Evaluate(stat.Value).ToString() ?? null;
+                        }
+                        catch (Exception)
+                        {
+                            result = "ERROR";
+                        }
+
+                        _cachedStats[stat.Key] = result;
+                    }
+
+                    // Set content
+                    string content = $"{stat.Key}: {result}";
+                    GUI.contentColor = result.Equals("ERROR") ? Color.red : Color.white;
+
+                    // Determine label size
+                    Vector2 size = _statStyle.CalcSize(new GUIContent(content));
+
+                    // Create the label
+                    GUI.Box(
+                        new Rect(10, 50 + ((num * (size.y + 10f + padding)) + padding), size.x + 10f, size.y + 10f),
+                        content,
+                        _statStyle);
+
+                    ++num;
+                }
+
+                // Reset colours
                 GUI.backgroundColor = oldBackgroundColour;
                 GUI.contentColor = oldContentColour;
             }
@@ -2406,6 +2500,137 @@ namespace DavidFDev.DevConsole
 
             #endregion
 
+            #region Stat display commands
+
+            AddCommand(Command.Create(
+                "stats_list",
+                "",
+                "Display a list of the stored developer console stats that can be displayed on-screen",
+                () =>
+                {
+                    if (!_stats.Any())
+                    {
+                        DevConsole.Log($"There are no stored developer console stats. Use {GetCommand("stats_set").GetFormattedName()} to set one up.");
+                        return;
+                    }
+
+                    LogCollection(_stats, x => $"{x.Key}: {x.Value}{(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}");
+                }
+                ));
+
+            AddCommand(Command.Create<bool?>(
+                "stats_display",
+                "",
+                "Set or query whether the developer console stats are being displayed on-screen",
+                Parameter.Create("display", ""),
+                b =>
+                {
+                    if (!b.HasValue)
+                    {
+                        b = !_isDisplayingStats;
+                    }
+
+                    _isDisplayingStats = b.Value;
+                    DevConsole.LogSuccess($"{(_isDisplayingStats ? "Enabled" : "Disabled")} the on-screen developer console stats display.");
+                },
+                () => DevConsole.LogVariable("Display on-screen developer console stats", _isDisplayingStats)
+                ));
+
+            AddCommand(Command.Create<string, string>(
+                "stats_set",
+                "",
+                "Set a stat on the developer console which can be displayed on-screen",
+                Parameter.Create("name", "Name of the stat"),
+                Parameter.Create("expression", "The C# expression to evaluate"),
+                (name, expression) =>
+                {
+                    if (name == null || expression == null)
+                    {
+                        DevConsole.LogError("Parameters cannot be null.");
+                        return;
+                    }
+
+                    if (!expression.EndsWith(";"))
+                    {
+                        expression += ";";
+                    }
+
+                    _stats[name] = expression;
+                    DevConsole.LogSuccess($"Successfully set {name} as a developer console stat.");
+                }
+                ));
+
+            AddCommand(Command.Create<string>(
+                "stats_evaluate",
+                "stats_eval",
+                "Evaluate one of the developer console stats",
+                Parameter.Create("name", "Name of the stat"),
+                name =>
+                {
+                    if (!_stats.ContainsKey(name))
+                    {
+                        DevConsole.LogError($"Could not find {name}. Use {GetCommand("stats_display").GetFormattedName()} to display a list of all developer console stats.");
+                        return;
+                    }
+
+                    RunCommand($"cs_evaluate {_stats[name]}");
+                }
+                ));
+
+            AddCommand(Command.Create<string>(
+                "stats_remove",
+                "",
+                "Remove a stat from the developer console",
+                Parameter.Create("name", "Name of the stat"),
+                name =>
+                {
+                    if (!_stats.Remove(name))
+                    {
+                        DevConsole.LogError($"Could not remove {name}. Use {GetCommand("stats_display").GetFormattedName()} to display a list of all developer console stats.");
+                        return;
+                    }
+
+                    _hiddenStats.Remove(name);
+                    _cachedStats.Remove(name);
+                    DevConsole.LogSuccess($"Successfully removed {name} from the developer console stats.");
+                }
+                ));
+
+            AddCommand(Command.Create<string, bool?>(
+                "stats_toggle",
+                "",
+                "Set whether a particular developer console stat should be displayed or not",
+                Parameter.Create("name", "Name of the stat"),
+                Parameter.Create("display", ""),
+                (name, b) =>
+                {
+                    if (!_stats.ContainsKey(name))
+                    {
+                        DevConsole.LogError($"Could not find {name}. Use {GetCommand("stats_display").GetFormattedName()} to display a list of all developer console stats.");
+                        return;
+                    }
+
+                    // Flip
+                    if (!b.HasValue)
+                    {
+                        b = _hiddenStats.Contains(name);
+                    }
+
+                    if (b.Value)
+                    {
+                        _hiddenStats.Remove(name);
+                    }
+                    else
+                    {
+                        _hiddenStats.Add(name);
+                    }
+
+                    DevConsole.LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} the on-screen developer console stats display for {name}.");
+                }
+                ));
+
+            #endregion
+
             #region Misc commands
 
             AddCommand(Command.Create(
@@ -2620,7 +2845,7 @@ namespace DavidFDev.DevConsole
                 catch (System.IO.FileNotFoundException) { }
                 catch (Exception e)
                 {
-                    Debug.LogError("Error whilst searching for debug console command attributes in assembly(" + assemblyName + "): " + e.Message + ".");
+                    Debug.LogError("Error whilst searching for developer console attributes in assembly(" + assemblyName + "): " + e.Message + ".");
                 }
             }
         }
@@ -3165,6 +3390,9 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefShowFps, _isDisplayingFps);
             DevConsoleData.SetObject(PrefLogTextSize, LogTextSize);
             DevConsoleData.SetObject(PrefIncludedUsings, _includedUsings);
+            DevConsoleData.SetObject(PrefShowStats, _isDisplayingStats);
+            DevConsoleData.SetObject(PrefStats, _stats);
+            DevConsoleData.SetObject(PrefHiddenStats, _hiddenStats);
 
             DevConsoleData.Save();
         }
@@ -3188,6 +3416,9 @@ namespace DavidFDev.DevConsole
             {
                 "System", "System.Linq", "UnityEngine", "UnityEngine.SceneManagement", "UnityEngine.UI"
             });
+            _isDisplayingStats = DevConsoleData.GetObject(PrefShowStats, true);
+            _stats = DevConsoleData.GetObject(PrefStats, new Dictionary<string, string>());
+            _hiddenStats = DevConsoleData.GetObject(PrefHiddenStats, new HashSet<string>());
 
             DevConsoleData.Clear();
         }
