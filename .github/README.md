@@ -9,7 +9,6 @@ The asset is completely free, but if you'd like to show support you can [buy me 
 
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
-- (**Pending submission!**) Import via the Unity asset store [here](https://u3d.as/2EE5).
 - Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
 - Import via the Unity package manager (<i>Window>Package Manager</i>).
   - Git URL: ``https://github.com/DavidF-Dev/Unity-DeveloperConsole.git``</br>
