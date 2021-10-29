@@ -2,6 +2,7 @@
 // Purpose: Static class for accessing saved developer console preferences.
 // Created by: DavidFDev
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -54,6 +55,11 @@ namespace DavidFDev.DevConsole
             {
                 bf.Serialize(fs, _data);
             }
+            catch (Exception e)
+            {
+                DevConsole.LogException(e);
+                DevConsole.LogError("Failed to save developer console preferences due to an exception.");
+            }
             finally
             {
                 fs.Close();
@@ -73,6 +79,11 @@ namespace DavidFDev.DevConsole
             try
             {
                 _data = (Dictionary<string, object>)bf.Deserialize(fs);
+            }
+            catch (Exception e)
+            {
+                DevConsole.LogException(e);
+                DevConsole.LogError("Failed to load developer console preferences due an exception.");
             }
             finally
             {
