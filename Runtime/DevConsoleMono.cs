@@ -1159,7 +1159,7 @@ namespace DavidFDev.DevConsole
             LoadPreferences();
             InitBuiltInCommands();
             InitBuiltInParsers();
-            InitAttributeCommands();
+            InitAttributes();
 
             // Enable the console by default if in editor or a development build
             if (Debug.isDebugBuild)
@@ -2510,6 +2510,22 @@ namespace DavidFDev.DevConsole
             #region Stat display commands
 
             AddCommand(Command.Create(
+                "stats_help",
+                "",
+                "Display information about the developer console stats feature",
+                () =>
+                {
+                    DevConsole.LogSeperator("Developer console tracked stats display");
+                    DevConsole.Log("When enabled, stats such as variables can be displayed on-screen during gameplay.");
+                    DevConsole.Log("There are three ways to add tracked stats:");
+                    DevConsole.Log($"1. Using commands ({GetCommand("stats_set").GetFormattedName()}) to add a stat that is evaluated as a C# expression;");
+                    DevConsole.Log($"2. Declaring a <i>{typeof(DevConsoleTrackedStatAttribute).Name}</i> attribute on a declared static field or property; or");
+                    DevConsole.Log($"3. Calling <i>DevConsole.SetTrackedStat()</i> to add a stat this is retrieved via a provided lambda function.");
+                    DevConsole.LogSeperator();
+                }
+                ));
+
+            AddCommand(Command.Create(
                 "stats_list",
                 "",
                 "Display a list of the stored developer console stats that can be displayed on-screen",
@@ -2521,7 +2537,7 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    LogCollection(_stats, x => $"{x.Key}: {x.Value} ({x.Value.Desc}){(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}");
+                    LogCollection(_stats, x => $"{x.Key}: {x.Value} ({x.Value.Desc}){(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}.");
                 }
                 ));
 
@@ -2779,9 +2795,9 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     Search for, and add all the attribute commands.
+        ///     Search for, and add all the attribute commands & other custom attributes.
         /// </summary>
-        private void InitAttributeCommands()
+        private void InitAttributes()
         {
             // https://github.com/yasirkula/UnityIngameDebugConsole/blob/master/Plugins/IngameDebugConsole/Scripts/DebugLogConsole.cs
             // Implementation of finding attributes sourced from yasirkula's code
@@ -2844,6 +2860,38 @@ namespace DavidFDev.DevConsole
                                 {
                                     AddCommand(Command.Create(commandAttribute, method), commandAttribute.OnlyInDevBuild, true);
                                 }
+                            }
+                        }
+
+                        foreach (FieldInfo field in type.GetFields(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                        {
+                            DevConsoleTrackedStatAttribute attribute = field.GetCustomAttribute<DevConsoleTrackedStatAttribute>();
+                            if (attribute == null)
+                            {
+                                continue;
+                            }
+
+                            string name = $"var_{field.Name}";
+                            _stats[name] = new ReflectedStat(field);
+                            if (!attribute.StartEnabled)
+                            {
+                                _hiddenStats.Add(name);
+                            }
+                        }
+
+                        foreach (PropertyInfo property in type.GetProperties(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly))
+                        {
+                            DevConsoleTrackedStatAttribute attribute = property.GetCustomAttribute<DevConsoleTrackedStatAttribute>();
+                            if (attribute == null)
+                            {
+                                continue;
+                            }
+
+                            string name = $"var_{property.Name}";
+                            _stats[name] = new ReflectedStat(property);
+                            if (!attribute.StartEnabled)
+                            {
+                                _hiddenStats.Add(name);
                             }
                         }
                     }
@@ -3399,7 +3447,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefIncludedUsings, _includedUsings);
             DevConsoleData.SetObject(PrefShowStats, _isDisplayingStats);
             DevConsoleData.SetObject(PrefStats, _stats.Where(x => x.Value is EvaluatedStat).ToDictionary(x => x.Key, x => ((EvaluatedStat)x.Value).Expression));
-            DevConsoleData.SetObject(PrefHiddenStats, _hiddenStats);
+            DevConsoleData.SetObject(PrefHiddenStats, new HashSet<string>(_hiddenStats.Where(x => _stats.Keys.Contains(x))));
 
             DevConsoleData.Save();
         }
@@ -3479,7 +3527,8 @@ namespace DavidFDev.DevConsole
         /// </summary>
         /// <param name="name"></param>
         /// <param name="func"></param>
-        internal void SetTrackedStat(string name, Func<object> func)
+        /// <param name="startEnabled"></param>
+        internal void SetTrackedStat(string name, Func<object> func, bool startEnabled)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -3492,6 +3541,11 @@ namespace DavidFDev.DevConsole
             }
 
             _stats[name] = new LambdaStat(func);
+
+            if (!startEnabled)
+            {
+                _hiddenStats.Add(name);
+            }
         }
 
         /// <summary>
@@ -3517,6 +3571,9 @@ namespace DavidFDev.DevConsole
 
         #region Nested types
 
+        /// <summary>
+        ///     Abstract class for tracked developer console stats.
+        /// </summary>
         private abstract class StatBase
         {
             #region Properties
@@ -3537,11 +3594,18 @@ namespace DavidFDev.DevConsole
             /// <returns></returns>
             public abstract object GetResult(Evaluator evaluator);
 
+            /// <summary>
+            ///     String representation that is used when displaying a list of all the tracked developer console stats.
+            /// </summary>
+            /// <returns></returns>
             public abstract override string ToString();
 
             #endregion
         }
 
+        /// <summary>
+        ///     Stat that evaluates a C# expression to determine the result.
+        /// </summary>
         private sealed class EvaluatedStat : StatBase
         {
             #region Constructors
@@ -3557,6 +3621,9 @@ namespace DavidFDev.DevConsole
 
             public override string Desc => "Evaluated";
 
+            /// <summary>
+            ///     C# expression to be evaluated for the stat result.
+            /// </summary>
             public string Expression { get; }
 
             #endregion
@@ -3576,6 +3643,9 @@ namespace DavidFDev.DevConsole
             #endregion
         }
 
+        /// <summary>
+        ///     Stat that uses a user-defined lambda to retrieve the result.
+        /// </summary>
         private sealed class LambdaStat : StatBase
         {
             #region Fields
@@ -3614,6 +3684,9 @@ namespace DavidFDev.DevConsole
             #endregion
         }
 
+        /// <summary>
+        ///     Stat that retrieves the result from a static field or property.
+        /// </summary>
         private sealed class ReflectedStat : StatBase
         {
             #region Fields
@@ -3653,12 +3726,7 @@ namespace DavidFDev.DevConsole
 
             public override string ToString()
             {
-                if (_field != null)
-                {
-                    return $"{_field.Name} (field: {_field.FieldType.Name})";
-                }
-
-                return $"{_property.Name} (property: {_property.PropertyType.Name})";
+                return _field?.FieldType.Name ?? _property.PropertyType.Name;
             }
 
             #endregion

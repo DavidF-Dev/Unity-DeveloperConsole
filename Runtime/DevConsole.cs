@@ -384,11 +384,12 @@ namespace DavidFDev.DevConsole
         /// <summary>
         ///     Set a tracked developer console stat that can be displayed on-screen.
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="func"></param>
-        public static void SetTrackedStat(string name, Func<object> func)
+        /// <param name="name">Identifier.</param>
+        /// <param name="func">Lambda function returning the stat's result that is displayed.</param>
+        /// <param name="startEnabled">Whether the stat should start enabled.</param>
+        public static void SetTrackedStat(string name, Func<object> func, bool startEnabled = true)
         {
-            _console.SetTrackedStat(name, func);
+            _console.SetTrackedStat(name, func, startEnabled);
         }
 
         /// <summary>
