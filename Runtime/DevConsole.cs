@@ -382,6 +382,26 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
+        ///     Set a tracked developer console stat that can be displayed on-screen.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="func"></param>
+        public static void SetTrackedStat(string name, Func<object> func)
+        {
+            _console.SetTrackedStat(name, func);
+        }
+
+        /// <summary>
+        ///     Remove a tracked developer console stat.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        public static bool RemoveTrackedStat(string name)
+        {
+            return _console.RemoveTrackedStat(name);
+        }
+
+        /// <summary>
         ///     Invoke an enumerator as a Unity coroutine. Useful for commands that may not have a reference to a MonoBehaviour.
         /// </summary>
         /// <param name="enumerator"></param>

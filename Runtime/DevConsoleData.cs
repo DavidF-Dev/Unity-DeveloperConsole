@@ -43,7 +43,14 @@ namespace DavidFDev.DevConsole
 
         public static T GetObject<T>(string key, T defaultValue)
         {
-            return !_data.ContainsKey(key) ? defaultValue : (T)_data[key];
+            try
+            {
+                return !_data.ContainsKey(key) ? defaultValue : (T)_data[key];
+            }
+            catch (Exception)
+            {
+                return defaultValue;
+            }
         }
 
         public static void Save()
@@ -75,6 +82,7 @@ namespace DavidFDev.DevConsole
 
             FileStream fs = new FileStream(FilePath, FileMode.Open);
             BinaryFormatter bf = new BinaryFormatter();
+            bool delete = false;
 
             try
             {
@@ -82,12 +90,17 @@ namespace DavidFDev.DevConsole
             }
             catch (Exception e)
             {
-                DevConsole.LogException(e);
-                DevConsole.LogError("Failed to load developer console preferences due an exception.");
+                Debug.LogException(e);
+                delete = true;
             }
             finally
             {
                 fs.Close();
+            }
+
+            if (delete)
+            {
+                File.Delete(FilePath);
             }
         }
 

@@ -405,9 +405,9 @@ namespace DavidFDev.DevConsole
 
         private bool _isDisplayingStats;
         private GUIStyle _statStyle;
-        private Dictionary<string, string> _stats = new Dictionary<string, string>();
+        private Dictionary<string, StatBase> _stats = new Dictionary<string, StatBase>();
         private HashSet<string> _hiddenStats = new HashSet<string>();
-        private Dictionary<string, string> _cachedStats = new Dictionary<string, string>();
+        private Dictionary<string, object> _cachedStats = new Dictionary<string, object>();
         private float _statUpdateTime;
 
         #endregion
@@ -1177,6 +1177,11 @@ namespace DavidFDev.DevConsole
             _init = false;
         }
 
+        private void Start()
+        {
+            InitMonoEvaluator();
+        }
+
         private void Update()
         {
             if (!ConsoleIsEnabled || !ConsoleIsShowing)
@@ -1405,7 +1410,7 @@ namespace DavidFDev.DevConsole
                 GUI.contentColor = oldContentColour;
             }
 
-            if (_isDisplayingStats && _stats.Any())
+            if (_isDisplayingStats && _monoEvaluator != null && _stats.Any())
             {
                 if (_statStyle == null)
                 {
@@ -1424,8 +1429,8 @@ namespace DavidFDev.DevConsole
                 GUI.backgroundColor = new Color(0f, 0f, 0f, 0.75f);
                 const float padding = 5f;
                 int num = 0;
-                InitMonoEvaluator();
 
+                // Check if should update the cached stats
                 bool updateCache = Time.time > _statUpdateTime;
                 if (updateCache)
                 {
@@ -1433,7 +1438,7 @@ namespace DavidFDev.DevConsole
                 }
 
                 // Create a label for each stat
-                foreach (KeyValuePair<string, string> stat in _stats)
+                foreach (KeyValuePair<string, StatBase> stat in _stats)
                 {
                     // Ignore if hidden
                     if (_hiddenStats.Contains(stat.Key))
@@ -1442,30 +1447,32 @@ namespace DavidFDev.DevConsole
                     }
 
                     // Determine stat result
-                    string result;
-                    if (!updateCache && _cachedStats.ContainsKey(stat.Key))
+                    object result;
+                    if (stat.Value is EvaluatedStat && !updateCache && _cachedStats.ContainsKey(stat.Key))
                     {
-                        // Note: updates very often
                         result = _cachedStats[stat.Key];
                     }
                     else
                     {
-                        // Note: updates once every now and then (according to StatUpdateRate)
                         try
                         {
-                            result = _monoEvaluator?.Evaluate(stat.Value).ToString() ?? null;
+                            result = stat.Value.GetResult(_monoEvaluator);
                         }
                         catch (Exception)
                         {
                             result = "ERROR";
                         }
 
-                        _cachedStats[stat.Key] = result;
+                        // Cache the stat if it should be cached
+                        if (stat.Value is EvaluatedStat)
+                        {
+                            _cachedStats[stat.Key] = result;
+                        }
                     }
 
                     // Set content
-                    string content = $"{stat.Key}: {result}";
-                    GUI.contentColor = result.Equals("ERROR") ? Color.red : Color.white;
+                    string content = $"{stat.Key}: {result ?? "NULL"}";
+                    GUI.contentColor = result.Equals("ERROR") ? Color.red : (result == null ? Color.yellow : Color.white);
 
                     // Determine label size
                     Vector2 size = _statStyle.CalcSize(new GUIContent(content));
@@ -2514,7 +2521,7 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    LogCollection(_stats, x => $"{x.Key}: {x.Value}{(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}");
+                    LogCollection(_stats, x => $"{x.Key}: {x.Value} ({x.Value.Desc}){(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}");
                 }
                 ));
 
@@ -2555,7 +2562,7 @@ namespace DavidFDev.DevConsole
                         expression += ";";
                     }
 
-                    _stats[name] = expression;
+                    _stats[name] = new EvaluatedStat(expression);
                     DevConsole.LogSuccess($"Successfully set {name} as a developer console stat.");
                 }
                 ));
@@ -3391,7 +3398,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefLogTextSize, LogTextSize);
             DevConsoleData.SetObject(PrefIncludedUsings, _includedUsings);
             DevConsoleData.SetObject(PrefShowStats, _isDisplayingStats);
-            DevConsoleData.SetObject(PrefStats, _stats);
+            DevConsoleData.SetObject(PrefStats, _stats.Where(x => x.Value is EvaluatedStat).ToDictionary(x => x.Key, x => ((EvaluatedStat)x.Value).Expression));
             DevConsoleData.SetObject(PrefHiddenStats, _hiddenStats);
 
             DevConsoleData.Save();
@@ -3417,7 +3424,10 @@ namespace DavidFDev.DevConsole
                 "System", "System.Linq", "UnityEngine", "UnityEngine.SceneManagement", "UnityEngine.UI"
             });
             _isDisplayingStats = DevConsoleData.GetObject(PrefShowStats, true);
-            _stats = DevConsoleData.GetObject(PrefStats, new Dictionary<string, string>());
+            foreach (KeyValuePair<string, string> stat in DevConsoleData.GetObject(PrefStats, new Dictionary<string, string>()))
+            {
+                _stats.Add(stat.Key, new EvaluatedStat(stat.Value));
+            }
             _hiddenStats = DevConsoleData.GetObject(PrefHiddenStats, new HashSet<string>());
 
             DevConsoleData.Clear();
@@ -3461,6 +3471,198 @@ namespace DavidFDev.DevConsole
         }
 
         #endregion
+
+        #region Stat methods
+
+        /// <summary>
+        ///     Set a tracked developer console stat to be displayed on-screen.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="func"></param>
+        internal void SetTrackedStat(string name, Func<object> func)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (func == null)
+            {
+                throw new ArgumentNullException(nameof(func));
+            }
+
+            _stats[name] = new LambdaStat(func);
+        }
+
+        /// <summary>
+        ///     Remove a tracked developer console stat.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        internal bool RemoveTrackedStat(string name)
+        {
+            if (!_stats.Remove(name))
+            {
+                return false;
+            }
+
+            _hiddenStats.Remove(name);
+            _cachedStats.Remove(name);
+            return true;
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Nested types
+
+        private abstract class StatBase
+        {
+            #region Properties
+
+            /// <summary>
+            ///     Short name describing the type of stat (e.g. Evaluated, Reflected, Lambda).
+            /// </summary>
+            public abstract string Desc { get; }
+
+            #endregion
+
+            #region Methods
+
+            /// <summary>
+            ///     Get the stat result object.
+            /// </summary>
+            /// <param name="evaluator"></param>
+            /// <returns></returns>
+            public abstract object GetResult(Evaluator evaluator);
+
+            public abstract override string ToString();
+
+            #endregion
+        }
+
+        private sealed class EvaluatedStat : StatBase
+        {
+            #region Constructors
+
+            public EvaluatedStat(string expression)
+            {
+                Expression = expression;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public override string Desc => "Evaluated";
+
+            public string Expression { get; }
+
+            #endregion
+
+            #region Methods
+
+            public override object GetResult(Evaluator evaluator)
+            {
+                return evaluator?.Evaluate(Expression) ?? null;
+            }
+
+            public override string ToString()
+            {
+                return Expression;
+            }
+
+            #endregion
+        }
+
+        private sealed class LambdaStat : StatBase
+        {
+            #region Fields
+
+            private readonly Func<object> _func;
+
+            #endregion
+
+            #region Constructors
+
+            public LambdaStat(Func<object> func)
+            {
+                _func = func;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public override string Desc => "Lambda";
+
+            #endregion
+
+            #region Methods
+
+            public override object GetResult(Evaluator _ = null)
+            {
+                return _func?.Invoke() ?? null;
+            }
+
+            public override string ToString()
+            {
+                return "Cannot be viewed";
+            }
+
+            #endregion
+        }
+
+        private sealed class ReflectedStat : StatBase
+        {
+            #region Fields
+
+            private readonly FieldInfo _field;
+
+            private readonly PropertyInfo _property;
+
+            #endregion
+
+            #region Constructors
+
+            public ReflectedStat(FieldInfo field)
+            {
+                _field = field;
+            }
+
+            public ReflectedStat(PropertyInfo property)
+            {
+                _property = property;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public override string Desc => "Reflected";
+
+            #endregion
+
+            #region Methods
+
+            public override object GetResult(Evaluator _ = null)
+            {
+                return _field?.GetValue(null) ?? _property?.GetValue(null);
+            }
+
+            public override string ToString()
+            {
+                if (_field != null)
+                {
+                    return $"{_field.Name} (field: {_field.FieldType.Name})";
+                }
+
+                return $"{_property.Name} (property: {_property.PropertyType.Name})";
+            }
+
+            #endregion
+        }
 
         #endregion
     }
