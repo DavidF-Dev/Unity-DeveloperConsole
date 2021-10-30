@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added user-defined developer console stats which are displayed on-screen.
 - Changed preferences file to be deleted when unable to load correctly.
 - Fixed exception not being caught when an issue occurs serialising or deserialising the preferences file.
-- Fixed exception not being caught when reading deserialising an object from the preferences file.
+- Fixed exception not being caught when deserialising an object from the preferences file.
 
 ## [1.0.0] - 2021-08-22
 - Initial major release.
