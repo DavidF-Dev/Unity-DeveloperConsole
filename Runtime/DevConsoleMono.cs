@@ -1468,7 +1468,7 @@ namespace DavidFDev.DevConsole
 
                     // Set content
                     string content = $"{stat.Key}: {result ?? "NULL"}";
-                    GUI.contentColor = result.Equals("ERROR") ? Color.red : (result == null ? Color.yellow : Color.white);
+                    GUI.contentColor = result == null ? Color.yellow : (result.Equals("ERROR") ? Color.red : Color.white);
 
                     // Determine label size
                     Vector2 size = _statStyle.CalcSize(new GUIContent(content));
