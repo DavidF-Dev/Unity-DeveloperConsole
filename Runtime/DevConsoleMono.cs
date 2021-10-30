@@ -2584,7 +2584,14 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
-                    RunCommand($"cs_evaluate {_stats[name]}");
+                    try
+                    {
+                        DevConsole.LogVariable(name, _stats[name].GetResult(_monoEvaluator) ?? "NULL");
+                    }
+                    catch (Exception e)
+                    {
+                        DevConsole.LogException(e);
+                    }
                 }
                 ));
 
