@@ -1160,6 +1160,7 @@ namespace DavidFDev.DevConsole
             InitBuiltInCommands();
             InitBuiltInParsers();
             InitAttributes();
+            InitMonoEvaluator();
 
             // Enable the console by default if in editor or a development build
             if (Debug.isDebugBuild)
@@ -1175,11 +1176,6 @@ namespace DavidFDev.DevConsole
             CloseConsole();
 
             _init = false;
-        }
-
-        private void Start()
-        {
-            InitMonoEvaluator();
         }
 
         private void Update()
@@ -2322,7 +2318,6 @@ namespace DavidFDev.DevConsole
                 Parameter.Create("expression", "The expression to evaluate"),
                 input =>
                 {
-                    InitMonoEvaluator();
                     try
                     {
                         if (!input.EndsWith(";"))
@@ -2360,7 +2355,6 @@ namespace DavidFDev.DevConsole
                 Parameter.Create("statement", "The statement to execute"),
                 input =>
                 {
-                    InitMonoEvaluator();
                     try
                     {
                         if (!input.EndsWith(";"))
@@ -2390,8 +2384,6 @@ namespace DavidFDev.DevConsole
                 "Display a list of all active using statements",
                 () =>
                 {
-                    InitMonoEvaluator();
-
                     string usings = _monoEvaluator.GetUsing();
 
                     if (string.IsNullOrEmpty(usings))
@@ -2412,8 +2404,6 @@ namespace DavidFDev.DevConsole
                 "Display a list of all local variables defined",
                 () =>
                 {
-                    InitMonoEvaluator();
-
                     string vars = _monoEvaluator.GetVars();
 
                     if (string.IsNullOrEmpty(vars))
@@ -2436,8 +2426,6 @@ namespace DavidFDev.DevConsole
                 Parameter.Create("enabled", "Whether the using statement is automatically included upon starting the developer console"),
                 (usingName, enabled) =>
                 {
-                    InitMonoEvaluator();
-
                     if (enabled)
                     {
                         if (_includedUsings.Contains(usingName))
