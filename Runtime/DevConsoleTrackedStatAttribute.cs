@@ -23,9 +23,25 @@ namespace DavidFDev.DevConsole
             StartEnabled = startEnabled;
         }
 
+        /// <summary>
+        ///     Track a field or property and have it displayed on-screen.
+        /// </summary>
+        /// <param name="name">Custom name to use for the tracked stat.</param>
+        /// <param name="startEnabled">Whether to have the stat displayed by default.</param>
+        public DevConsoleTrackedStatAttribute(string name, bool startEnabled = true)
+        {
+            Name = name;
+            StartEnabled = startEnabled;
+        }
+
         #endregion
 
         #region Properties
+
+        /// <summary>
+        ///     Custom name to use for the tracked stat, otherwise use the target name.
+        /// </summary>
+        public string Name { get; }
 
         /// <summary>
         ///     Whether the stat is displayed by default.

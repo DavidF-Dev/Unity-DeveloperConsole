@@ -42,7 +42,7 @@ namespace DavidFDev.DevConsole
         #region Static fields and constants
 
         private const string ErrorColour = "#E99497";
-        private const string WarningColour = "#B3E283";
+        private const string WarningColour = "#DEBF1F";
         private const string SuccessColour = "#B3E283";
         private const string ClearLogText = "Type <b>devconsole</b> for instructions on how to use the developer console.";
         private const int MaximumTextVertices = 64000;
@@ -56,6 +56,8 @@ namespace DavidFDev.DevConsole
         private const int MaxCachedEnumTypes = 6;
         private const float FpsUpdateRate = 4f;
         private const float StatUpdateRate = 0.1f;
+        private const int StatDefaultFontSize = 18;
+        private const string MonoNotSupportedText = "C# expression evaluation is not supported on this platform.";
 
         #region Input constants
 
@@ -107,6 +109,7 @@ namespace DavidFDev.DevConsole
         private const string PrefShowStats = "DevConsole.displayStats";
         private const string PrefStats = "DevConsole.stats";
         private const string PrefHiddenStats = "DevConsole.hiddenStats";
+        private const string PrefStatsFontSize = "DevConsole.statsFontSize";
 
         #endregion
 
@@ -377,7 +380,7 @@ namespace DavidFDev.DevConsole
         private readonly List<Type> _cacheEnumTypes = new List<Type>(MaxCachedEnumTypes);
 
         /// <summary>
-        ///     Evaluator used by "cs_evaluate" and "cs_run" to execuet C# expressions or statements.
+        ///     Evaluator used by "cs_evaluate" and "cs_run" to execute C# expressions or statements.
         /// </summary>
         private Evaluator _monoEvaluator = null;
 
@@ -409,6 +412,8 @@ namespace DavidFDev.DevConsole
         private HashSet<string> _hiddenStats = new HashSet<string>();
         private Dictionary<string, object> _cachedStats = new Dictionary<string, object>();
         private float _statUpdateTime;
+        private int _statFontSize = StatDefaultFontSize;
+        private int _oldStatFontSize = StatDefaultFontSize;
 
         #endregion
 
@@ -1175,6 +1180,11 @@ namespace DavidFDev.DevConsole
             ClearConsole();
             CloseConsole();
 
+            if (_monoEvaluator == null)
+            {
+                LogWarning($"Some features may not be available: {MonoNotSupportedText}");
+            }
+
             _init = false;
         }
 
@@ -1406,17 +1416,19 @@ namespace DavidFDev.DevConsole
                 GUI.contentColor = oldContentColour;
             }
 
-            if (_isDisplayingStats && _monoEvaluator != null && _stats.Any())
+            if (_isDisplayingStats && _stats.Any())
             {
-                if (_statStyle == null)
+                if (_statStyle == null || _statFontSize != _oldStatFontSize)
                 {
                     // Create the style
                     _statStyle = new GUIStyle(GUI.skin.box)
                     {
                         alignment = TextAnchor.MiddleCenter,
-                        fontSize = 18,
+                        fontSize = _statFontSize,
                         normal = { textColor = Color.white, background = Texture2D.whiteTexture }
                     };
+
+                    _oldStatFontSize = _statFontSize;
                 }
 
                 // Initialise
@@ -1468,7 +1480,7 @@ namespace DavidFDev.DevConsole
 
                     // Set content
                     string content = $"{stat.Key}: {result ?? "NULL"}";
-                    GUI.contentColor = result == null ? Color.yellow : (result.Equals("ERROR") ? Color.red : Color.white);
+                    GUI.contentColor = result == null ? Color.yellow : ((result.Equals("ERROR") || result.Equals(MonoNotSupportedText)) ? Color.red : Color.white);
 
                     // Determine label size
                     Vector2 size = _statStyle.CalcSize(new GUIContent(content));
@@ -2318,6 +2330,12 @@ namespace DavidFDev.DevConsole
                 Parameter.Create("expression", "The expression to evaluate"),
                 input =>
                 {
+                    if (_monoEvaluator == null)
+                    {
+                        DevConsole.LogError(MonoNotSupportedText);
+                        return;
+                    }
+
                     try
                     {
                         if (!input.EndsWith(";"))
@@ -2325,7 +2343,7 @@ namespace DavidFDev.DevConsole
                             input += ";";
                         }
 
-                        object result = _monoEvaluator?.Evaluate(input) ?? null;
+                        object result = _monoEvaluator.Evaluate(input);
 
                         if (result == null)
                         {
@@ -2355,6 +2373,12 @@ namespace DavidFDev.DevConsole
                 Parameter.Create("statement", "The statement to execute"),
                 input =>
                 {
+                    if (_monoEvaluator == null)
+                    {
+                        DevConsole.LogError(MonoNotSupportedText);
+                        return;
+                    }
+
                     try
                     {
                         if (!input.EndsWith(";"))
@@ -2362,7 +2386,7 @@ namespace DavidFDev.DevConsole
                             input += ";";
                         }
 
-                        if (_monoEvaluator?.Run(input) ?? false)
+                        if (_monoEvaluator.Run(input))
                         {
                             LogSuccess("Successfully executed the C# expression or statement.");
                         }
@@ -2384,6 +2408,12 @@ namespace DavidFDev.DevConsole
                 "Display a list of all active using statements",
                 () =>
                 {
+                    if (_monoEvaluator == null)
+                    {
+                        DevConsole.LogError(MonoNotSupportedText);
+                        return;
+                    }
+
                     string usings = _monoEvaluator.GetUsing();
 
                     if (string.IsNullOrEmpty(usings))
@@ -2404,6 +2434,12 @@ namespace DavidFDev.DevConsole
                 "Display a list of all local variables defined",
                 () =>
                 {
+                    if (_monoEvaluator == null)
+                    {
+                        DevConsole.LogError(MonoNotSupportedText);
+                        return;
+                    }
+
                     string vars = _monoEvaluator.GetVars();
 
                     if (string.IsNullOrEmpty(vars))
@@ -2516,16 +2552,18 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create(
                 "stats_list",
                 "",
-                "Display a list of the stored developer console stats that can be displayed on-screen",
+                "Display a list of the tracked developer console stats that can be displayed on-screen",
                 () =>
                 {
                     if (!_stats.Any())
                     {
-                        DevConsole.Log($"There are no stored developer console stats. Use {GetCommand("stats_set").GetFormattedName()} to set one up.");
+                        DevConsole.Log($"There are no tracked developer console stats. Use {GetCommand("stats_set").GetFormattedName()} to set one up.");
                         return;
                     }
 
-                    LogCollection(_stats, x => $"{x.Key}: {x.Value} ({x.Value.Desc}){(_hiddenStats.Contains(x.Key) ? " [Disabled]" : "")}.");
+                    LogSeperator("Tracked developer console stats");
+                    LogCollection(_stats, x => $"<b>{x.Key}:</b> {x.Value} ({x.Value.Desc}){(_hiddenStats.Contains(x.Key) ? " <i>[Disabled]</i>" : "")}.");
+                    LogSeperator();
                 }
                 ));
 
@@ -2645,6 +2683,25 @@ namespace DavidFDev.DevConsole
 
                     DevConsole.LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} the on-screen developer console stats display for {name}.");
                 }
+                ));
+
+            AddCommand(Command.Create<int>(
+                "stats_fontsize",
+                "",
+                "Query or set the font size of the tracked developer console stats",
+                Parameter.Create("fontSize", $"Size of the font (default: {StatDefaultFontSize})"),
+                f =>
+                {
+                    if (f <= 0)
+                    {
+                        LogError("Font size must be non-zero and positive.");
+                        return;
+                    }
+
+                    _statFontSize = f;
+                    LogSuccess($"Set the stats font size to {_statFontSize} (was {_oldStatFontSize}).");
+                },
+                () => LogVariable("Stats font size", _statFontSize)
                 ));
 
             #endregion
@@ -2866,7 +2923,7 @@ namespace DavidFDev.DevConsole
                                 continue;
                             }
 
-                            string name = $"var_{field.Name}";
+                            string name = attribute.Name ?? field.Name;
                             _stats[name] = new ReflectedStat(field);
                             if (!attribute.StartEnabled)
                             {
@@ -2882,7 +2939,7 @@ namespace DavidFDev.DevConsole
                                 continue;
                             }
 
-                            string name = $"var_{property.Name}";
+                            string name = attribute.Name ?? property.Name;
                             _stats[name] = new ReflectedStat(property);
                             if (!attribute.StartEnabled)
                             {
@@ -3443,6 +3500,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefShowStats, _isDisplayingStats);
             DevConsoleData.SetObject(PrefStats, _stats.Where(x => x.Value is EvaluatedStat).ToDictionary(x => x.Key, x => ((EvaluatedStat)x.Value).Expression));
             DevConsoleData.SetObject(PrefHiddenStats, new HashSet<string>(_hiddenStats.Where(x => _stats.Keys.Contains(x))));
+            DevConsoleData.SetObject(PrefStatsFontSize, _statFontSize);
 
             DevConsoleData.Save();
         }
@@ -3472,6 +3530,7 @@ namespace DavidFDev.DevConsole
                 _stats.Add(stat.Key, new EvaluatedStat(stat.Value));
             }
             _hiddenStats = DevConsoleData.GetObject(PrefHiddenStats, new HashSet<string>());
+            _statFontSize = _oldStatFontSize = DevConsoleData.GetObject(PrefStatsFontSize, StatDefaultFontSize);
 
             DevConsoleData.Clear();
         }
@@ -3490,26 +3549,33 @@ namespace DavidFDev.DevConsole
                 return;
             }
 
-            CompilerSettings settings = new CompilerSettings();
-
-            // Add assembly references to the settings
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            try
             {
-                if (assembly == null)
+                CompilerSettings settings = new CompilerSettings();
+
+                // Add assembly references to the settings
+                foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
                 {
-                    continue;
+                    if (assembly == null)
+                    {
+                        continue;
+                    }
+
+                    settings.AssemblyReferences.Add(assembly.FullName);
                 }
 
-                settings.AssemblyReferences.Add(assembly.FullName);
+                CompilerContext context = new CompilerContext(settings, new ConsoleReportPrinter());
+                _monoEvaluator = new Evaluator(context);
+
+                // Add the included using statements
+                foreach (string includedUsing in _includedUsings)
+                {
+                    _monoEvaluator.Run($"using {includedUsing};");
+                }
             }
-
-            CompilerContext context = new CompilerContext(settings, new ConsoleReportPrinter());
-            _monoEvaluator = new Evaluator(context);
-
-            // Add the included using statements
-            foreach (string includedUsing in _includedUsings)
+            catch (Exception)
             {
-                _monoEvaluator.Run($"using {includedUsing};");
+                _monoEvaluator = null;
             }
         }
 
@@ -3627,6 +3693,11 @@ namespace DavidFDev.DevConsole
 
             public override object GetResult(Evaluator evaluator)
             {
+                if (evaluator == null)
+                {
+                    return MonoNotSupportedText;
+                }
+
                 return evaluator?.Evaluate(Expression) ?? null;
             }
 
