@@ -110,6 +110,7 @@ namespace DavidFDev.DevConsole
         private const string PrefStats = "DevConsole.stats";
         private const string PrefHiddenStats = "DevConsole.hiddenStats";
         private const string PrefStatsFontSize = "DevConsole.statsFontSize";
+        private const string PrefPersistStats = "DevConsole.persistStats";
 
         #endregion
 
@@ -408,9 +409,10 @@ namespace DavidFDev.DevConsole
 
         private bool _isDisplayingStats;
         private GUIStyle _statStyle;
-        private Dictionary<string, StatBase> _stats = new Dictionary<string, StatBase>();
+        private readonly Dictionary<string, StatBase> _stats = new Dictionary<string, StatBase>();
         private HashSet<string> _hiddenStats = new HashSet<string>();
-        private Dictionary<string, object> _cachedStats = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> _cachedStats = new Dictionary<string, object>();
+        private List<string> _persistStats = new List<string>();
         private float _statUpdateTime;
         private int _statFontSize = StatDefaultFontSize;
         private int _oldStatFontSize = StatDefaultFontSize;
@@ -1166,6 +1168,7 @@ namespace DavidFDev.DevConsole
             InitBuiltInParsers();
             InitAttributes();
             InitMonoEvaluator();
+            _persistStats.Clear();
 
             // Enable the console by default if in editor or a development build
             if (Debug.isDebugBuild)
@@ -2925,7 +2928,7 @@ namespace DavidFDev.DevConsole
 
                             string name = attribute.Name ?? field.Name;
                             _stats[name] = new ReflectedStat(field);
-                            if (!attribute.StartEnabled)
+                            if (!attribute.StartEnabled && !_persistStats.Contains(name))
                             {
                                 _hiddenStats.Add(name);
                             }
@@ -2941,7 +2944,7 @@ namespace DavidFDev.DevConsole
 
                             string name = attribute.Name ?? property.Name;
                             _stats[name] = new ReflectedStat(property);
-                            if (!attribute.StartEnabled)
+                            if (!attribute.StartEnabled && !_persistStats.Contains(name))
                             {
                                 _hiddenStats.Add(name);
                             }
@@ -3501,6 +3504,7 @@ namespace DavidFDev.DevConsole
             DevConsoleData.SetObject(PrefStats, _stats.Where(x => x.Value is EvaluatedStat).ToDictionary(x => x.Key, x => ((EvaluatedStat)x.Value).Expression));
             DevConsoleData.SetObject(PrefHiddenStats, new HashSet<string>(_hiddenStats.Where(x => _stats.Keys.Contains(x))));
             DevConsoleData.SetObject(PrefStatsFontSize, _statFontSize);
+            DevConsoleData.SetObject(PrefPersistStats, _stats.Where(x => !(x.Value is EvaluatedStat) && !_hiddenStats.Contains(x.Key)).Select(x => x.Key).ToList());
 
             DevConsoleData.Save();
         }
@@ -3531,6 +3535,7 @@ namespace DavidFDev.DevConsole
             }
             _hiddenStats = DevConsoleData.GetObject(PrefHiddenStats, new HashSet<string>());
             _statFontSize = _oldStatFontSize = DevConsoleData.GetObject(PrefStatsFontSize, StatDefaultFontSize);
+            _persistStats = DevConsoleData.GetObject(PrefPersistStats, new List<string>());
 
             DevConsoleData.Clear();
         }
