@@ -415,7 +415,6 @@ namespace DavidFDev.DevConsole
         private List<string> _persistStats = new List<string>();
         private float _statUpdateTime;
         private int _statFontSize = StatDefaultFontSize;
-        private int _oldStatFontSize = StatDefaultFontSize;
 
         #endregion
 
@@ -1399,13 +1398,13 @@ namespace DavidFDev.DevConsole
 
             if (_isDisplayingFps)
             {
-                if (_fpsStyle == null)
+                if (_fpsStyle == null || _statFontSize != _statStyle.fontSize)
                 {
                     // Create the style
                     _fpsStyle = new GUIStyle(GUI.skin.box)
                     {
                         alignment = TextAnchor.MiddleCenter,
-                        fontSize = 20,
+                        fontSize = _statFontSize,
                         normal = { textColor = Color.white, background = Texture2D.whiteTexture }
                     };
 
@@ -1421,7 +1420,7 @@ namespace DavidFDev.DevConsole
 
                 // Create label
                 GUI.Box(
-                    new Rect(10, 10, _fpsLabelSize.x + 10f, _fpsLabelSize.y + 10f),
+                    new Rect(10f, 10f, _fpsLabelSize.x + 10f, _fpsLabelSize.y + 10f),
                     $"{_fpsMs:0.00} ms ({_fps:0.} fps)",
                     _fpsStyle);
 
@@ -1431,7 +1430,7 @@ namespace DavidFDev.DevConsole
 
             if (_isDisplayingStats && _stats.Any())
             {
-                if (_statStyle == null || _statFontSize != _oldStatFontSize)
+                if (_statStyle == null || _statFontSize != _statStyle.fontSize)
                 {
                     // Create the style
                     _statStyle = new GUIStyle(GUI.skin.box)
@@ -1440,8 +1439,6 @@ namespace DavidFDev.DevConsole
                         fontSize = _statFontSize,
                         normal = { textColor = Color.white, background = Texture2D.whiteTexture }
                     };
-
-                    _oldStatFontSize = _statFontSize;
                 }
 
                 // Initialise
@@ -1449,6 +1446,7 @@ namespace DavidFDev.DevConsole
                 Color oldContentColour = GUI.contentColor;
                 GUI.backgroundColor = new Color(0f, 0f, 0f, 0.75f);
                 const float padding = 5f;
+                float startY = (padding * 2f) + (_isDisplayingFps ? (_fpsLabelSize.y + 10f) : 0f);
                 int num = 0;
 
                 // Check if should update the cached stats
@@ -1500,7 +1498,7 @@ namespace DavidFDev.DevConsole
 
                     // Create the label
                     GUI.Box(
-                        new Rect(10, 50 + ((num * (size.y + 10f + padding)) + padding), size.x + 10f, size.y + 10f),
+                        new Rect(10, startY + ((num * (size.y + 10f + padding)) + padding), size.x + 10f, size.y + 10f),
                         content,
                         _statStyle);
 
@@ -1893,37 +1891,6 @@ namespace DavidFDev.DevConsole
                 "Display the path to the application executable",
                 () => LogVariable("Application path", AppDomain.CurrentDomain.BaseDirectory)
             ));
-
-            AddCommand(Command.Create<bool?>(
-                "showfps",
-                "displayfps",
-                "Query or set whether the fps is being displayed on-screen",
-                Parameter.Create("enabled", "Whether the fps is being displayed on-screen (use \"NULL\" to toggle)"),
-                b =>
-                {
-                    if (!b.HasValue)
-                    {
-                        b = !_isDisplayingFps;
-                    }
-
-                    if (b != _isDisplayingFps)
-                    {
-                        _isDisplayingFps = !_isDisplayingFps;
-
-                        if (_isDisplayingFps)
-                        {
-                            _fps = 0;
-                            _fpsMs = 0f;
-                            _fpsDeltaTime = 0f;
-                            _fpsElapsed = 0f;
-                            _fpsStyle = null;
-                        }
-                    }
-
-                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} the on-screen fps.");
-                },
-                () => LogVariable("Show fps", _isDisplayingFps)
-                ));
 
             #endregion
 
@@ -2562,6 +2529,37 @@ namespace DavidFDev.DevConsole
                 }
                 ));
 
+            AddCommand(Command.Create<bool?>(
+                "stats_showfps",
+                "stats_displayfps,showfps,displayfps",
+                "Query or set whether the fps is being displayed on-screen",
+                Parameter.Create("enabled", "Whether the fps is being displayed on-screen (use \"NULL\" to toggle)"),
+                b =>
+                {
+                    if (!b.HasValue)
+                    {
+                        b = !_isDisplayingFps;
+                    }
+
+                    if (b != _isDisplayingFps)
+                    {
+                        _isDisplayingFps = !_isDisplayingFps;
+
+                        if (_isDisplayingFps)
+                        {
+                            _fps = 0;
+                            _fpsMs = 0f;
+                            _fpsDeltaTime = 0f;
+                            _fpsElapsed = 0f;
+                            _fpsStyle = null;
+                        }
+                    }
+
+                    LogSuccess($"{(b.Value ? "Enabled" : "Disabled")} the on-screen fps.");
+                },
+                () => LogVariable("Show fps", _isDisplayingFps)
+                ));
+
             AddCommand(Command.Create(
                 "stats_list",
                 "",
@@ -2701,7 +2699,7 @@ namespace DavidFDev.DevConsole
             AddCommand(Command.Create<int>(
                 "stats_fontsize",
                 "",
-                "Query or set the font size of the tracked developer console stats",
+                "Query or set the font size of the tracked developer console stats & fps display",
                 Parameter.Create("fontSize", $"Size of the font (default: {StatDefaultFontSize})"),
                 f =>
                 {
@@ -2711,8 +2709,9 @@ namespace DavidFDev.DevConsole
                         return;
                     }
 
+                    int oldStatFontSize = _statFontSize;
                     _statFontSize = f;
-                    LogSuccess($"Set the stats font size to {_statFontSize} (was {_oldStatFontSize}).");
+                    LogSuccess($"Set the stats font size to {_statFontSize} (was {oldStatFontSize}).");
                 },
                 () => LogVariable("Stats font size", _statFontSize)
                 ));
@@ -3544,7 +3543,7 @@ namespace DavidFDev.DevConsole
                 _stats.Add(stat.Key, new EvaluatedStat(stat.Value));
             }
             _hiddenStats = DevConsoleData.GetObject(PrefHiddenStats, new HashSet<string>());
-            _statFontSize = _oldStatFontSize = DevConsoleData.GetObject(PrefStatsFontSize, StatDefaultFontSize);
+            _statFontSize = DevConsoleData.GetObject(PrefStatsFontSize, StatDefaultFontSize);
             _persistStats = DevConsoleData.GetObject(PrefPersistStats, new List<string>());
 
             DevConsoleData.Clear();
