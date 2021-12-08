@@ -693,6 +693,14 @@ namespace DavidFDev.DevConsole
 
             if (command == null)
             {
+                // No command found, try to evaluate as C# expression
+                string expressionResult = TryEvaluateInput(rawInput);
+                if (!string.IsNullOrEmpty(expressionResult))
+                {
+                    Log(expressionResult);
+                    return false;
+                }
+
                 LogError($"Could not find the specified command: \"{input[0]}\".");
                 return false;
             }
@@ -3590,6 +3598,28 @@ namespace DavidFDev.DevConsole
             catch (Exception)
             {
                 _monoEvaluator = null;
+            }
+        }
+
+        /// <summary>
+        ///     Attempt to evaluate user input as an evaluation.
+        /// </summary>
+        /// <param name="rawInput"></param>
+        /// <returns></returns>
+        private string TryEvaluateInput(string rawInput)
+        {
+            if (_monoEvaluator == null)
+            {
+                return null;
+            }
+
+            try
+            {
+                return _monoEvaluator.Evaluate(rawInput + ";")?.ToString() ?? null;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

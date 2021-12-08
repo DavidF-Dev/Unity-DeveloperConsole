@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Added properties for accessing the current average fps and milliseconds per frame.
+- Changed cs_evaluate to also work without the command name being specified.
 - Changed stats_fontsize command to also affect the fps display.
 - Fixed stats created via the custom attribute not restoring display status between sessions.
 - Fixed font size issue in console input for commands with a long signature.
