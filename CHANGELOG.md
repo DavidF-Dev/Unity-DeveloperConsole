@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - Fixed stats created via the custom attribute not restoring display status between sessions.
+- Fixed font size issue in console input for commands with a long signature.
 
 ## [1.0.3] - 2021-10-31
 - Added notice in developer console when C# evaluation is not supported.
