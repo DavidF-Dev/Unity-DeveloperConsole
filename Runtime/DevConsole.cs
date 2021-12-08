@@ -86,13 +86,23 @@ namespace DavidFDev.DevConsole
         }
 
         /// <summary>
-        ///     The key used to toggle the dev console window, NULL if no key.
+        ///     Key used to toggle the dev console window, NULL if no key.
         /// </summary>
         public static InputKey? ToggleKey
         {
             get => _console.ConsoleToggleKey;
             set => _console.ConsoleToggleKey = value;
         }
+
+        /// <summary>
+        ///     Current average FPS. -1 if the fps is not being calculated.
+        /// </summary>
+        public static int AverageFps => _console.AverageFps;
+
+        /// <summary>
+        ///     Current average milliseconds per frame (in seconds). -1 if the fps is not being calculated.
+        /// </summary>
+        public static float AverageMs => _console.AverageMs;
 
         #endregion
 

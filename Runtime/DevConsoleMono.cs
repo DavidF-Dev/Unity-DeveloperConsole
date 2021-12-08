@@ -449,6 +449,16 @@ namespace DavidFDev.DevConsole
         internal bool BindingsIsEnabled { get; set; } = true;
 
         /// <summary>
+        ///     Average fps. -1 if fps is not being calcualted.
+        /// </summary>
+        internal int AverageFps => _isDisplayingFps ? _fps : -1;
+
+        /// <summary>
+        ///     Average ms per frame. -1 if fps is not being calculated.
+        /// </summary>
+        internal float AverageMs => _isDisplayingFps ? _fpsMs : -1f;
+
+        /// <summary>
         ///     The text entered by the user in the input field.
         /// </summary>
         private string InputText
