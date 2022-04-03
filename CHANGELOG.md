@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2022-04-03
+- Fixed issue with fps display (https://github.com/DavidF-Dev/Unity-DeveloperConsole/issues/3)
+
 ## [1.0.4] - 2021-12-09
 - Added properties for accessing the current average fps and milliseconds per frame.
 - Changed cs_evaluate to also work without the command name being specified.

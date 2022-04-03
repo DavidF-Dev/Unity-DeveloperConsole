@@ -114,7 +114,7 @@ namespace DavidFDev.DevConsole
 
         #endregion
 
-        private static readonly Version _version = new Version(1, 0, 4);
+        private static readonly Version _version = new Version(1, 0, 5);
         private static readonly string[] _permanentCommands =
         {
             "devconsole", "commands", "help", "print", "clear", "reset", "bind", "unbind", "bindings"
@@ -1406,7 +1406,7 @@ namespace DavidFDev.DevConsole
 
             if (_isDisplayingFps)
             {
-                if (_fpsStyle == null || _statFontSize != _statStyle.fontSize)
+                if (_fpsStyle == null || _statFontSize != _fpsStyle.fontSize)
                 {
                     // Create the style
                     _fpsStyle = new GUIStyle(GUI.skin.box)
