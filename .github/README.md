@@ -7,6 +7,14 @@ The asset is completely free, but if you'd like to show support you can [buy me 
 
 <img src="/.github/preview2.gif" alt="Developer console preview" width="72%"></img>
 
+## !!! Development notice !!!
+**This asset is no longer in active development**, so use at your own risk.
+
+If you are searching for an alternative, I can highly recommend [Quantum Console](https://www.qfsw.co.uk/docs/QC/articles/quickstart/quickstart.html). I have been using it in a few of my projects.
+
+I am proud of my achievements developing this asset, but I unfortunately don't have the time to maintain or extend it. I may archive the repository at some point in the future.
+Feel free to continue using the asset, or create a Fork of the source for your own needs, adhering to the license.
+
 ## Setup
 Simply import the package into your project and you're good to go. No additional setup is required.
 - Download directly from the [releases](https://github.com/DavidF-Dev/Unity-DeveloperConsole/releases) tab & import in Unity (<i>Assets>Import Package</i>).
@@ -134,11 +142,10 @@ private void CheckGameInput()
 
 <b>Q. This isn't quite what I'm after</b></br>
 A. There are alternatives available by other developers - each slightly different. If this one doesn't meet your needs, then maybe one of theirs will:
+- [Quantum Console](https://www.qfsw.co.uk/docs/QC/articles/quickstart/quickstart.html)
 - [yasirkula's Unity In-game Debug Console](https://github.com/yasirkula/UnityIngameDebugConsole).
 - [popcron's Unity Console](https://github.com/popcron/console)
 - [piveclabs' In-game Console](https://docs.piveclabs.com/assets-for-unity/developer-tools-for-unity/in-game-console)
-
-Otherwise, feel free to send me a message if there's a feature you'd like to see added to this asset.
 
 ## Acknowledgements
 - [@exdli](https://twitter.com/exdli/status/14063908189448642653) for help with supporting both input systems.
